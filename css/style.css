@@ -1,0 +1,38 @@
+.map {
+	border: 3px solid #999;
+	margin: 10px 0 0 20px;
+}
+
+.countries {
+	fill: black;
+	stroke: #CCC;
+	stroke-width: 2px;
+}
+
+.regions {
+	stroke: #000;
+	stroke-width: 0.5px;
+	stroke-linecap: round;
+}
+
+/*.sphere {
+    fill: #fff;
+}*/
+
+/*.country-borders {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}*/
+
+.gratBackground {
+	fill: #D5E3FF;
+}
+
+.gratLines {
+	fill: none;
+	stroke: #999;
+	stroke-width: 1px;
+}
