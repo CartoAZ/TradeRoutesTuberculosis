@@ -3,18 +3,43 @@
 	margin: 10px 0 0 20px;
 }
 
+/*map polygons*/
+
 .countries {
-	fill: black;
+	fill: none;
 	stroke: #CCC;
+	stroke-width: 1px;
+}
+
+/*world health organization regions*/
+
+.who_regions {
+	stroke: #aaa;
+	opacity: 0.5;
 	stroke-width: 2px;
 }
 
-.regions {
-	stroke: #000;
-	stroke-width: 0.5px;
-	stroke-linecap: round;
+#European {
+	fill: #ABADFF;
+	stroke: #aaa;
+	opacity: 0.5;
 }
 
+#South_East_Asia {
+	fill: #85FF03;
+}
+
+#Western_Pacific {
+	fill: #FF8C03;
+}
+
+#Eastern_Mediterranean {
+	fill: #0AFCD2;
+}
+
+#African {
+	fill: #FFFF3B;
+}
 /*.sphere {
     fill: #fff;
 }*/

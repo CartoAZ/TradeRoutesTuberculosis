@@ -99,16 +99,24 @@
                 })
                 .attr("d", path)
 
+            //add countries to map
+            var who_regions = g.selectAll(".who_regions")
+               .data(whoRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "who_regions")
+                .attr("id", function(d){
+                    return d.properties.WHO_Region
+                })
+                .attr("d", path)
+
             // zoom and pan
             var zoom = d3.behavior.zoom()
                 .on("zoom",function() {
                     g.attr("transform","translate("+
                         d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                    // g.selectAll("circle")
-                    //     .attr("d", path.projection(projection));
                     g.selectAll("path")
                         .attr("d", path.projection(projection));
-
               });
 
             map.call(zoom)
