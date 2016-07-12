@@ -21,13 +21,14 @@
         var q = d3_queue.queue();
 
         q
-            .defer(d3.json, "data/Countries.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/WHO_Regions.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Polygons/Countries.topojson")//load countries outline spatial data
+            .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Routes/SilkRoad.topojson")//load silk road polyline
+            .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData){
-            // console.log(countryData);
-            // console.log(whoRegionsData);
+        function callback(error, countryData, whoRegionsData, silkRoadData, tradeHubData){
+            // console.log(silkRoadData);
 
             //place graticule on the map
         		// setGraticule(map, path);
@@ -36,19 +37,27 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries).features,
                 whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
 
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
+
+            //convert topojsons into geojson objects; coastLine is an array full of objects
+            var silkRoad = topojson.feature(silkRoadData, silkRoadData.objects["SilkRoad"]).features;
+
+            // console.log(silkRoad);
+
             //set default height and width of map
-            var mapWidth = window.innerWidth * 0.9,
-          		  mapHeight = 600;
+            var mapWidth = window.innerWidth * 0.75,
+          		  mapHeight = 500;
 
             //set projection of map
             var projection = d3.geo.mercator()
-                .center([153, 30])
-                .scale(200)
+                .center([130, 10])
+                .scale(230)
                 // .rotate([0,0]);
 
             // Create a path generator
             var path = d3.geo.path()
-                .projection(projection);
+                .projection(projection)
+                .pointRadius(2);
 
             //create new svg container for the map
             var map = d3.select("body").append("svg")
@@ -63,7 +72,6 @@
             // //translate countries topojson for non-zoom
             // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
             //     whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
-            console.log(countryJson);
             // //add countries to map
         		// var countries = map.append("g")
         		// 	 .attr("class", "countries")
@@ -109,6 +117,46 @@
                     return d.properties.WHO_Region
                 })
                 .attr("d", path)
+
+                console.log(tradeHubJson);
+            // var tradeHubs = g.selectAll(".tradeHubs")
+            //     .data(tradeHubJson)
+            //     .enter()
+            //   .append("path")
+            //     .attr("class", "tradeHubs")
+            //     .attr("d", path)
+
+            console.log("hello");
+            var tradeHubs = g.append("path")
+                .datum(tradeHubJson)
+                .attr("class", "tradeHubs")
+                .attr("d", path)
+                // .attr("id", function(d){console.log(d);})
+
+
+
+            //draw silk road
+            var activeCoast = g.append("g")
+                .attr("class", "silk_road")
+              .selectAll("path")
+                .data(silkRoadData)
+                .enter()
+              .append("path")
+                .attr("d", path)
+
+                // .attr("id", function(d){
+                //   return "c" + d.properties.ID;
+                // })
+                // .style("stroke", function(d){
+                //     return choropleth(d.properties, colorScale);
+                // })
+                // .on("mouseover", function(d){
+                //     highlightLine(d.properties, expressed);
+                // })
+                // .on("mouseout", function(d){
+                //     dehighlightLine(d.properties, colorScale);
+                // });
+
 
             // zoom and pan
             var zoom = d3.behavior.zoom()

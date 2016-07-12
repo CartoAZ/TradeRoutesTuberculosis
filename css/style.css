@@ -37,6 +37,14 @@
 		fill: #FFFF3B;
 }
 
+/*trade hubs*/
+
+.tradeHubs {
+		pointRadius: 1px;
+		fill: #aaa;
+		stroke: #222;
+}
+
 /*.sphere {
     fill: #fff;
 }*/
