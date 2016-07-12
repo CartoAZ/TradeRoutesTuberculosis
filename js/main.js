@@ -99,6 +99,17 @@
                 })
                 .attr("d", path)
 
+            //add world health organization regions to map
+            var who_regions = g.selectAll(".who_regions")
+               .data(whoRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "who_regions")
+                .attr("id", function(d){
+                    return d.properties.WHO_Region
+                })
+                .attr("d", path)
+
             // zoom and pan
             var zoom = d3.behavior.zoom()
                 .on("zoom",function() {

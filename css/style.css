@@ -1,18 +1,40 @@
 .map {
-	border: 3px solid #999;
-	margin: 10px 0 0 20px;
+		border: 3px solid #999;
+		margin: 10px 0 0 20px;
 }
 
 .countries {
-	fill: black;
-	stroke: #CCC;
-	stroke-width: 2px;
+		fill: none;
+		stroke: #CCC;
+		stroke-width: 1px;
 }
 
-.regions {
-	stroke: #000;
-	stroke-width: 0.5px;
-	stroke-linecap: round;
+/*who regions*/
+
+.who_regions {
+		stroke: #AAA;
+		stroke-width: 2px;
+		opacity: 0.5;
+}
+
+#European {
+		fill: #ABADFF;
+}
+
+#Western_Pacific {
+		fill: #FF8C03;
+}
+
+#South_East_Asia {
+		fill: #85FF0D;
+}
+
+#Eastern_Mediterranean {
+		fill: #0AFCD2;
+}
+
+#African {
+		fill: #FFFF3B;
 }
 
 /*.sphere {
