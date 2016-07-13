@@ -40,9 +40,23 @@
 /*trade hubs*/
 
 .tradeHubs {
-		pointRadius: 1px;
-		fill: #aaa;
+		fill: #ccc;
 		stroke: #222;
+}
+
+.exactIsolates {
+		fill: #333;
+}
+
+.randomIsolates {
+		fill: #aaa;
+}
+
+/*routes*/
+
+.silkRoad {
+		stroke: red;
+		fill: none;
 }
 
 /*.sphere {

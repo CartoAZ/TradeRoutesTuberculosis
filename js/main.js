@@ -25,9 +25,12 @@
             .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
             .defer(d3.json, "data/Routes/SilkRoad.topojson")//load silk road polyline
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
+            .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
+            .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
+
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData, silkRoadData, tradeHubData){
+        function callback(error, countryData, whoRegionsData, silkRoadData, tradeHubData, exactData, randomData){
             // console.log(silkRoadData);
 
             //place graticule on the map
@@ -39,6 +42,10 @@
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
 
+            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
+
+            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
+            console.log(silkRoadData);
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var silkRoad = topojson.feature(silkRoadData, silkRoadData.objects["SilkRoad"]).features;
 
@@ -50,7 +57,7 @@
 
             //set projection of map
             var projection = d3.geo.mercator()
-                .center([130, 10])
+                .center([80, 10])
                 .scale(230)
                 // .rotate([0,0]);
 
@@ -118,28 +125,28 @@
                 })
                 .attr("d", path)
 
-                console.log(tradeHubJson);
-            // var tradeHubs = g.selectAll(".tradeHubs")
-            //     .data(tradeHubJson)
-            //     .enter()
-            //   .append("path")
-            //     .attr("class", "tradeHubs")
-            //     .attr("d", path)
-
-            console.log("hello");
             var tradeHubs = g.append("path")
                 .datum(tradeHubJson)
                 .attr("class", "tradeHubs")
                 .attr("d", path)
-                // .attr("id", function(d){console.log(d);})
+
+            var exactIsolates = g.append("path")
+                .datum(exactJson)
+                .attr("class", "exactIsolates")
+                .attr("d", path)
+
+            var randomIsolates = g.append("path")
+                .datum(randomJson)
+                .attr("class", "randomIsolates")
+                .attr("d", path)
 
 
-
+                console.log(silkRoadData);
             //draw silk road
-            var activeCoast = g.append("g")
-                .attr("class", "silk_road")
+            var silkRoad = g.append("g")
+                .attr("class", "silkRoad")
               .selectAll("path")
-                .data(silkRoadData)
+                .data(silkRoad)
                 .enter()
               .append("path")
                 .attr("d", path)
