@@ -55,8 +55,60 @@
 /*routes*/
 
 .silkRoad {
-		stroke: red;
+		stroke: #ff3a3c;
 		fill: none;
+		stroke-width: 2px;
+}
+
+.europe {
+		stroke: #3c7e1f;
+		fill: none;
+}
+
+.medMaritime {
+		stroke: #86c4f0;
+		fill: none;
+}
+
+.chinaImperial {
+		stroke: #f680b4;
+		fill: none;
+}
+
+.northSilk {
+		stroke: #b2981f;
+		fill: none;
+}
+
+.southSilk {
+		stroke: #fba3ed;
+		fill: none;
+}
+
+.europeMaritime {
+		stroke: #8ae0d4;
+		fill: none;
+}
+
+.pacific {
+		stroke: #f09c70;
+		fill: none;
+}
+
+.westAfrica {
+		stroke: #6e8b8d;
+		fill: none;
+}
+
+.eastAfrica {
+		stroke: #d1908e;
+		fill: none;
+}
+
+.maritimeSilk {
+		stroke: #1f4ae9;
+		fill: none;
+		stroke-width: 2px;
 }
 
 /*.sphere {

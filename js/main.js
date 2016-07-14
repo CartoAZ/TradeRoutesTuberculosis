@@ -23,14 +23,14 @@
         q
             .defer(d3.json, "data/Polygons/Countries.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
-            .defer(d3.json, "data/Routes/SilkRoad.topojson")//load silk road polyline
+            .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
 
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData, silkRoadData, tradeHubData, exactData, randomData){
+        function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData){
             // console.log(silkRoadData);
 
             //place graticule on the map
@@ -45,11 +45,11 @@
             var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
 
             var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
-            console.log(silkRoadData);
+            console.log(tradeRouteData);
             //convert topojsons into geojson objects; coastLine is an array full of objects
-            var silkRoad = topojson.feature(silkRoadData, silkRoadData.objects["SilkRoad"]).features;
+            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
-            // console.log(silkRoad);
+            console.log(tradeRouteJson);
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -140,17 +140,19 @@
                 .attr("class", "randomIsolates")
                 .attr("d", path)
 
-
-                console.log(silkRoadData);
-            //draw silk road
-            var silkRoad = g.append("g")
-                .attr("class", "silkRoad")
+            //draw trade routes
+            var tradeRoutes = g.append("g")
+                .attr("class", "tradeRoutes")
               .selectAll("path")
-                .data(silkRoad)
+                .data(tradeRouteJson)
                 .enter()
               .append("path")
                 .attr("d", path)
+                .attr("class", function(d){
+                  console.log(d.properties.RouteShort);
 
+                  return d.properties.RouteShort
+                })
                 // .attr("id", function(d){
                 //   return "c" + d.properties.ID;
                 // })
