@@ -27,10 +27,11 @@
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
+            .defer(d3.json, "data/Polygons/LineageFrequency.topojson")//load lineage frequencies
 
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData){
+        function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
             // console.log(silkRoadData);
 
             //place graticule on the map
@@ -45,11 +46,11 @@
             var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
 
             var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
-            console.log(tradeRouteData);
+
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
-            console.log(tradeRouteJson);
+            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -75,6 +76,9 @@
             //create group element to hold everything on map for zooming/panning purposes
             var g = map.append("g");
 
+            var colorScale = makeColorScale();
+
+            var expressed = "per14_Lin2"
 
             // //translate countries topojson for non-zoom
             // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
@@ -114,16 +118,16 @@
                 })
                 .attr("d", path)
 
-            //add world health organization regions to map
-            var who_regions = g.selectAll(".who_regions")
-               .data(whoRegionsJson)
-               .enter()
-             .append("path")
-                .attr("class", "who_regions")
-                .attr("id", function(d){
-                    return d.properties.WHO_Region
-                })
-                .attr("d", path)
+            // //add world health organization regions to map
+            // var who_regions = g.selectAll(".who_regions")
+            //    .data(whoRegionsJson)
+            //    .enter()
+            //  .append("path")
+            //     .attr("class", "who_regions")
+            //     .attr("id", function(d){
+            //         return d.properties.WHO_Region
+            //     })
+            //     .attr("d", path)
 
             var tradeHubs = g.append("path")
                 .datum(tradeHubJson)
@@ -149,8 +153,6 @@
               .append("path")
                 .attr("d", path)
                 .attr("class", function(d){
-                  console.log(d.properties.RouteShort);
-
                   return d.properties.RouteShort
                 })
                 // .attr("id", function(d){
@@ -166,6 +168,21 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
+            //add countries to map
+            var lineage1 = g.selectAll(".lineage1")
+               .data(linFreqJson)
+               .enter()
+             .append("path")
+                .attr("class", "lineage1")
+                .attr("id", function(d){
+                    return d.properties.sovereignt
+                })
+                .style("fill", function(d){
+                    console.log(d.properties.sovereignt)
+                    console.log(d.properties[expressed]);
+                    return choropleth(d.properties, colorScale, expressed)
+                })
+                .attr("d", path)
 
             // zoom and pan
             var zoom = d3.behavior.zoom()
@@ -198,50 +215,75 @@
     };
 
 
-function setEnumerationUnits(franceRegions, map, path){
+function makeColorScale(){
+    //array of hex colors to be used for choropleth range
+    var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
 
-  	//add France regions to map
-  	var regions = map.selectAll(".regions")
-  		.data(franceRegions)
-  		.enter()
-  		.append("path")
-  		.attr("class", function(d){
-  			return "regions " + d.properties.adm1_code;
-  		})
-  		.attr("d", path)
-  		.style("fill", function(d){
-  			return choropleth(d.properties, colorScale);
-  		})
-  		.on("mouseover", function(d){
-  			highlight(d.properties);
-  		})
-  		.on("mouseout", function(d){
-  			dehighlight(d.properties);
-  		})
-  		.on("mousemove", moveLabel);
+    //create color scale generator; quantize divides domain by length of range
+    var colorScale = d3.scale.quantize()
+        .domain([1, 100])
+        .range(colorClasses);
 
-  	//add style descriptor to each path
-  	var desc = regions.append("desc")
-  		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
+    return colorScale;
+}
+
+//function to test for data value and return color
+function choropleth(props, colorScale, expressed){
+  	//make sure attribute value is a number
+  	var val = parseFloat(props[expressed]);
+    console.log(val);
+  	//if attribute value exists, assign a color; otherwise assign gray
+  	if (val && val != 0){
+    		return colorScale(val);
+  	} else {
+    		return "#ddd";
+  	};
 };
-function setGraticule(map, path){
-	//create graticule generator
-	var graticule = d3.geo.graticule()
-		.step([5, 5]); //place graticule lines every 5 degrees of longitude and latitude
 
-	//create graticule background
-	var gratBackground = map.append("path")
-		.datum(graticule.outline()) //bind graticule background
-		.attr("class", "gratBackground") //assign class for styling
-		.attr("d", path) //project graticule
-
-	//create graticule lines
-	var gratLines = map.selectAll(".gratLines") //select graticule elements that will be created
-		.data(graticule.lines()) //bind graticule lines to each element to be created
-	  	.enter() //create an element for each datum
-		.append("path") //append each element to the svg as a path element
-		.attr("class", "gratLines") //assign class for styling
-		.attr("d", path); //project graticule lines
-};
+// function setEnumerationUnits(franceRegions, map, path){
+//
+//   	//add France regions to map
+//   	var regions = map.selectAll(".regions")
+//   		.data(franceRegions)
+//   		.enter()
+//   		.append("path")
+//   		.attr("class", function(d){
+//   			return "regions " + d.properties.adm1_code;
+//   		})
+//   		.attr("d", path)
+//   		.style("fill", function(d){
+//   			return choropleth(d.properties, colorScale);
+//   		})
+//   		.on("mouseover", function(d){
+//   			highlight(d.properties);
+//   		})
+//   		.on("mouseout", function(d){
+//   			dehighlight(d.properties);
+//   		})
+//   		.on("mousemove", moveLabel);
+//
+//   	//add style descriptor to each path
+//   	var desc = regions.append("desc")
+//   		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
+// };
+// function setGraticule(map, path){
+// 	//create graticule generator
+// 	var graticule = d3.geo.graticule()
+// 		.step([5, 5]); //place graticule lines every 5 degrees of longitude and latitude
+//
+// 	//create graticule background
+// 	var gratBackground = map.append("path")
+// 		.datum(graticule.outline()) //bind graticule background
+// 		.attr("class", "gratBackground") //assign class for styling
+// 		.attr("d", path) //project graticule
+//
+// 	//create graticule lines
+// 	var gratLines = map.selectAll(".gratLines") //select graticule elements that will be created
+// 		.data(graticule.lines()) //bind graticule lines to each element to be created
+// 	  	.enter() //create an element for each datum
+// 		.append("path") //append each element to the svg as a path element
+// 		.attr("class", "gratLines") //assign class for styling
+// 		.attr("d", path); //project graticule lines
+// };
 
 // });
