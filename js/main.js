@@ -52,6 +52,8 @@
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
 
+            var dropdownMenu = createDropdown(linFreqJson)
+
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
           		  mapHeight = 500;
@@ -78,7 +80,7 @@
 
             var colorScale = makeColorScale();
 
-            var expressed = "per14_Lin2"
+            var expressed = "per14_Lin2";
 
             // //translate countries topojson for non-zoom
             // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
@@ -169,20 +171,23 @@
                 // });
 
             //add countries to map
-            var lineage1 = g.selectAll(".lineage1")
+            var lineageFrequencies = g.selectAll(".lineageFrequencies")
                .data(linFreqJson)
                .enter()
              .append("path")
-                .attr("class", "lineage1")
+                .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
                     return d.properties.sovereignt
                 })
                 .style("fill", function(d){
-                    console.log(d.properties.sovereignt)
-                    console.log(d.properties[expressed]);
                     return choropleth(d.properties, colorScale, expressed)
                 })
                 .attr("d", path)
+            //function to create a dropdown menu to add/remove trade routes
+            createRouteMenu(tradeRouteJson);
+
+            //function to create a dropdown menu to add/remove trade routes
+            createLinFreqMenu(tradeRouteJson);
 
             // zoom and pan
             var zoom = d3.behavior.zoom()
@@ -231,7 +236,6 @@ function makeColorScale(){
 function choropleth(props, colorScale, expressed){
   	//make sure attribute value is a number
   	var val = parseFloat(props[expressed]);
-    console.log(val);
   	//if attribute value exists, assign a color; otherwise assign gray
   	if (val && val != 0){
     		return colorScale(val);
@@ -240,6 +244,144 @@ function choropleth(props, colorScale, expressed){
   	};
 };
 
+//creates dropdown menu
+function createDropdown(data){
+    //array for option values in dropdown
+    var lineageValArray = ["per14_Lin1", "per14_Lin2", "per14_Lin3", "per14_Lin4"]
+
+    //array for display text in dropdown
+    var lineageTextArray = ["Lineage 1", "Lineage 2", "Lineage 3", "Lineage 4"]
+
+    //testing if dropdown already exists to prevent duplicate creation
+    if(d3.select(".dropdown").empty() == true){
+        //add select element
+        var dropdown = d3.select("body")
+            .append("select")
+            .attr("class", "dropdown")
+            .on("change", function(){
+                changeAttribute(this.value, data)
+            });
+
+
+        var attrOptions = dropdown.selectAll(".attrOptions")
+            .data(lineageValArray)
+            .enter()
+          .append("option")
+            .attr("class", "attrOptions")
+            .attr("value", function(d){ return d })
+            .text(function(d, i){ return lineageTextArray[i] });
+    }
+};
+
+//dropdown change listener handler
+function changeAttribute(attribute, data){
+
+    //change expressed Attribute
+    expressed = attribute;
+    //recreate the color scale
+    var colorScale = makeColorScale(data);
+
+    //recolor enumeration units
+    var lineage = d3.selectAll(".lineageFrequencies")
+        .transition()
+        .duration(500)
+        .style("fill", function(d){
+            return choropleth(d.properties, colorScale, expressed);
+        });
+};
+
+function createRouteMenu(tradeRouteJson) {
+    var routeObjArray = [
+        {
+          text: 'Silk Road',
+          value: 'silkRoad'
+        },
+        {
+          text: 'Maritime Silk',
+          value: 'maritimeSilk'
+        },
+        {
+          text: 'Europe',
+          value: 'europe'
+        },
+        {
+          text: 'East Africa',
+          value: 'eastAfrica'
+        },
+        {
+          text: 'West Africa',
+          value: 'westAfrica'
+        },
+        {
+          text: 'Mediterranean Maritime',
+          value: 'medMaritime'
+        },
+        {
+          text: 'China Imperial',
+          value: 'chinaImperial'
+        },
+        {
+          text: 'Northern Minor Silk',
+          value: 'northSilk'
+        },
+        {
+          text: 'Southern Minor Silk',
+          value: 'southSilk'
+        },
+        {
+          text: 'Pacific Maritime',
+          value: 'pacific'
+        }
+    ]
+
+    //creates the selection menu
+    var overlaySelect = d3.select("body")
+        .append("select")
+        .attr("id", "overlaySelect")
+        .attr("name", "overlaySelect")
+        .attr("multiple", "multiple")
+
+    //create options for trade routes
+    var routeOptions = overlaySelect.selectAll(".routeOptions")
+        .data(routeObjArray)
+        .enter()
+      .append("option")
+        .attr("class", "routeOptions")
+        .attr("value", function(d){ return d.value })
+        .text(function(d){ return d.text });
+
+    //customize multiselect
+    $("#overlaySelect").multiselect( //sets default options
+        {
+            noneSelectedText: "Add or Remove Trade Routes",
+            selectedList: false,
+            selectedText: "Add or Remove Trade Routes"
+        }
+    ).multiselect("checkAll") //checks all routes by default
+    .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
+        if (ui.checked === true) {
+          d3.selectAll("." + ui.value)
+              .attr("visibility", "visible")
+        } else {
+            d3.selectAll("." + ui.value)
+                .attr("visibility", "hidden")
+        }
+    })
+    .on("multiselectcheckall", function(event, ui) { //adds all routes to map
+        for (i=0; i<routeObjArray.length; i++) {
+            var route = routeObjArray[i].value
+            d3.selectAll("." + route)
+              .attr("visibility", "visible")
+        }
+    })
+    .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
+        for (i=0; i<routeObjArray.length; i++) {
+            var route = routeObjArray[i].value
+            d3.selectAll("." + route)
+              .attr("visibility", "hidden")
+        }
+    })
+}
 // function setEnumerationUnits(franceRegions, map, path){
 //
 //   	//add France regions to map
