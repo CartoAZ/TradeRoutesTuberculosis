@@ -130,7 +130,7 @@ g .tradeRoutes {
 
 /*lineage frequency overlays*/
 .lineageFrequencies {
-		z-index: 1;
+		z-index: -1;
 }
 
 /*dropdown menu for lineage frequencies*/

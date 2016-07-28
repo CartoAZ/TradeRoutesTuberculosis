@@ -52,7 +52,7 @@
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
 
-            var dropdownMenu = createDropdown(linFreqJson)
+            // var dropdownMenu = createDropdown(linFreqJson)
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -79,8 +79,6 @@
             var g = map.append("g");
 
             var colorScale = makeColorScale();
-
-            var expressed = "per14_Lin2";
 
             // //translate countries topojson for non-zoom
             // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
@@ -179,15 +177,13 @@
                 .attr("id", function(d){
                     return d.properties.sovereignt
                 })
-                .style("fill", function(d){
-                    return choropleth(d.properties, colorScale, expressed)
-                })
+                .style("fill", "none")
                 .attr("d", path)
             //function to create a dropdown menu to add/remove trade routes
             createRouteMenu(tradeRouteJson);
 
-            //function to create a dropdown menu to add/remove trade routes
-            createLinFreqMenu(tradeRouteJson);
+            //function to create a dropdown menu to add/remove lineage frequencies
+            createLinFreqMenu();
 
             // zoom and pan
             var zoom = d3.behavior.zoom()
@@ -244,52 +240,102 @@ function choropleth(props, colorScale, expressed){
   	};
 };
 
-//creates dropdown menu
-function createDropdown(data){
-    //array for option values in dropdown
-    var lineageValArray = ["per14_Lin1", "per14_Lin2", "per14_Lin3", "per14_Lin4"]
+// //creates dropdown menu
+// function createDropdown(data){
+//     //array for option values in dropdown
+//     var lineageValArray = ["per14_Lin1", "per14_Lin2", "per14_Lin3", "per14_Lin4"]
+//
+//     //array for display text in dropdown
+//     var lineageTextArray = ["Lineage 1", "Lineage 2", "Lineage 3", "Lineage 4"]
+//
+//     //testing if dropdown already exists to prevent duplicate creation
+//     if(d3.select(".dropdown").empty() == true){
+//         //add select element
+//         var dropdown = d3.select("body")
+//             .append("select")
+//             .attr("class", "dropdown")
+//             .on("change", function(){
+//                 changeAttribute(this.value, data)
+//             });
+//
+//
+//         var attrOptions = dropdown.selectAll(".attrOptions")
+//             .data(lineageValArray)
+//             .enter()
+//           .append("option")
+//             .attr("class", "attrOptions")
+//             .attr("value", function(d){ return d })
+//             .text(function(d, i){ return lineageTextArray[i] });
+//     }
+// };
 
-    //array for display text in dropdown
-    var lineageTextArray = ["Lineage 1", "Lineage 2", "Lineage 3", "Lineage 4"]
+function createLinFreqMenu() {
 
-    //testing if dropdown already exists to prevent duplicate creation
-    if(d3.select(".dropdown").empty() == true){
-        //add select element
-        var dropdown = d3.select("body")
-            .append("select")
-            .attr("class", "dropdown")
-            .on("change", function(){
-                changeAttribute(this.value, data)
-            });
+  //array of objects for option values in dropdown
+    var linObjArray = [
+        {
+          text: 'Lineage Frequency Overlays',
+          value: 'defaultLineageOption'
+        },
+        {
+          text: 'Lineage 1',
+          value: 'per14_Lin1'
+        },
+        {
+          text: 'Lineage 2',
+          value: 'per14_Lin2'
+        },
+        {
+          text: 'Lineage 3',
+          value: 'per14_Lin3'
+        },{
+          text: 'Lineage 4',
+          value: 'per14_Lin4'
+        },
+    ]
 
+    //creates the selection menu
+    var linSelect = d3.select("body")
+        .append("select")
+        .attr("id", "linSelect")
+        .attr("name", "linSelect")
 
-        var attrOptions = dropdown.selectAll(".attrOptions")
-            .data(lineageValArray)
-            .enter()
-          .append("option")
-            .attr("class", "attrOptions")
-            .attr("value", function(d){ return d })
-            .text(function(d, i){ return lineageTextArray[i] });
-    }
-};
+    //create options for trade routes
+    var linOptions = linSelect.selectAll(".linOptions")
+        .data(linObjArray)
+        .enter()
+      .append("option")
+        .attr("class", "linOptions")
+        .attr("value", function(d){ return d.value })
+        .attr("id", function(d){ return d.value })
+        .text(function(d){ return d.text });
+    //set attributes specific to default option
+    d3.select("#defaultLineageOption")
+        .attr("disabled", "true")
+        .attr("selected", "true")
+    //initialize select menu
+    $("#linSelect").selectmenu({
+        change: function(event, ui) {
 
-//dropdown change listener handler
-function changeAttribute(attribute, data){
+            var lineage = ui.item.value;
 
-    //change expressed Attribute
-    expressed = attribute;
-    //recreate the color scale
-    var colorScale = makeColorScale(data);
+            drawLineageFrequency(lineage)
+        }
+    })
+}
 
-    //recolor enumeration units
+function drawLineageFrequency(expressed) {
+    //create the color scale
+    var colorScale = makeColorScale();
+
     var lineage = d3.selectAll(".lineageFrequencies")
         .transition()
-        .duration(500)
+        .duration(800)
         .style("fill", function(d){
-            return choropleth(d.properties, colorScale, expressed);
-        });
-};
+            return choropleth(d.properties, colorScale, expressed)
+        })
 
+}
 function createRouteMenu(tradeRouteJson) {
     var routeObjArray = [
         {
@@ -335,14 +381,14 @@ function createRouteMenu(tradeRouteJson) {
     ]
 
     //creates the selection menu
-    var overlaySelect = d3.select("body")
+    var routeSelect = d3.select("body")
         .append("select")
-        .attr("id", "overlaySelect")
-        .attr("name", "overlaySelect")
+        .attr("id", "routeSelect")
+        .attr("name", "routeSelect")
         .attr("multiple", "multiple")
 
     //create options for trade routes
-    var routeOptions = overlaySelect.selectAll(".routeOptions")
+    var routeOptions = routeSelect.selectAll(".routeOptions")
         .data(routeObjArray)
         .enter()
       .append("option")
@@ -351,7 +397,7 @@ function createRouteMenu(tradeRouteJson) {
         .text(function(d){ return d.text });
 
     //customize multiselect
-    $("#overlaySelect").multiselect( //sets default options
+    $("#routeSelect").multiselect( //sets default options
         {
             noneSelectedText: "Add or Remove Trade Routes",
             selectedList: false,
