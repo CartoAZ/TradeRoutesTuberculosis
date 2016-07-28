@@ -21,13 +21,17 @@
         var q = d3_queue.queue();
 
         q
-            .defer(d3.json, "data/Countries.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/WHO_Regions.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Polygons/Countries.topojson")//load countries outline spatial data
+            .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
+            .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
+            .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
+            .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
+
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData){
-            // console.log(countryData);
-            // console.log(whoRegionsData);
+        function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData){
+            // console.log(silkRoadData);
 
             //place graticule on the map
         		// setGraticule(map, path);
@@ -36,19 +40,31 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries).features,
                 whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
 
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
+
+            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
+
+            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
+            console.log(tradeRouteData);
+            //convert topojsons into geojson objects; coastLine is an array full of objects
+            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
+
+            console.log(tradeRouteJson);
+
             //set default height and width of map
-            var mapWidth = window.innerWidth * 0.9,
-          		  mapHeight = 600;
+            var mapWidth = window.innerWidth * 0.75,
+          		  mapHeight = 500;
 
             //set projection of map
             var projection = d3.geo.mercator()
-                .center([153, 30])
-                .scale(200)
+                .center([80, 10])
+                .scale(230)
                 // .rotate([0,0]);
 
             // Create a path generator
             var path = d3.geo.path()
-                .projection(projection);
+                .projection(projection)
+                .pointRadius(2);
 
             //create new svg container for the map
             var map = d3.select("body").append("svg")
@@ -63,7 +79,6 @@
             // //translate countries topojson for non-zoom
             // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
             //     whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
-            console.log(countryJson);
             // //add countries to map
         		// var countries = map.append("g")
         		// 	 .attr("class", "countries")
@@ -98,6 +113,59 @@
                     return d.properties.Country
                 })
                 .attr("d", path)
+
+            //add world health organization regions to map
+            var who_regions = g.selectAll(".who_regions")
+               .data(whoRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "who_regions")
+                .attr("id", function(d){
+                    return d.properties.WHO_Region
+                })
+                .attr("d", path)
+
+            var tradeHubs = g.append("path")
+                .datum(tradeHubJson)
+                .attr("class", "tradeHubs")
+                .attr("d", path)
+
+            var exactIsolates = g.append("path")
+                .datum(exactJson)
+                .attr("class", "exactIsolates")
+                .attr("d", path)
+
+            var randomIsolates = g.append("path")
+                .datum(randomJson)
+                .attr("class", "randomIsolates")
+                .attr("d", path)
+
+            //draw trade routes
+            var tradeRoutes = g.append("g")
+                .attr("class", "tradeRoutes")
+              .selectAll("path")
+                .data(tradeRouteJson)
+                .enter()
+              .append("path")
+                .attr("d", path)
+                .attr("class", function(d){
+                  console.log(d.properties.RouteShort);
+
+                  return d.properties.RouteShort
+                })
+                // .attr("id", function(d){
+                //   return "c" + d.properties.ID;
+                // })
+                // .style("stroke", function(d){
+                //     return choropleth(d.properties, colorScale);
+                // })
+                // .on("mouseover", function(d){
+                //     highlightLine(d.properties, expressed);
+                // })
+                // .on("mouseout", function(d){
+                //     dehighlightLine(d.properties, colorScale);
+                // });
+
 
             // zoom and pan
             var zoom = d3.behavior.zoom()

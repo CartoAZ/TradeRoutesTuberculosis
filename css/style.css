@@ -1,18 +1,114 @@
 .map {
-	border: 3px solid #999;
-	margin: 10px 0 0 20px;
+		border: 3px solid #999;
+		margin: 10px 0 0 20px;
 }
 
 .countries {
-	fill: black;
-	stroke: #CCC;
-	stroke-width: 2px;
+		fill: none;
+		stroke: #CCC;
+		stroke-width: 1px;
 }
 
-.regions {
-	stroke: #000;
-	stroke-width: 0.5px;
-	stroke-linecap: round;
+/*who regions*/
+
+.who_regions {
+		stroke: #AAA;
+		stroke-width: 2px;
+		opacity: 0.5;
+}
+
+#European {
+		fill: #ABADFF;
+}
+
+#Western_Pacific {
+		fill: #FF8C03;
+}
+
+#South_East_Asia {
+		fill: #85FF0D;
+}
+
+#Eastern_Mediterranean {
+		fill: #0AFCD2;
+}
+
+#African {
+		fill: #FFFF3B;
+}
+
+/*trade hubs*/
+
+.tradeHubs {
+		fill: #ccc;
+		stroke: #222;
+}
+
+.exactIsolates {
+		fill: #333;
+}
+
+.randomIsolates {
+		fill: #aaa;
+}
+
+/*routes*/
+
+.silkRoad {
+		stroke: #ff3a3c;
+		fill: none;
+		stroke-width: 2px;
+}
+
+.europe {
+		stroke: #3c7e1f;
+		fill: none;
+}
+
+.medMaritime {
+		stroke: #86c4f0;
+		fill: none;
+}
+
+.chinaImperial {
+		stroke: #f680b4;
+		fill: none;
+}
+
+.northSilk {
+		stroke: #b2981f;
+		fill: none;
+}
+
+.southSilk {
+		stroke: #fba3ed;
+		fill: none;
+}
+
+.europeMaritime {
+		stroke: #8ae0d4;
+		fill: none;
+}
+
+.pacific {
+		stroke: #f09c70;
+		fill: none;
+}
+
+.westAfrica {
+		stroke: #6e8b8d;
+		fill: none;
+}
+
+.eastAfrica {
+		stroke: #d1908e;
+		fill: none;
+}
+
+.maritimeSilk {
+		stroke: #1f4ae9;
+		fill: none;
+		stroke-width: 2px;
 }
 
 /*.sphere {
