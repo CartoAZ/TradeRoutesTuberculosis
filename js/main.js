@@ -44,7 +44,8 @@
           value: 'pacific'
         }
     ]
-
+    var menubar = d3.select("body").append("div")
+        .attr("id", "menubar")
 
     function setMap(){
 
@@ -340,8 +341,7 @@ function createLinFreqMenu() {
     ]
 
     //creates the selection menu
-    var linSelect = d3.select("body")
-        .append("select")
+    var linSelect = d3.select("#menubar").append("select")
         .attr("id", "linSelect")
         .attr("name", "linSelect")
 
@@ -426,8 +426,7 @@ function createRouteMenu(tradeRouteJson) {
     // ]
 
     //creates the selection menu
-    var routeSelect = d3.select("body")
-        .append("select")
+    var routeSelect = d3.select("body").append("select")
         .attr("id", "routeSelect")
         .attr("name", "routeSelect")
         .attr("multiple", "multiple")

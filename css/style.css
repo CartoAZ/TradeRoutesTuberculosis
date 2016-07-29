@@ -145,10 +145,6 @@ ul {
 		z-index: 10;
 }
 
-#legendDiv {
-		float: right;
-}
-
 #legendContainer {
     height: 300px;
 		width: 20%;
@@ -186,6 +182,24 @@ ul {
     font-size: 12px;
     fill: #555;
 }
+
+#linSelect {
+    position: absolute;
+		right: 0;
+}
+
+#routeSelect {
+		position: absolute;
+		top:0;
+		right: 10;
+}
+
+#menubar {
+		float: right;
+		width: 100%;
+		height: 20px;
+}
+
 /*.dropdown {
     position: absolute;
     top: 20px;
