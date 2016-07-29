@@ -2,6 +2,49 @@
 
     //execute script when window is loaded
     window.onload = setMap();
+    var routeObjArray = [
+        {
+          text: 'Silk Road',
+          value: 'silkRoad'
+        },
+        {
+          text: 'Maritime Silk',
+          value: 'maritimeSilk'
+        },
+        {
+          text: 'Europe',
+          value: 'europe'
+        },
+        {
+          text: 'East Africa',
+          value: 'eastAfrica'
+        },
+        {
+          text: 'West Africa',
+          value: 'westAfrica'
+        },
+        {
+          text: 'Mediterranean Maritime',
+          value: 'medMaritime'
+        },
+        {
+          text: 'China Imperial',
+          value: 'chinaImperial'
+        },
+        {
+          text: 'Northern Minor Silk',
+          value: 'northSilk'
+        },
+        {
+          text: 'Southern Minor Silk',
+          value: 'southSilk'
+        },
+        {
+          text: 'Pacific Maritime',
+          value: 'pacific'
+        }
+    ]
+
 
     function setMap(){
 
@@ -185,6 +228,8 @@
             //function to create a dropdown menu to add/remove lineage frequencies
             createLinFreqMenu();
 
+            createLegend();
+
             // zoom and pan
             var zoom = d3.behavior.zoom()
                 .on("zoom",function() {
@@ -337,48 +382,48 @@ function drawLineageFrequency(expressed) {
 
 }
 function createRouteMenu(tradeRouteJson) {
-    var routeObjArray = [
-        {
-          text: 'Silk Road',
-          value: 'silkRoad'
-        },
-        {
-          text: 'Maritime Silk',
-          value: 'maritimeSilk'
-        },
-        {
-          text: 'Europe',
-          value: 'europe'
-        },
-        {
-          text: 'East Africa',
-          value: 'eastAfrica'
-        },
-        {
-          text: 'West Africa',
-          value: 'westAfrica'
-        },
-        {
-          text: 'Mediterranean Maritime',
-          value: 'medMaritime'
-        },
-        {
-          text: 'China Imperial',
-          value: 'chinaImperial'
-        },
-        {
-          text: 'Northern Minor Silk',
-          value: 'northSilk'
-        },
-        {
-          text: 'Southern Minor Silk',
-          value: 'southSilk'
-        },
-        {
-          text: 'Pacific Maritime',
-          value: 'pacific'
-        }
-    ]
+    // var routeObjArray = [
+    //     {
+    //       text: 'Silk Road',
+    //       value: 'silkRoad'
+    //     },
+    //     {
+    //       text: 'Maritime Silk',
+    //       value: 'maritimeSilk'
+    //     },
+    //     {
+    //       text: 'Europe',
+    //       value: 'europe'
+    //     },
+    //     {
+    //       text: 'East Africa',
+    //       value: 'eastAfrica'
+    //     },
+    //     {
+    //       text: 'West Africa',
+    //       value: 'westAfrica'
+    //     },
+    //     {
+    //       text: 'Mediterranean Maritime',
+    //       value: 'medMaritime'
+    //     },
+    //     {
+    //       text: 'China Imperial',
+    //       value: 'chinaImperial'
+    //     },
+    //     {
+    //       text: 'Northern Minor Silk',
+    //       value: 'northSilk'
+    //     },
+    //     {
+    //       text: 'Southern Minor Silk',
+    //       value: 'southSilk'
+    //     },
+    //     {
+    //       text: 'Pacific Maritime',
+    //       value: 'pacific'
+    //     }
+    // ]
 
     //creates the selection menu
     var routeSelect = d3.select("body")
@@ -428,6 +473,192 @@ function createRouteMenu(tradeRouteJson) {
         }
     })
 }
+
+// function createLegend() {
+//
+//     var legendDiv = d3.select("body").append("div")
+//         .attr("id", "legendDiv")
+//         .attr("width", window.innerWidth * 0.2)
+//         .attr("height", "400px");
+//     var legendSvg = legendDiv.append("svg")
+//         .attr("id", "legendSvg")
+//         .attr("width", window.innerWidth * 0.18)
+//         .attr("height", "300px");
+//
+//
+//
+//       //set variables to define spacing/size
+//       var rectHeight = 1,
+//           rectWidth = 20,
+//           legendSpacing = 4;
+//       //color classes array
+//       var colorClasses = [];
+//
+//       var legendTextArray = [];
+//
+//       // for loop retrieving stroke color of each route for the legend
+//       for (i=0; i<routeObjArray.length; i++) {
+//           var routeText = routeObjArray[i].text
+//           //current route in loop
+//           var routeVal = routeObjArray[i].value
+//           //pull color from stroke of route
+//           var color = d3.select("." + routeVal).style("stroke")
+//           //add color to colorclasses array
+//           colorClasses.push(color)
+//
+//           legendTextArray.push(routeText)
+//           // create new property in routeObjArray for the color; easier to build legend using one array
+//           routeObjArray[i].color = color
+//       }
+//
+//       var ordinal = d3.scale.ordinal()
+//           .domain(routeText)
+//           .range(colorClasses)
+//
+//       var legend = legendSvg.append("g")
+//           .attr("class","legend")
+//           .attr("transform","translate(50,30)")
+//           .style("font-size","12px")
+//
+//
+//       var legendColor = d3.legend.color()
+//           .shape("path", d3.svg.symbol().type("triangle-up").size(150)())
+//           .shapePadding(10)
+//           .scale(ordinal)
+// }
+
+function createLegend() {
+
+    var legendContainer = d3.select("body").append("div")
+        .attr("id", "legendContainer")
+
+    var legendSvg = legendContainer.append("svg")
+        .attr("id", "legendSvg")
+
+
+      //set variables to define spacing/size
+      var rectHeight = 1,
+          rectWidth = 20,
+          legendSpacing = 4;
+      //color classes array
+      var colorClasses = [];
+
+      // for loop retrieving stroke color of each route for the legend
+      for (i=0; i<routeObjArray.length; i++) {
+          //current route in loop
+          var route = routeObjArray[i].value
+          //pull color from stroke of route
+          var color = d3.select("." + route).style("stroke")
+          //add color to colorclasses array
+          colorClasses.push(color)
+          // create new property in routeObjArray for the color; easier to build legend using one array
+          routeObjArray[i].color = color
+      }
+
+      //sets legend title
+      var legendTitle = legendSvg.append("text")
+          .attr("class", "legendTitle")
+          .attr("transform", "translate(70,30)")
+          .text("Legend")
+
+      //sets legend title
+      var legendRouteTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendRouteTitle")
+          .attr("transform", "translate(70,60)")
+          .text("Trade Routes")
+
+      //creates a group for each rectangle and offsets each by same amount
+      var legend = legendSvg.selectAll('.legend')
+          .data(routeObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) {
+              var height = rectWidth + legendSpacing;
+              var offset =  height * routeObjArray.length / 2;
+              var horz = 2 * rectWidth;
+              var vert = i * height - offset + 200;
+              return 'translate(' + horz + ',' + vert + ')';
+        });
+
+      //creates rect elements for legened
+      var legendRect = legend.append('rect')
+          .attr("class", "legendRect")
+          .attr('width', rectWidth)
+          .attr('height', rectHeight)
+          .attr("transform", "translate(-25,-3)")
+          .style('fill', function(d){ return d.color })
+          .style('stroke', function(d){ return d.color });
+
+      //adds text to legend
+      var legendText = legend.append('text')
+          .attr("class", "legendText")
+          // .attr("x", -25)
+          // .attr("y", 63)
+          .text(function(d) { return d.text });
+
+}
+// function createLegend() {
+//
+//
+//     //set measurements for panel
+//     var legendMargin = {top: 20, right: 10, bottom: 30, left: 10},
+//     legendHeight = 800, //set height
+//     legendHeight = legendHeight - legendMargin.top,
+//     legendWidth = window.innerWidth * 0.2,//width of legendSvg
+//     legendWidth = legendWidth - legendMargin.left - legendMargin.right //width with margins for padding
+//
+//     //div container that holds SVG
+//     var legendContainer = d3.select("body").append("div")
+//         .attr("id", "legendContainer")
+//         .attr("width", legendWidth + 10)
+//         .attr("height", "400px")
+//
+//     var collapseButton = legendContainer.append("button")
+//         .html("&raquo;")
+//
+//
+//     var hideWidth = "-385px";
+//     var collapsibleE1 = $('#legendContainer')
+//     var buttonE1 = $("#legendContainer button")
+//
+//     $(buttonE1).click(function() {
+//          var curwidth = $(this).parent().offset(); //get offset value of the parent element
+//          if(curwidth.left>0) //compare margin-left value
+//          {
+//              //animate margin-left value to -490px
+//              $(this).parent().animate({marginLeft: hideWidth}, 300 );
+//              $(this).html('&raquo;'); //change text of button
+//          }else{
+//              //animate margin-left value 0px
+//              $(this).parent().animate({marginLeft: "0"}, 300 );
+//              $(this).html('&laquo;'); //change text of button
+//          }
+//     });
+//     //create svg for legendpanel
+//     var legendSvg = d3.select("#legendContainer").append("svg")
+//         .attr("class", "legendSvg")
+//         .attr("width", "300px")
+//         .attr("height", legendHeight)
+//       .append("g")
+//         .attr("transform", "translate(" + legendMargin.left + "," + legendMargin.top + ")");// adds padding to group element in SVG
+// //sets legend title
+//     var legendTitleRect = legendSvg.append("rect")
+//         .attr("id", "legendTitleRect")
+//         .attr('x', -10)
+//         .attr("y", -20)
+//         .attr("width", '100%')
+//         .attr("height", 60)
+//         .text("Attributes")
+//     //sets legend title
+//     var legendTitle = legendSvg.append("text")
+//         .attr("class", "legendTitle")
+//         .attr("x", legendWidth / 5)
+//         .attr("y", legendMargin.top)
+//         .text("Select Attributes")
+//
+// }
 // function setEnumerationUnits(franceRegions, map, path){
 //
 //   	//add France regions to map
