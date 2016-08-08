@@ -162,6 +162,19 @@
                 })
                 .attr("d", path)
 
+
+            //add countries to map
+            var lineageFrequencies = g.selectAll(".lineageFrequencies")
+               .data(linFreqJson)
+               .enter()
+             .append("path")
+                .attr("class", "lineageFrequencies")
+                .attr("id", function(d){
+                    return d.properties.sovereignt
+                })
+                .style("fill", "none")
+                .attr("d", path)
+
             // //add world health organization regions to map
             // var who_regions = g.selectAll(".who_regions")
             //    .data(whoRegionsJson)
@@ -212,17 +225,6 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
-            //add countries to map
-            var lineageFrequencies = g.selectAll(".lineageFrequencies")
-               .data(linFreqJson)
-               .enter()
-             .append("path")
-                .attr("class", "lineageFrequencies")
-                .attr("id", function(d){
-                    return d.properties.sovereignt
-                })
-                .style("fill", "none")
-                .attr("d", path)
             //function to create a dropdown menu to add/remove trade routes
             createRouteMenu(tradeRouteJson);
 
@@ -379,6 +381,75 @@ function drawLineageFrequency(expressed) {
         .style("fill", function(d){
             return choropleth(d.properties, colorScale, expressed)
         })
+    //retrieve width of map
+    var width = d3.select(".map").attr("width");
+
+    var freqLegendContainer = d3.select("body").append("div")
+        .attr("id", "freqLegendContainer")
+
+    var freqLegendSvg = freqLegendContainer.append("svg")
+        .attr("id", "freqLegendSvg")
+        .attr("width", width)
+
+
+      //set variables to define spacing/size
+      var rectHeight = 20,
+          rectWidth = 40;
+          // legendSpacing = 4;
+      //color classes array
+      var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
+      //color values array
+      var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
+      //
+      // var freqObjArray = [];
+      //
+      // for (i=0; i<routeObjArray.length; i++) {
+      //     //current route in loop
+      //     var route = routeObjArray[i].value
+      //     //pull color from stroke of route
+      //     var color = d3.select("." + route).style("stroke")
+      //     //add color to colorclasses array
+      //     colorClasses.push(color)
+      //     // create new property in routeObjArray for the color; easier to build legend using one array
+      //     routeObjArray[i].color = color
+      // }
+
+      //sets legend title
+      var freqLegendTitle = freqLegendSvg.append("text")
+          .attr("class", "freqLegendTitle")
+          .attr("transform", "translate(0,60)")
+          .text("Lineage Frequency by Country")
+
+      //creates a group for each rectangle and offsets each by same amount
+      var freqLegend = freqLegendSvg.selectAll('.freqLegend')
+          .data(colorClasses)
+          .enter()
+        .append("g")
+          .attr("class", "freqLegend")
+          .attr("transform", function(d, i) {
+              var height = rectWidth
+              var offset =  height * colorClasses.length / 2;
+              var vert = 80;
+              var horz = i * height - offset + 250;
+              return 'translate(' + horz + ',' + vert + ')';
+        });
+
+      //creates rect elements for legened
+      var freqLegendRect = freqLegend.append('rect')
+          .attr("class", "freqLegendRect")
+          .attr('width', rectWidth)
+          .attr('height', rectHeight)
+          .attr("transform", "translate(0,5)")
+          .style('fill', function(d){ return d })
+          .style('stroke', function(d){ return d });
+
+      //adds text to legend
+      var freqLegendText = freqLegend.append('text')
+          .attr("class", "freqLegendText")
+          .attr("transform", "translate(-5, 0)")
+          .text(function(d, i) {
+                  return colorValues[i]
+          });
 
 }
 function createRouteMenu(tradeRouteJson) {
