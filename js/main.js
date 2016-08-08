@@ -426,7 +426,7 @@ function createRouteMenu(tradeRouteJson) {
     // ]
 
     //creates the selection menu
-    var routeSelect = d3.select("body").append("select")
+    var routeSelect = d3.select("#menubar").append("select")
         .attr("id", "routeSelect")
         .attr("name", "routeSelect")
         .attr("multiple", "multiple")

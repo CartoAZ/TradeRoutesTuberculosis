@@ -183,21 +183,25 @@ ul {
     fill: #555;
 }
 
-#linSelect {
-    position: absolute;
-		right: 0;
+#linSelect-button {
+  /*position: absolute;
+	top:0;
+	right: 100;*/
+	float: right;
 }
 
-#routeSelect {
-		position: absolute;
+
+#routeSelect_ms{
+		/*position: absolute;
 		top:0;
-		right: 10;
+		right: 10;*/
+		float: right;
 }
 
 #menubar {
 		float: right;
 		width: 100%;
-		height: 20px;
+		height: 50px;
 }
 
 /*.dropdown {
