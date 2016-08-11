@@ -188,6 +188,18 @@
             //     })
             //     .attr("d", path)
 
+            //add second set of countries for lineage frequencies to map
+            var lineageFrequencies = g.selectAll(".lineageFrequencies")
+               .data(linFreqJson)
+               .enter()
+             .append("path")
+                .attr("class", "lineageFrequencies")
+                .attr("id", function(d){
+                    return d.properties.sovereignt
+                })
+                .style("fill", "none")
+                .attr("d", path)
+
             //draw trade routes
             var tradeRoutes = g.append("g")
                 .attr("class", "tradeRoutes")
@@ -212,17 +224,6 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
-            //add second set of countries for lineage frequencies to map
-            var lineageFrequencies = g.selectAll(".lineageFrequencies")
-               .data(linFreqJson)
-               .enter()
-             .append("path")
-                .attr("class", "lineageFrequencies")
-                .attr("id", function(d){
-                    return d.properties.sovereignt
-                })
-                .style("fill", "none")
-                .attr("d", path)
             // //add near trade hub cities to map
             // var tradeHubs = g.append("path")
             //     .datum(tradeHubJson)
@@ -354,7 +355,7 @@ function createLinFreqMenu() {
   //array of objects for option values in dropdown
     var linObjArray = [
         {
-          text: 'Lineage Frequency Overlays',
+          text: 'Lineage Frequencies',
           value: 'defaultLineageOption'
         },
         {
@@ -372,6 +373,10 @@ function createLinFreqMenu() {
           text: 'Lineage 4',
           value: 'per14_Lin4'
         },
+        {
+          text: 'Clear Lineage Frequencies',
+          value: 'clear'
+        }
     ]
 
     //creates the selection menu
@@ -404,96 +409,108 @@ function createLinFreqMenu() {
 }
 
 function drawLineageFrequency(expressed) {
-    //create the color scale
-    var colorScale = makeColorScale();
+    if (expressed === "clear") {
+        //conditional to check if legend exists
+        if(d3.select("#freqLegendSvg").empty() == false){
+            //removes legend
+            d3.select("#freqLegendSvg").remove();
+            //removes fill of countries
+            d3.selectAll(".lineageFrequencies")
+                .style("fill", "none")
+        }
+    } else {
 
-    var lineage = d3.selectAll(".lineageFrequencies")
-        .transition()
-        .duration(800)
-        .style("fill", function(d){
-            return choropleth(d.properties, colorScale, expressed)
-        })
-    //retrieve width of map
-    var width = d3.select(".map").attr("width");
-    var height = d3.select(".map").attr("height");
+        //create the color scale
+        var colorScale = makeColorScale();
 
-    //conditional to prevent creation of multiple divs
-    if(d3.select("#freqLegendSvg").empty() == true){
+        var lineage = d3.selectAll(".lineageFrequencies")
+            .transition()
+            .duration(800)
+            .style("fill", function(d){
+                return choropleth(d.properties, colorScale, expressed)
+            })
+        //retrieve width of map
+        var width = d3.select(".map").attr("width");
+        var height = d3.select(".map").attr("height");
 
-        // var freqLegendContainer = d3.select(".map").append("div")
-        //     .attr("id", "freqLegendContainer")
-        //     .attr("width", width)
-        //     .attr("height", height / 7)
-        //
+        //conditional to prevent creation of multiple divs
+        if(d3.select("#freqLegendSvg").empty() == true){
 
-        var freqLegendSvg = d3.select(".map").append("svg")
-            .attr("id", "freqLegendSvg")
+            // var freqLegendContainer = d3.select(".map").append("div")
+            //     .attr("id", "freqLegendContainer")
+            //     .attr("width", width)
+            //     .attr("height", height / 7)
+            //
 
-          //set variables to define spacing/size
-          var rectHeight = 20,
-              rectWidth = 40;
-              // legendSpacing = 4;
-          //color classes array
-          var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
-          //color values array
-          var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
-          //
-          // var freqObjArray = [];
-          //
-          // for (i=0; i<routeObjArray.length; i++) {
-          //     //current route in loop
-          //     var route = routeObjArray[i].value
-          //     //pull color from stroke of route
-          //     var color = d3.select("." + route).style("stroke")
-          //     //add color to colorclasses array
-          //     colorClasses.push(color)
-          //     // create new property in routeObjArray for the color; easier to build legend using one array
-          //     routeObjArray[i].color = color
-          // }
+            var freqLegendSvg = d3.select(".map").append("svg")
+                .attr("id", "freqLegendSvg")
 
-          //sets legend title
-          var freqLegendTitle = freqLegendSvg.append("text")
-              .attr("class", "freqLegendTitle")
-              // .attr("transform", "translate(100,60)")
-              .attr("transform", function(d){
-                  var horz = width / 3;
-                  horz = horz + 20;
-                  var vert = height - 55;
+              //set variables to define spacing/size
+              var rectHeight = 20,
+                  rectWidth = 40;
+                  // legendSpacing = 4;
+              //color classes array
+              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
+              //color values array
+              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
+              //
+              // var freqObjArray = [];
+              //
+              // for (i=0; i<routeObjArray.length; i++) {
+              //     //current route in loop
+              //     var route = routeObjArray[i].value
+              //     //pull color from stroke of route
+              //     var color = d3.select("." + route).style("stroke")
+              //     //add color to colorclasses array
+              //     colorClasses.push(color)
+              //     // create new property in routeObjArray for the color; easier to build legend using one array
+              //     routeObjArray[i].color = color
+              // }
+
+              //sets legend title
+              var freqLegendTitle = freqLegendSvg.append("text")
+                  .attr("class", "freqLegendTitle")
+                  // .attr("transform", "translate(100,60)")
+                  .attr("transform", function(d){
+                      var horz = width / 3;
+                      horz = horz + 20;
+                      var vert = height - 55;
 
 
-                  return "translate(" + horz + "," + vert + ")";
-              })
-              .text("Lineage Frequency by Country")
+                      return "translate(" + horz + "," + vert + ")";
+                  })
+                  .text("Lineage Frequency by Country")
 
-          //creates a group for each rectangle and offsets each by same amount
-          var freqLegend = freqLegendSvg.selectAll('.freqLegend')
-              .data(colorClasses)
-              .enter()
-            .append("g")
-              .attr("class", "freqLegend")
-              .attr("transform", function(d, i) {
-                  var offset =  rectWidth * colorClasses.length / 2;
-                  var vert = height - 30;
-                  var horz = i * rectWidth - offset + width / 2;
+              //creates a group for each rectangle and offsets each by same amount
+              var freqLegend = freqLegendSvg.selectAll('.freqLegend')
+                  .data(colorClasses)
+                  .enter()
+                .append("g")
+                  .attr("class", "freqLegend")
+                  .attr("transform", function(d, i) {
+                      var offset =  rectWidth * colorClasses.length / 2;
+                      var vert = height - 30;
+                      var horz = i * rectWidth - offset + width / 2;
 
-                  return 'translate(' + horz + ',' + vert + ')';
-            });
+                      return 'translate(' + horz + ',' + vert + ')';
+                });
 
-          //creates rect elements for legened
-          var freqLegendRect = freqLegend.append('rect')
-              .attr("class", "freqLegendRect")
-              .attr('width', rectWidth)
-              .attr('height', rectHeight)
-              .attr("transform", "translate(0,5)")
-              .style('fill', function(d){ return d })
-              .style('stroke', function(d){ return d });
+              //creates rect elements for legened
+              var freqLegendRect = freqLegend.append('rect')
+                  .attr("class", "freqLegendRect")
+                  .attr('width', rectWidth)
+                  .attr('height', rectHeight)
+                  .attr("transform", "translate(0,5)")
+                  .style('fill', function(d){ return d })
+                  .style('stroke', function(d){ return d });
 
-          //adds text to legend
-          var freqLegendText = freqLegend.append('text')
-              .attr("class", "freqLegendText")
-              .attr("transform", "translate(-7, 0) ")
-              .text(function(d, i) { return colorValues[i] });
-      }
+              //adds text to legend
+              var freqLegendText = freqLegend.append('text')
+                  .attr("class", "freqLegendText")
+                  .attr("transform", "translate(-7, 0) ")
+                  .text(function(d, i) { return colorValues[i] });
+        }
+    }
 }
 function createIsoLineageMenu() {
     //empty array to bind to select element
@@ -641,35 +658,117 @@ function createLegend() {
           routeObjArray[i].color = color
       }
 
+      var isolateLegendArray = [
+          {
+            text: "Exact Location Known",
+            value: "exactIsolates",
+            checked: 1,
+            fill: "#333"
+          },
+          {
+            text: "Only Country of Origin Known",
+            value: "randomIsolates",
+            checked: 1,
+            fill: "#aaa"
+          }
+      ];
+
       //sets legend title
       var legendTitle = legendSvg.append("text")
           .attr("class", "legendTitle")
-          .attr("transform", "translate(70,30)")
+          .attr("transform", "translate(75,30)")
           .text("Legend")
 
       //sets legend title
-      var legendRouteTitle = legendSvg.append("text")
-          .attr("class", "legendSubHead")
-          .attr("id", "legendRouteTitle")
-          .attr("transform", "translate(70,60)")
-          .text("Trade Routes")
+      var legendIsolateTitle = legendSvg.append("text")
+            .attr("class", "legendSubHead")
+            .attr("id", "legendIsolateTitle")
+            .attr("transform", "translate(85,60)")
+            .text("Isolates")
+            .style("text-align", "center")
 
+            // console.log(d3.select("#legendIsolateTitle"));
+
+
+            // .attr("transform", function(d){
+            //     console.log(d3.select("#legendIsolateTitle").attr("width"));
+            // })
+            console.log(isolateLegendArray);
       //creates a group for each rectangle and offsets each by same amount
-      var legend = legendSvg.selectAll('.legend')
-          .data(routeObjArray)
+      var legendIsolate = legendSvg.selectAll('.legendIsolate')
+          .data(isolateLegendArray)
           .enter()
         .append("g")
-          .attr("class", "legend")
+          .attr("class", "legendIsolate")
           .attr("transform", function(d, i) {
               var height = rectWidth + legendSpacing;
-              var offset =  height * routeObjArray.length / 2;
+              var offset =  height;
               var horz = 2 * rectWidth;
               var vert = i * height - offset + 200;
               return 'translate(' + horz + ',' + vert + ')';
         });
 
       //creates rect elements for legened
-      var legendRect = legend.append('rect')
+      var legendRect = legendIsolate.append('circle')
+          .attr("class", "legendCircle")
+          .attr('cx', 25)
+          .attr('cy', 25)
+          .attr('r', 3)
+          .attr("transform", "translate(-35,-125)")
+          .style('fill', function(d){ return d.fill })
+
+      //adds text to legend
+      var legendIsolateText = legendIsolate.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(5, -97)")
+          .text(function(d) { return d.text });
+
+      // //checkboxes for each route
+      var checkboxesIsolate = legendIsolate.append("foreignObject")
+          // .attr('x', textX - 30)
+          // .attr('y', attHeight - 36)
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-47, -108)")
+        .append("xhtml:body")
+          .html(function(d, i) {
+              //create ID for checkboxes
+              var isolateID = isolateLegendArray[i].value + "_check";
+              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
+          })
+          .on("change", function(d){
+              console.log(isolateLegendArray);
+              //function updates "checked" property for every route
+              isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
+              console.log(isolateLegendArray);
+              //updates visibility of route based on if it is checked or not
+              updateVisibility(isolateLegendArray);
+          });
+
+
+      //sets legend title
+      var legendRouteTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendRouteTitle")
+          .attr("transform", "translate(65,130)")
+          .text("Trade Routes")
+
+      //creates a group for each rectangle and offsets each by same amount
+      var legendRoute = legendSvg.selectAll('.legendRoute')
+          .data(routeObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendRoute")
+          .attr("transform", function(d, i) {
+              var height = rectWidth + legendSpacing;
+              var offset =  height * routeObjArray.length / 2;
+              var horz = 2 * rectWidth;
+              var vert = i * height - offset + 280;
+              return 'translate(' + horz + ',' + vert + ')';
+        });
+
+      //creates rect elements for legened
+      var legendRect = legendRoute.append('rect')
           .attr("class", "legendRect")
           .attr('width', rectWidth)
           .attr('height', rectHeight)
@@ -678,13 +777,13 @@ function createLegend() {
           .style('stroke', function(d){ return d.color });
 
       //adds text to legend
-      var legendText = legend.append('text')
+      var legendText = legendRoute.append('text')
           .attr("class", "legendText")
           .attr("transform", "translate(5, 0)")
           .text(function(d) { return d.text });
 
       //checkboxes for each route
-      var checkboxes = legend.append("foreignObject")
+      var checkboxes = legendRoute.append("foreignObject")
           // .attr('x', textX - 30)
           // .attr('y', attHeight - 36)
           .attr('width', "20px")
@@ -699,26 +798,15 @@ function createLegend() {
               // var attribute = createAttID(d, rankData)
               //create ID for checkboxes
               var routeID = routeObjArray[i].value + "_check";
-              return "<form><input type=checkbox class='checkbox' id='" + routeID + "'</input></form>"
+              return "<form><input type=checkbox class='route_checkbox' id='" + routeID + "'</input></form>"
           })
-          // .on("change", function(d) { //event listener for check/uncheck a box
-          //     console.log(d);
-          //     // if (ui.checked === true) {
-          //     //   d3.selectAll("." + ui.value)
-          //     //       .attr("visibility", "visible")
-          //     // } else {
-          //     //     d3.selectAll("." + ui.value)
-          //     //         .attr("visibility", "hidden")
-          //     // }
-          // })
           .on("change", function(d){
-
-              // var checked = d3.selectAll(".checkbox")
               //function updates "checked" property for every route
-              routeObjArray = setCheckedProp();
+              routeObjArray = setCheckedProp(routeObjArray, "route");
               //updates visibility of route based on if it is checked or not
-              updateRouteVisibility();
+              updateVisibility(routeObjArray);
           });
+
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
           var route = routeObjArray[i].value
@@ -726,20 +814,28 @@ function createLegend() {
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
+      //checks all routes by default
+      for (i=0; i<isolateLegendArray.length; i++) {
+          var isolate = isolateLegendArray[i].value
+          // console.log(d3.select("#" + route + "_check")[0][0].checked);
+          d3.select("#" + isolate + "_check")[0][0].checked = true;
+      }
+
+
 
 }
 //updates visibility of routes based on whether or not route is checked in legend
-function updateRouteVisibility() {
+function updateVisibility(array) {
 
-    for (i=0; i<routeObjArray.length; i++) {
-        //store route class
-        var route = d3.selectAll("." + routeObjArray[i].value)
+    for (i=0; i<array.length; i++) {
+        //store class
+        var item = d3.selectAll("." + array[i].value)
 
         //checks if route is selected
-        if (routeObjArray[i].checked === 1){
-            route.attr("visibility", "visible")
+        if (array[i].checked === 1){
+            item.attr("visibility", "visible")
         } else {
-            route.attr("visibility", "hidden")
+            item.attr("visibility", "hidden")
         }
     }
 }
@@ -850,41 +946,42 @@ function updateRouteVisibility() {
 // };
 
 // });
-function setCheckedProp() {
-    //select all of the checkboxes
-    var checked = d3.selectAll(".checkbox");
+function setCheckedProp(array, className) {
+    //calculate length of array
+    var length = array.length;
+    //select all of the appropriate checkboxes
+    var checked = d3.selectAll("." + className + "_checkbox");
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
         // loop through each checkbox element in array
-        for (j=0; j<10; j++) {
+        for (j=0; j<length; j++) {
             //if the checkbox is checked, do this
             if (d[j].checked == true) {
-                //gets ID, which contains attribute name
+                //gets ID, which contains element to update
                 var getID = d[j].id;
-                console.log(getID);
                 //trim "_check" from end of ID string
                 var att = getID.slice(0, -6);
-                console.log(att);
-                // loop through array of att objects and sets checked property to 1
-                for (i=0; i<routeObjArray.length; i++){
-                    if (routeObjArray[i].value == att) {
-                        routeObjArray[i].checked = 1;
+                // loop through array of objects and sets checked property to 1
+                for (i=0; i<array.length; i++){
+                    if (array[i].value == att) {
+                        array[i].checked = 1;
                     };
                 };
             } else { //if the checkbox isn't checked, do this
                 var getID = d[j].id;
                 //trim "_check" from end of ID string
                 var att = getID.slice(0, -6);
-                // loop through array of att objects and sets checked property to 0
-                for (i=0; i<routeObjArray.length; i++){
-                    if (routeObjArray[i].value == att) {
-                        routeObjArray[i].checked = 0;
+                // loop through array of objects and sets checked property to 0
+                for (i=0; i<array.length; i++){
+                    if (array[i].value == att) {
+                        array[i].checked = 0;
                     };
                 };
             };
         };
     });
-    return routeObjArray;
+    
+    return array;
 }
 
 //creates array containing names of attributes currently checked

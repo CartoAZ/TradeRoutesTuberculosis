@@ -178,9 +178,12 @@ ul {
 }
 
 
-.legend {
+.legendRoute, .legendIsolate {
     font-size: 12px;
     fill: #555;
+}
+.legendSubHead {
+		text-align: center;
 }
 
 #linSelect-button {
