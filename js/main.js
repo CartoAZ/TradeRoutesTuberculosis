@@ -223,24 +223,42 @@
                 })
                 .style("fill", "none")
                 .attr("d", path)
-            //add near trade hub cities to map
-            var tradeHubs = g.append("path")
-                .datum(tradeHubJson)
-                .attr("class", "tradeHubs")
-                .attr("d", path)
-            //add exact isolates to map
-            var exactIsolates = g.append("path")
-                .datum(exactJson)
-                .attr("class", "exactIsolates")
-                .attr("d", path)
-            //add randomly placed isolates to map
-            var randomIsolates = g.append("path")
-                .datum(randomJson)
-                .attr("class", "randomIsolates")
-                .attr("d", path)
+            // //add near trade hub cities to map
+            // var tradeHubs = g.append("path")
+            //     .datum(tradeHubJson)
+            //     .attr("class", "tradeHubs")
+            //     .attr("d", path)
 
-            //function to create a dropdown menu to add/remove trade routes
-            createRouteMenu(tradeRouteJson);
+            //add exact isolates to map
+            var exactIsolates = g.append("g")
+                .attr("class", "exactIsolates")
+                .selectAll("path")
+              .data(exactJson.features)
+                .enter()
+              .append("path")
+                .attr("d", path)
+                .attr("class", function(d){
+                    var lineage = d.properties.lineage_of;
+
+                    return "lin_" + lineage;
+                })
+            //add exact isolates to map
+            var randomIsolates = g.append("g")
+                .attr("class", "randomIsolates")
+                .selectAll("path")
+              .data(randomJson.features)
+                .enter()
+              .append("path")
+                .attr("d", path)
+                .attr("class", function(d){
+                    var lineage = d.properties.lineage_of;
+
+                    return "lin_" + lineage;
+                })
+
+
+            //function to create a dropdown menu to add/remove isolates by lineage
+            createIsoLineageMenu();
 
             //function to create a dropdown menu to add/remove lineage frequencies
             createLinFreqMenu();
@@ -397,24 +415,26 @@ function drawLineageFrequency(expressed) {
         })
     //retrieve width of map
     var width = d3.select(".map").attr("width");
+    var height = d3.select(".map").attr("height");
 
     //conditional to prevent creation of multiple divs
-    if(d3.select("#freqLegendContainer").empty() == true){
+    if(d3.select("#freqLegendSvg").empty() == true){
 
-        var freqLegendContainer = d3.select("body").append("div")
-            .attr("id", "freqLegendContainer")
+        // var freqLegendContainer = d3.select(".map").append("div")
+        //     .attr("id", "freqLegendContainer")
+        //     .attr("width", width)
+        //     .attr("height", height / 7)
+        //
 
-        var freqLegendSvg = freqLegendContainer.append("svg")
+        var freqLegendSvg = d3.select(".map").append("svg")
             .attr("id", "freqLegendSvg")
-            .attr("width", width)
-
 
           //set variables to define spacing/size
           var rectHeight = 20,
               rectWidth = 40;
               // legendSpacing = 4;
           //color classes array
-          var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
+          var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
           //color values array
           var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
           //
@@ -434,7 +454,15 @@ function drawLineageFrequency(expressed) {
           //sets legend title
           var freqLegendTitle = freqLegendSvg.append("text")
               .attr("class", "freqLegendTitle")
-              .attr("transform", "translate(0,60)")
+              // .attr("transform", "translate(100,60)")
+              .attr("transform", function(d){
+                  var horz = width / 3;
+                  horz = horz + 20;
+                  var vert = height - 55;
+
+
+                  return "translate(" + horz + "," + vert + ")";
+              })
               .text("Lineage Frequency by Country")
 
           //creates a group for each rectangle and offsets each by same amount
@@ -444,10 +472,10 @@ function drawLineageFrequency(expressed) {
             .append("g")
               .attr("class", "freqLegend")
               .attr("transform", function(d, i) {
-                  var height = rectWidth
-                  var offset =  height * colorClasses.length / 2;
-                  var vert = 80;
-                  var horz = i * height - offset + 200;
+                  var offset =  rectWidth * colorClasses.length / 2;
+                  var vert = height - 30;
+                  var horz = i * rectWidth - offset + width / 2;
+
                   return 'translate(' + horz + ',' + vert + ')';
             });
 
@@ -463,77 +491,48 @@ function drawLineageFrequency(expressed) {
           //adds text to legend
           var freqLegendText = freqLegend.append('text')
               .attr("class", "freqLegendText")
-              .attr("transform")
-              .text(function(d, i) {
-                      return colorValues[i]
-              });
+              .attr("transform", "translate(-7, 0) ")
+              .text(function(d, i) { return colorValues[i] });
       }
 }
-function createRouteMenu(tradeRouteJson) {
-    // var routeObjArray = [
-    //     {
-    //       text: 'Silk Road',
-    //       value: 'silkRoad'
-    //     },
-    //     {
-    //       text: 'Maritime Silk',
-    //       value: 'maritimeSilk'
-    //     },
-    //     {
-    //       text: 'Europe',
-    //       value: 'europe'
-    //     },
-    //     {
-    //       text: 'East Africa',
-    //       value: 'eastAfrica'
-    //     },
-    //     {
-    //       text: 'West Africa',
-    //       value: 'westAfrica'
-    //     },
-    //     {
-    //       text: 'Mediterranean Maritime',
-    //       value: 'medMaritime'
-    //     },
-    //     {
-    //       text: 'China Imperial',
-    //       value: 'chinaImperial'
-    //     },
-    //     {
-    //       text: 'Northern Minor Silk',
-    //       value: 'northSilk'
-    //     },
-    //     {
-    //       text: 'Southern Minor Silk',
-    //       value: 'southSilk'
-    //     },
-    //     {
-    //       text: 'Pacific Maritime',
-    //       value: 'pacific'
-    //     }
-    // ]
+function createIsoLineageMenu() {
+    //empty array to bind to select element
+    var isolateObjArray = [];
+    //for loop to populate isolateObjArray
+    for (i=1; i<8; i++) {
+        // set variables to be added as values in object
+        var linText = "Lineage " + i,
+            linValue = "lin_" + i;
+        //create object for each of 7 lineages
+        var linObj = {
+                        text: linText,
+                        value: linValue
+                      }
+        //push object to array
+        isolateObjArray.push(linObj)
+    };
 
     //creates the selection menu
-    var routeSelect = d3.select("#menubar").append("select")
-        .attr("id", "routeSelect")
-        .attr("name", "routeSelect")
+    var isoSelect = d3.select("#menubar").append("select")
+        .attr("id", "isoSelect")
+        .attr("name", "isoSelect")
         .attr("multiple", "multiple")
 
     //create options for trade routes
-    var routeOptions = routeSelect.selectAll(".routeOptions")
-        .data(routeObjArray)
+    var isoOptions = isoSelect.selectAll(".isoOptions")
+        .data(isolateObjArray)
         .enter()
       .append("option")
-        .attr("class", "routeOptions")
+        .attr("class", "isoOptions")
         .attr("value", function(d){ return d.value })
         .text(function(d){ return d.text });
 
     //customize multiselect
-    $("#routeSelect").multiselect( //sets default options
+    $("#isoSelect").multiselect( //sets default options
         {
-            noneSelectedText: "Add or Remove Trade Routes",
+            noneSelectedText: "Filter Isolates by Lineage",
             selectedList: false,
-            selectedText: "Add or Remove Trade Routes"
+            selectedText: "Filter Isolates by Lineage"
         }
     ).multiselect("checkAll") //checks all routes by default
     .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
@@ -545,17 +544,17 @@ function createRouteMenu(tradeRouteJson) {
                 .attr("visibility", "hidden")
         }
     })
-    .on("multiselectcheckall", function(event, ui) { //adds all routes to map
-        for (i=0; i<routeObjArray.length; i++) {
-            var route = routeObjArray[i].value
-            d3.selectAll("." + route)
+    .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
+        for (i=0; i<isolateObjArray.length; i++) {
+            var lineage = isolateObjArray[i].value
+            d3.selectAll("." + lineage)
               .attr("visibility", "visible")
         }
     })
     .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
-        for (i=0; i<routeObjArray.length; i++) {
-            var route = routeObjArray[i].value
-            d3.selectAll("." + route)
+        for (i=0; i<isolateObjArray.length; i++) {
+            var lineage = isolateObjArray[i].value
+            d3.selectAll("." + lineage)
               .attr("visibility", "hidden")
         }
     })

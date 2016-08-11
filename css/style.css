@@ -191,7 +191,7 @@ ul {
 }
 
 
-#routeSelect_ms{
+#isoSelect_ms{
 		/*position: absolute;
 		top:0;
 		right: 10;*/
@@ -204,8 +204,13 @@ ul {
 		height: 50px;
 }
 
-#freqLegendContainer {
-		z-index: 100;
+#freqLegendSvg {
+		fill: #bbb;
+		font-family: "trebuchet ms";
+}
+
+.freqLegend {
+			font-size: 0.8em;
 }
 
 /*.dropdown {
