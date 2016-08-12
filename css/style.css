@@ -60,18 +60,18 @@ g .tradeRoutes {
 }
 
 .silkRoad {
-		stroke: #ff3a3c;
+		stroke: #e31a1c;
 		fill: none;
 		stroke-width: 2px;
 }
 
 .europe {
-		stroke: #3c7e1f;
+		stroke: #33a02c;
 		fill: none;
 }
 
 .medMaritime {
-		stroke: #86c4f0;
+		stroke: #a6cee3;
 		fill: none;
 }
 
@@ -81,37 +81,37 @@ g .tradeRoutes {
 }
 
 .northSilk {
-		stroke: #b2981f;
+		stroke: #fb9a99;
 		fill: none;
 }
 
 .southSilk {
-		stroke: #fba3ed;
+		stroke: #fdbf6f;
 		fill: none;
 }
 
 .europeMaritime {
-		stroke: #8ae0d4;
+		stroke: #b2df8a;
 		fill: none;
 }
 
 .pacific {
-		stroke: #f09c70;
+		stroke: #cab2d6;
 		fill: none;
 }
 
 .westAfrica {
-		stroke: #6e8b8d;
+		stroke: #ff7f00;
 		fill: none;
 }
 
 .eastAfrica {
-		stroke: #d1908e;
+		stroke: #6a3d9a;
 		fill: none;
 }
 
 .maritimeSilk {
-		stroke: #1f4ae9;
+		stroke: #1f78b4;
 		fill: none;
 		stroke-width: 2px;
 }
@@ -130,7 +130,7 @@ g .tradeRoutes {
 
 /*lineage frequency overlays*/
 .lineageFrequencies {
-		z-index: -1;
+		z-index: 1;
 }
 
 /*dropdown menu for lineage frequencies*/
@@ -144,6 +144,99 @@ ul {
 		right: 20px;
 		z-index: 10;
 }
+
+#legendContainer {
+    height: 300px;
+		width: 20%;
+    border:2px solid #000;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    position: fixed;
+    bottom: 0;
+		right: 0;
+    color:#E6F2DE;
+		font-family: "trebuchet ms";
+}
+
+#legendSvg {
+	height: 400px;
+	width: 100%
+}
+
+.legendTitle {
+    text-decoration: underline;
+    font-size: 1.4em;
+    fill: #555;
+    font-family: trebuchet ms;
+
+}
+
+.legendText {
+    font-size: 0.8em;
+    fill: #555;
+    font-family: trebuchet ms;
+}
+
+
+.legendRoute, .legendIsolate {
+    font-size: 12px;
+    fill: #555;
+}
+.legendSubHead {
+		text-align: center;
+}
+
+.buttonText {
+		font-size: 12px;
+		fill: #333;
+}
+
+#isolateBack,
+#routeBack {
+		rx: 3px;
+		ry: 3px;
+		fill: #eee;
+		stroke: #ddd;
+}
+#isolateSelect,
+#routeSelect {
+		rx: 3px;
+		ry: 3px;
+		opacity: 0;
+		pointer-events: all;
+		cursor: pointer;
+		fill: none;
+}
+#linSelect-button {
+  /*position: absolute;
+	top:0;
+	right: 100;*/
+	float: right;
+}
+
+
+#isoSelect_ms{
+		/*position: absolute;
+		top:0;
+		right: 10;*/
+		float: right;
+}
+
+#menubar {
+		float: right;
+		width: 100%;
+		height: 50px;
+}
+
+#freqLegendSvg {
+		fill: #bbb;
+		font-family: "trebuchet ms";
+}
+
+.freqLegend {
+			font-size: 0.8em;
+}
+
 /*.dropdown {
     position: absolute;
     top: 20px;

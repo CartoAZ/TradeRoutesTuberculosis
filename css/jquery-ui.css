@@ -124,6 +124,7 @@
 	cursor: pointer;
 	/* support: IE10, see #8844 */
 	list-style-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+	font-size: 0.9em;
 }
 .ui-menu .ui-menu-item-wrapper {
 	position: relative;
@@ -706,9 +707,11 @@ button.ui-button::-moz-focus-inner {
 }
 .ui-selectmenu-text {
 	display: block;
-	margin-right: 20px;
+	/*margin-right: 20px;*/
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.9em;
 }
 .ui-selectmenu-button.ui-button {
 	text-align: left;
