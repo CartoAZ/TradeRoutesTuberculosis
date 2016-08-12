@@ -957,6 +957,7 @@ function updateButton(item, array){
         horz = 6;
 
         if (item === "route") {
+            //moves label to appropriate place
             vert += 70;
         };
 
