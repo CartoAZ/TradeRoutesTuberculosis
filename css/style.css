@@ -186,6 +186,27 @@ ul {
 		text-align: center;
 }
 
+.buttonText {
+		font-size: 12px;
+		fill: #333;
+}
+
+#isolateBack,
+#routeBack {
+		rx: 3px;
+		ry: 3px;
+		fill: #eee;
+		stroke: #ddd;
+}
+#isolateSelect,
+#routeSelect {
+		rx: 3px;
+		ry: 3px;
+		opacity: 0;
+		pointer-events: all;
+		cursor: pointer;
+		fill: none;
+}
 #linSelect-button {
   /*position: absolute;
 	top:0;

@@ -59,6 +59,22 @@
           checked: 1
         }
     ]
+
+    var isolateLegendArray = [
+        {
+          text: "Exact Location Known",
+          value: "exactIsolates",
+          checked: 1,
+          fill: "#333"
+        },
+        {
+          text: "Only Country of Origin Known",
+          value: "randomIsolates",
+          checked: 1,
+          fill: "#aaa"
+        }
+    ];
+
     var menubar = d3.select("body").append("div")
         .attr("id", "menubar")
 
@@ -658,21 +674,6 @@ function createLegend() {
           routeObjArray[i].color = color
       }
 
-      var isolateLegendArray = [
-          {
-            text: "Exact Location Known",
-            value: "exactIsolates",
-            checked: 1,
-            fill: "#333"
-          },
-          {
-            text: "Only Country of Origin Known",
-            value: "randomIsolates",
-            checked: 1,
-            fill: "#aaa"
-          }
-      ];
-
       //sets legend title
       var legendTitle = legendSvg.append("text")
           .attr("class", "legendTitle")
@@ -687,13 +688,54 @@ function createLegend() {
             .text("Isolates")
             .style("text-align", "center")
 
-            // console.log(d3.select("#legendIsolateTitle"));
+      //rect to hold styling
+      var isoBackButton = legendSvg.append("rect")
+          .attr("id", "isolateBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,50)")
+      //text of button
+      var isoButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "isolateButtonText")
+          .attr("transform", "translate(6,62)")
+          .text("Clear All")
+      //clickable rect
+      var isoSelectButton = legendSvg.append("rect")
+          .attr("id", "isolateSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,50)")
+          .on("click", function(){
+              updateButton("isolate", isolateLegendArray);
+          })
+          .on("mouseover", function(){
+              //extract ID of rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              console.log(rectID);
+              d3.select("#" + rectID).style({
+                  "stroke": "#aaa",
+                  "stroke-width": "2px",
+                  // fill: "#999"
+              })
+          })
+          .on("mouseout", function(){
+              //extract ID of whichever rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                "fill": "#eee",
+                "stroke": "#ddd",
+                "stroke-width": "1px"
 
+              })
+          })
 
-            // .attr("transform", function(d){
-            //     console.log(d3.select("#legendIsolateTitle").attr("width"));
-            // })
-            console.log(isolateLegendArray);
       //creates a group for each rectangle and offsets each by same amount
       var legendIsolate = legendSvg.selectAll('.legendIsolate')
           .data(isolateLegendArray)
@@ -725,8 +767,6 @@ function createLegend() {
 
       // //checkboxes for each route
       var checkboxesIsolate = legendIsolate.append("foreignObject")
-          // .attr('x', textX - 30)
-          // .attr('y', attHeight - 36)
           .attr('width', "20px")
           .attr('height', "20px")
           .attr("transform", "translate(-47, -108)")
@@ -737,10 +777,8 @@ function createLegend() {
               return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
           })
           .on("change", function(d){
-              console.log(isolateLegendArray);
               //function updates "checked" property for every route
               isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
-              console.log(isolateLegendArray);
               //updates visibility of route based on if it is checked or not
               updateVisibility(isolateLegendArray);
           });
@@ -752,6 +790,52 @@ function createLegend() {
           .attr("id", "legendRouteTitle")
           .attr("transform", "translate(65,130)")
           .text("Trade Routes")
+
+      //rect to hold styling
+      var routeBackButton = legendSvg.append("rect")
+          .attr("id", "routeBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,120)")
+      //text of button
+      var routeButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "routeButtonText")
+          .attr("transform", "translate(6,132)")
+          .text("Clear All")
+      //clickable rect
+      var routeSelectButton = legendSvg.append("rect")
+          .attr("id", "routeSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,120)")
+          .on("click", function(){
+              updateButton("route", routeObjArray);
+          })
+          .on("mouseover", function(){
+              //extract ID of rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                  "stroke": "#aaa",
+                  "stroke-width": "2px",
+              })
+          })
+          .on("mouseout", function(){
+              //extract ID of whichever rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                "fill": "#eee",
+                "stroke": "#ddd",
+                "stroke-width": "1px"
+
+              })
+          })
 
       //creates a group for each rectangle and offsets each by same amount
       var legendRoute = legendSvg.selectAll('.legendRoute')
@@ -821,9 +905,94 @@ function createLegend() {
           d3.select("#" + isolate + "_check")[0][0].checked = true;
       }
 
+};
+
+//changes city panel after button is clicked for displaying selected cities
+function updateButton(item, array){
+    //calculate length of array
+    var length = array.length;
+    //variables for placing button text
+    var vert = 62,
+        horz = 9;
+
+    //retrieves button text to determin action
+    var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML
+    //
+    if (buttonText == "Clear All"){//removes all items based on which button is clicked
+        if (item === "route") {
+            vert += 70;
+        };
+
+        //change button text and text position
+        d3.select("#" + item + "ButtonText").text("Add All")
+            .attr("transform", "translate("+ horz + "," + vert + ")")
+
+        var checkboxes = d3.selectAll("." + item + "_checkbox");
+
+        //updates checkboxes
+        checkboxes.forEach(function(d){
+              // loop through each checkbox element in array
+              for (j=0; j<length; j++) {
+                  // unchecks each checkbox
+                  d[j].checked = false
+              }
+        })
+        //update values in proper array
+        if (item === "isolate") {
+            //updates checked property of each object
+            isolateLegendArray = setCheckedProp(array, item);
+            //updates visibility based on array
+            updateVisibility(isolateLegendArray)
+        } else if (item === "route") {
+          //updates checked property of each object
+          routeObjArray = setCheckedProp(array, item);
+          //updates visibility based on array
+          updateVisibility(routeObjArray)
+        }
+    }
+
+    if (buttonText == "Add All") {//adds all items based on which button is clicked
+
+        //for button text placement
+        horz = 6;
+
+        if (item === "route") {
+            vert += 70;
+        };
+
+        //change button text
+        d3.select("#" + item + "ButtonText").text("Clear All")
+            .attr("transform", "translate("+ horz + "," + vert + ")")
+
+        var checkboxes = d3.selectAll("." + item + "_checkbox");
+        //updates checkboxes
+        checkboxes.forEach(function(d){
+              // loop through each checkbox element in array
+              for (j=0; j<length; j++) {
+                  // unchecks each checkbox
+                  d[j].checked = true
+              }
+        })
+        //update values in proper array
+        if (item === "isolate") {
+            //updates checked property of each object
+            isolateLegendArray = setCheckedProp(array, item);
+            //updates visibility based on array
+            updateVisibility(isolateLegendArray)
+        } else if (item === "route") {
+          //updates checked property of each object
+          routeObjArray = setCheckedProp(array, item);
+          //updates visibility based on array
+          updateVisibility(routeObjArray)
+        }
+    };
+
+    // if (item == "isolate") {
+    //     updateVisibility(isolateLegendArray)
+    // }
+};
 
 
-}
 //updates visibility of routes based on whether or not route is checked in legend
 function updateVisibility(array) {
 
@@ -953,6 +1122,7 @@ function setCheckedProp(array, className) {
     var checked = d3.selectAll("." + className + "_checkbox");
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
+        console.log(d);
         // loop through each checkbox element in array
         for (j=0; j<length; j++) {
             //if the checkbox is checked, do this
@@ -980,7 +1150,7 @@ function setCheckedProp(array, className) {
             };
         };
     });
-    
+
     return array;
 }
 
