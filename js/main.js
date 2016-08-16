@@ -798,11 +798,9 @@ function createLegend() {
               //changes click to back in ID string so we can change fill
               var rectID = buttonID.replace("Select", "Back")
               //change fill
-              console.log(rectID);
               d3.select("#" + rectID).style({
                   "stroke": "#aaa",
                   "stroke-width": "2px",
-                  // fill: "#999"
               })
           })
           .on("mouseout", function(){
@@ -869,8 +867,6 @@ function createLegend() {
                     var getID = checked[i].id;
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
-                    console.log(d3.select("." + getClass).selectAll("path"));
-                    console.log(d3.select("." + getClass).selectAll("path").filter(".notFiltered"));
 
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
                     d3.select("." + getClass).selectAll("path").filter(".notFiltered")
@@ -1060,10 +1056,43 @@ function updateButton(item, array){
         })
         //update values in proper array
         if (item === "isolate") {
-            //updates checked property of each object
-            isolateLegendArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(isolateLegendArray)
+            //select both checkboxes
+            var checked = d3.selectAll(".isolate_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+                } else {
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "hidden")
+                        .attr("id", "unchecked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "unchecked")
+                }
+            }
+            // //updates checked property of each object
+            // isolateLegendArray = setCheckedProp(array, item);
+            // //updates visibility based on array
+            // updateVisibility(isolateLegendArray)
         } else if (item === "route") {
           //updates checked property of each object
           routeObjArray = setCheckedProp(array, item);
