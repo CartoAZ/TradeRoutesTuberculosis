@@ -64,33 +64,34 @@
         {
           text: "Exact Location Known",
           value: "exactIsolates",
-          checked: 1,
           fill: "#333"
         },
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          checked: 1,
           fill: "#aaa"
         }
     ];
+    //empty array to bind to select element
+    var isolateObjArray = [];
+    //for loop to populate isolateObjArray
+    for (i=1; i<8; i++) {
+        // set variables to be added as values in object
+        var linText = "Lineage " + i,
+            linValue = "lin_" + i;
+        //create object for each of 7 lineages
+        var linObj = {
+                        text: linText,
+                        value: linValue,
+                      }
+        //push object to array
+        isolateObjArray.push(linObj)
+    };
 
     var menubar = d3.select("body").append("div")
         .attr("id", "menubar")
 
     function setMap(){
-
-
-      	// //create Albers equal area conic projection centered on France
-      	// var projection = d3.geo.conicEqualArea()
-        //     // .rotate([40, 0])
-        //     .center([73, 30])
-        // 		.parallels([-35, 43])
-        // 		.scale(800)
-        // 		.translate([mapWidth / 2, mapHeight / 2]);
-        //
-      	// var path = d3.geo.path()
-      	// 	  .projection(projection);
 
         //set variable to access queue.js to parallelize asynchronous data loading
         var q = d3_queue.queue();
@@ -107,7 +108,6 @@
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
-            // console.log(silkRoadData);
 
             //place graticule on the map
         		// setGraticule(map, path);
@@ -126,8 +126,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
-
-            // var dropdownMenu = createDropdown(linFreqJson)
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -154,33 +152,6 @@
             var g = map.append("g");
 
             var colorScale = makeColorScale();
-
-            // //translate countries topojson for non-zoom
-            // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
-            //     whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
-            // //add countries to map
-        		// var countries = map.append("g")
-        		// 	 .attr("class", "countries")
-            //   .selectAll("path")
-            //     .data(countryJson)
-            //     .attr("d", path)
-            //     .attr("id", function(d){
-            //       // console.log(d.properties);
-            //         return d.properties.Country
-            //     })
-            //
-            // //add a path to the coastal states group element to color borders without coloring coastline
-            // map.append("path")
-            //     .datum(topojson.mesh(countryData, countryData.objects.Countries, function(a, b) { return a !== b; }))
-            //     .attr("id", "country-borders")
-            //     .attr("d", path);
-            //
-
-            // var sphere = g.append("path")
-            //     .datum({type: "Sphere"})
-            //     .attr("class", "sphere")
-            //     .attr("d", path)
-
 
             //add countries to map
         		var countries = g.selectAll(".countries")
@@ -257,8 +228,9 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage;
+                    return "lin_" + lineage + " notFiltered";
                 })
+                .attr("id", "checked")
             //add exact isolates to map
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
@@ -270,9 +242,9 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage;
+                    return "lin_" + lineage + " notFiltered";
                 })
-
+                .attr("id", "checked")
 
             //function to create a dropdown menu to add/remove isolates by lineage
             createIsoLineageMenu();
@@ -296,22 +268,11 @@
 
             map.call(zoom)
 
-
-
-        			// .attr("class", "countries")
-              // .attr("id", function(d){
-              //     console.log(d);
-              // })
-        			// .attr("d", path);
-
             // //add enumeration units to the map
             // setEnumerationUnits(whoRegionsJson, map, path);
-
-
         };
 
     };
-
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
@@ -336,35 +297,6 @@ function choropleth(props, colorScale, expressed){
     		return "#ddd";
   	};
 };
-
-// //creates dropdown menu
-// function createDropdown(data){
-//     //array for option values in dropdown
-//     var lineageValArray = ["per14_Lin1", "per14_Lin2", "per14_Lin3", "per14_Lin4"]
-//
-//     //array for display text in dropdown
-//     var lineageTextArray = ["Lineage 1", "Lineage 2", "Lineage 3", "Lineage 4"]
-//
-//     //testing if dropdown already exists to prevent duplicate creation
-//     if(d3.select(".dropdown").empty() == true){
-//         //add select element
-//         var dropdown = d3.select("body")
-//             .append("select")
-//             .attr("class", "dropdown")
-//             .on("change", function(){
-//                 changeAttribute(this.value, data)
-//             });
-//
-//
-//         var attrOptions = dropdown.selectAll(".attrOptions")
-//             .data(lineageValArray)
-//             .enter()
-//           .append("option")
-//             .attr("class", "attrOptions")
-//             .attr("value", function(d){ return d })
-//             .text(function(d, i){ return lineageTextArray[i] });
-//     }
-// };
 
 function createLinFreqMenu() {
 
@@ -466,22 +398,9 @@ function drawLineageFrequency(expressed) {
                   rectWidth = 40;
                   // legendSpacing = 4;
               //color classes array
-              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
+              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', '#ddd', 'none']
               //color values array
-              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
-              //
-              // var freqObjArray = [];
-              //
-              // for (i=0; i<routeObjArray.length; i++) {
-              //     //current route in loop
-              //     var route = routeObjArray[i].value
-              //     //pull color from stroke of route
-              //     var color = d3.select("." + route).style("stroke")
-              //     //add color to colorclasses array
-              //     colorClasses.push(color)
-              //     // create new property in routeObjArray for the color; easier to build legend using one array
-              //     routeObjArray[i].color = color
-              // }
+              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -529,21 +448,6 @@ function drawLineageFrequency(expressed) {
     }
 }
 function createIsoLineageMenu() {
-    //empty array to bind to select element
-    var isolateObjArray = [];
-    //for loop to populate isolateObjArray
-    for (i=1; i<8; i++) {
-        // set variables to be added as values in object
-        var linText = "Lineage " + i,
-            linValue = "lin_" + i;
-        //create object for each of 7 lineages
-        var linObj = {
-                        text: linText,
-                        value: linValue
-                      }
-        //push object to array
-        isolateObjArray.push(linObj)
-    };
 
     //creates the selection menu
     var isoSelect = d3.select("#menubar").append("select")
@@ -569,82 +473,80 @@ function createIsoLineageMenu() {
         }
     ).multiselect("checkAll") //checks all routes by default
     .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
+        //store current lineage
+        var lineage = ui.value;
+
+        //checks which lineage is checked
         if (ui.checked === true) {
-          d3.selectAll("." + ui.value)
-              .attr("visibility", "visible")
-        } else {
-            d3.selectAll("." + ui.value)
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "visible")
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+          //select the isolate checkboxes from legend to determine which isolates should be filtered
+          var checked = d3.selectAll(".isolate_checkbox");
+        } else if (ui.checked === false){ //lineage is unchecked in dropdown multiselect
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
                 .attr("visibility", "hidden")
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
         }
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
-        for (i=0; i<isolateObjArray.length; i++) {
-            var lineage = isolateObjArray[i].value
-            d3.selectAll("." + lineage)
-              .attr("visibility", "visible")
+        for (i=1; i<8; i++) {
+            //store current lineage
+            var lineage = "lin_" + i;
+
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "visible")
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
         }
     })
     .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
-        for (i=0; i<isolateObjArray.length; i++) {
-            var lineage = isolateObjArray[i].value
-            d3.selectAll("." + lineage)
-              .attr("visibility", "hidden")
+        for (i=1; i<8; i++) {
+
+            //store current lineage
+            var lineage = "lin_" + i;
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "hidden")
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
         }
     })
 }
-
-// function createLegend() {
-//
-//     var legendDiv = d3.select("body").append("div")
-//         .attr("id", "legendDiv")
-//         .attr("width", window.innerWidth * 0.2)
-//         .attr("height", "400px");
-//     var legendSvg = legendDiv.append("svg")
-//         .attr("id", "legendSvg")
-//         .attr("width", window.innerWidth * 0.18)
-//         .attr("height", "300px");
-//
-//
-//
-//       //set variables to define spacing/size
-//       var rectHeight = 1,
-//           rectWidth = 20,
-//           legendSpacing = 4;
-//       //color classes array
-//       var colorClasses = [];
-//
-//       var legendTextArray = [];
-//
-//       // for loop retrieving stroke color of each route for the legend
-//       for (i=0; i<routeObjArray.length; i++) {
-//           var routeText = routeObjArray[i].text
-//           //current route in loop
-//           var routeVal = routeObjArray[i].value
-//           //pull color from stroke of route
-//           var color = d3.select("." + routeVal).style("stroke")
-//           //add color to colorclasses array
-//           colorClasses.push(color)
-//
-//           legendTextArray.push(routeText)
-//           // create new property in routeObjArray for the color; easier to build legend using one array
-//           routeObjArray[i].color = color
-//       }
-//
-//       var ordinal = d3.scale.ordinal()
-//           .domain(routeText)
-//           .range(colorClasses)
-//
-//       var legend = legendSvg.append("g")
-//           .attr("class","legend")
-//           .attr("transform","translate(50,30)")
-//           .style("font-size","12px")
-//
-//
-//       var legendColor = d3.legend.color()
-//           .shape("path", d3.svg.symbol().type("triangle-up").size(150)())
-//           .shapePadding(10)
-//           .scale(ordinal)
-// }
 
 function createLegend() {
 
@@ -715,11 +617,9 @@ function createLegend() {
               //changes click to back in ID string so we can change fill
               var rectID = buttonID.replace("Select", "Back")
               //change fill
-              console.log(rectID);
               d3.select("#" + rectID).style({
                   "stroke": "#aaa",
                   "stroke-width": "2px",
-                  // fill: "#999"
               })
           })
           .on("mouseout", function(){
@@ -732,7 +632,6 @@ function createLegend() {
                 "fill": "#eee",
                 "stroke": "#ddd",
                 "stroke-width": "1px"
-
               })
           })
 
@@ -748,7 +647,7 @@ function createLegend() {
               var horz = 2 * rectWidth;
               var vert = i * height - offset + 200;
               return 'translate(' + horz + ',' + vert + ')';
-        });
+          });
 
       //creates rect elements for legened
       var legendRect = legendIsolate.append('circle')
@@ -765,7 +664,7 @@ function createLegend() {
           .attr("transform", "translate(5, -97)")
           .text(function(d) { return d.text });
 
-      // //checkboxes for each route
+      // //checkboxes for each isolate precision
       var checkboxesIsolate = legendIsolate.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
@@ -776,13 +675,42 @@ function createLegend() {
               var isolateID = isolateLegendArray[i].value + "_check";
               return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
           })
-          .on("change", function(d){
-              //function updates "checked" property for every route
-              isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
-              //updates visibility of route based on if it is checked or not
-              updateVisibility(isolateLegendArray);
-          });
+          .on("change", function(){
+              //select both checkboxes
+              var checked = d3.selectAll(".isolate_checkbox")[0];
 
+              for (i=0; i<checked.length; i++) {
+                  if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+
+                  } else { //if unchecked in legend
+                      //gets ID, which contains element to update
+                      var getID = checked[i].id;
+                      //trim "_check" from end of ID string
+                      var getClass = getID.slice(0, -6);
+                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                      d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                          .attr("visibility", "hidden")
+                          .attr("id", "unchecked")
+
+                      //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                      d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                          .attr("id", "unchecked")
+                  }
+              }
+          });
 
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
@@ -875,11 +803,6 @@ function createLegend() {
           .attr("transform", "translate(-47, -12)")
         .append("xhtml:body")
           .html(function(d, i) {
-              // console.log(routeObjArray[i].value);
-              // console.log(d);
-              // console.log(i);
-              // //get unique attribute for every variable
-              // var attribute = createAttID(d, rankData)
               //create ID for checkboxes
               var routeID = routeObjArray[i].value + "_check";
               return "<form><input type=checkbox class='route_checkbox' id='" + routeID + "'</input></form>"
@@ -893,21 +816,19 @@ function createLegend() {
 
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
-          var route = routeObjArray[i].value
-          // console.log(d3.select("#" + route + "_check")[0][0].checked);
+          var route = routeObjArray[i].value;
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
       //checks all routes by default
       for (i=0; i<isolateLegendArray.length; i++) {
-          var isolate = isolateLegendArray[i].value
-          // console.log(d3.select("#" + route + "_check")[0][0].checked);
+          var isolate = isolateLegendArray[i].value;
           d3.select("#" + isolate + "_check")[0][0].checked = true;
       }
 
 };
 
-//changes city panel after button is clicked for displaying selected cities
+//updates button text in legend
 function updateButton(item, array){
     //calculate length of array
     var length = array.length;
@@ -916,8 +837,8 @@ function updateButton(item, array){
         horz = 9;
 
     //retrieves button text to determin action
-    var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML
-    //
+    var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
             vert += 70;
@@ -939,10 +860,39 @@ function updateButton(item, array){
         })
         //update values in proper array
         if (item === "isolate") {
-            //updates checked property of each object
-            isolateLegendArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(isolateLegendArray)
+            //select both checkboxes
+            var checked = d3.selectAll(".isolate_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+                } else {
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "hidden")
+                        .attr("id", "unchecked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "unchecked")
+                };
+            };
         } else if (item === "route") {
           //updates checked property of each object
           routeObjArray = setCheckedProp(array, item);
@@ -973,24 +923,49 @@ function updateButton(item, array){
                   // unchecks each checkbox
                   d[j].checked = true
               }
-        })
+        });
         //update values in proper array
         if (item === "isolate") {
-            //updates checked property of each object
-            isolateLegendArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(isolateLegendArray)
+            //select both checkboxes
+            var checked = d3.selectAll(".isolate_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+                } else {
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "hidden")
+                        .attr("id", "unchecked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "unchecked")
+                };
+            };
         } else if (item === "route") {
           //updates checked property of each object
           routeObjArray = setCheckedProp(array, item);
           //updates visibility based on array
           updateVisibility(routeObjArray)
-        }
+        };
     };
-
-    // if (item == "isolate") {
-    //     updateVisibility(isolateLegendArray)
-    // }
 };
 
 
@@ -1003,72 +978,13 @@ function updateVisibility(array) {
 
         //checks if route is selected
         if (array[i].checked === 1){
+            // console.log(item);
             item.attr("visibility", "visible")
         } else {
             item.attr("visibility", "hidden")
         }
     }
 }
-// function createLegend() {
-//
-//
-//     //set measurements for panel
-//     var legendMargin = {top: 20, right: 10, bottom: 30, left: 10},
-//     legendHeight = 800, //set height
-//     legendHeight = legendHeight - legendMargin.top,
-//     legendWidth = window.innerWidth * 0.2,//width of legendSvg
-//     legendWidth = legendWidth - legendMargin.left - legendMargin.right //width with margins for padding
-//
-//     //div container that holds SVG
-//     var legendContainer = d3.select("body").append("div")
-//         .attr("id", "legendContainer")
-//         .attr("width", legendWidth + 10)
-//         .attr("height", "400px")
-//
-//     var collapseButton = legendContainer.append("button")
-//         .html("&raquo;")
-//
-//
-//     var hideWidth = "-385px";
-//     var collapsibleE1 = $('#legendContainer')
-//     var buttonE1 = $("#legendContainer button")
-//
-//     $(buttonE1).click(function() {
-//          var curwidth = $(this).parent().offset(); //get offset value of the parent element
-//          if(curwidth.left>0) //compare margin-left value
-//          {
-//              //animate margin-left value to -490px
-//              $(this).parent().animate({marginLeft: hideWidth}, 300 );
-//              $(this).html('&raquo;'); //change text of button
-//          }else{
-//              //animate margin-left value 0px
-//              $(this).parent().animate({marginLeft: "0"}, 300 );
-//              $(this).html('&laquo;'); //change text of button
-//          }
-//     });
-//     //create svg for legendpanel
-//     var legendSvg = d3.select("#legendContainer").append("svg")
-//         .attr("class", "legendSvg")
-//         .attr("width", "300px")
-//         .attr("height", legendHeight)
-//       .append("g")
-//         .attr("transform", "translate(" + legendMargin.left + "," + legendMargin.top + ")");// adds padding to group element in SVG
-// //sets legend title
-//     var legendTitleRect = legendSvg.append("rect")
-//         .attr("id", "legendTitleRect")
-//         .attr('x', -10)
-//         .attr("y", -20)
-//         .attr("width", '100%')
-//         .attr("height", 60)
-//         .text("Attributes")
-//     //sets legend title
-//     var legendTitle = legendSvg.append("text")
-//         .attr("class", "legendTitle")
-//         .attr("x", legendWidth / 5)
-//         .attr("y", legendMargin.top)
-//         .text("Select Attributes")
-//
-// }
 // function setEnumerationUnits(franceRegions, map, path){
 //
 //   	//add France regions to map
@@ -1123,7 +1039,6 @@ function setCheckedProp(array, className) {
     var checked = d3.selectAll("." + className + "_checkbox");
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
-        console.log(d);
         // loop through each checkbox element in array
         for (j=0; j<length; j++) {
             //if the checkbox is checked, do this
