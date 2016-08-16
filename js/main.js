@@ -661,18 +661,47 @@ function createIsoLineageMenu() {
         }
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
-        for (i=0; i<isolateObjArray.length; i++) {
-            var lineage = isolateObjArray[i].value
-            d3.selectAll("." + lineage)
-              .attr("visibility", "visible")
+        for (i=1; i<8; i++) {
+            //store current lineage
+            var lineage = "lin_" + i;
+
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "visible")
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
         }
     })
     .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
-        for (i=0; i<isolateObjArray.length; i++) {
-            var lineage = isolateObjArray[i].value
-            d3.selectAll("." + lineage)
-              .attr("visibility", "hidden")
+        for (i=1; i<8; i++) {
+
+            //store current lineage
+            var lineage = "lin_" + i;
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "hidden")
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
         }
+        // for (i=0; i<isolateObjArray.length; i++) {
+        //     var lineage = isolateObjArray[i].value
+        //     d3.selectAll("." + lineage)
+        //       .attr("visibility", "hidden")
+        // }
     })
 }
 
@@ -992,11 +1021,6 @@ function createLegend() {
           .attr("transform", "translate(-47, -12)")
         .append("xhtml:body")
           .html(function(d, i) {
-              // console.log(routeObjArray[i].value);
-              // console.log(d);
-              // console.log(i);
-              // //get unique attribute for every variable
-              // var attribute = createAttID(d, rankData)
               //create ID for checkboxes
               var routeID = routeObjArray[i].value + "_check";
               return "<form><input type=checkbox class='route_checkbox' id='" + routeID + "'</input></form>"
@@ -1087,12 +1111,8 @@ function updateButton(item, array){
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
                     d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
                         .attr("id", "unchecked")
-                }
-            }
-            // //updates checked property of each object
-            // isolateLegendArray = setCheckedProp(array, item);
-            // //updates visibility based on array
-            // updateVisibility(isolateLegendArray)
+                };
+            };
         } else if (item === "route") {
           //updates checked property of each object
           routeObjArray = setCheckedProp(array, item);
@@ -1123,24 +1143,49 @@ function updateButton(item, array){
                   // unchecks each checkbox
                   d[j].checked = true
               }
-        })
+        });
         //update values in proper array
         if (item === "isolate") {
-            //updates checked property of each object
-            isolateLegendArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(isolateLegendArray)
+            //select both checkboxes
+            var checked = d3.selectAll(".isolate_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+                } else {
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "hidden")
+                        .attr("id", "unchecked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "unchecked")
+                };
+            };
         } else if (item === "route") {
           //updates checked property of each object
           routeObjArray = setCheckedProp(array, item);
           //updates visibility based on array
           updateVisibility(routeObjArray)
-        }
+        };
     };
-
-    // if (item == "isolate") {
-    //     updateVisibility(isolateLegendArray)
-    // }
 };
 
 
