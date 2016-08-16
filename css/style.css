@@ -46,14 +46,13 @@
 }
 
 .exactIsolates {
-		stroke: black;
-		/*fill: #333;*/
+		fill: #333;
 }
 
 .randomIsolates {
-		/*fill: #aaa;*/
+		fill: #aaa;
 }
-
+/*
 .lin_1 {
 		fill: red;
 }
@@ -74,7 +73,7 @@
 }
 .lin_7 {
 		fill: black;
-}
+}*/
 
 /*routes*/
 
