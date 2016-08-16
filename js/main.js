@@ -64,13 +64,11 @@
         {
           text: "Exact Location Known",
           value: "exactIsolates",
-          checked: 1,
           fill: "#333"
         },
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          checked: 1,
           fill: "#aaa"
         }
     ];
@@ -85,7 +83,6 @@
         var linObj = {
                         text: linText,
                         value: linValue,
-                        filtered: 0
                       }
         //push object to array
         isolateObjArray.push(linObj)
@@ -95,18 +92,6 @@
         .attr("id", "menubar")
 
     function setMap(){
-
-
-      	// //create Albers equal area conic projection centered on France
-      	// var projection = d3.geo.conicEqualArea()
-        //     // .rotate([40, 0])
-        //     .center([73, 30])
-        // 		.parallels([-35, 43])
-        // 		.scale(800)
-        // 		.translate([mapWidth / 2, mapHeight / 2]);
-        //
-      	// var path = d3.geo.path()
-      	// 	  .projection(projection);
 
         //set variable to access queue.js to parallelize asynchronous data loading
         var q = d3_queue.queue();
@@ -123,7 +108,6 @@
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
-            // console.log(silkRoadData);
 
             //place graticule on the map
         		// setGraticule(map, path);
@@ -142,8 +126,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
-
-            // var dropdownMenu = createDropdown(linFreqJson)
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -170,33 +152,6 @@
             var g = map.append("g");
 
             var colorScale = makeColorScale();
-
-            // //translate countries topojson for non-zoom
-            // var countryJson = topojson.feature(countryData, countryData.objects.Countries),
-            //     whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
-            // //add countries to map
-        		// var countries = map.append("g")
-        		// 	 .attr("class", "countries")
-            //   .selectAll("path")
-            //     .data(countryJson)
-            //     .attr("d", path)
-            //     .attr("id", function(d){
-            //       // console.log(d.properties);
-            //         return d.properties.Country
-            //     })
-            //
-            // //add a path to the coastal states group element to color borders without coloring coastline
-            // map.append("path")
-            //     .datum(topojson.mesh(countryData, countryData.objects.Countries, function(a, b) { return a !== b; }))
-            //     .attr("id", "country-borders")
-            //     .attr("d", path);
-            //
-
-            // var sphere = g.append("path")
-            //     .datum({type: "Sphere"})
-            //     .attr("class", "sphere")
-            //     .attr("d", path)
-
 
             //add countries to map
         		var countries = g.selectAll(".countries")
@@ -313,22 +268,11 @@
 
             map.call(zoom)
 
-
-
-        			// .attr("class", "countries")
-              // .attr("id", function(d){
-              //     console.log(d);
-              // })
-        			// .attr("d", path);
-
             // //add enumeration units to the map
             // setEnumerationUnits(whoRegionsJson, map, path);
-
-
         };
 
     };
-
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
@@ -353,35 +297,6 @@ function choropleth(props, colorScale, expressed){
     		return "#ddd";
   	};
 };
-
-// //creates dropdown menu
-// function createDropdown(data){
-//     //array for option values in dropdown
-//     var lineageValArray = ["per14_Lin1", "per14_Lin2", "per14_Lin3", "per14_Lin4"]
-//
-//     //array for display text in dropdown
-//     var lineageTextArray = ["Lineage 1", "Lineage 2", "Lineage 3", "Lineage 4"]
-//
-//     //testing if dropdown already exists to prevent duplicate creation
-//     if(d3.select(".dropdown").empty() == true){
-//         //add select element
-//         var dropdown = d3.select("body")
-//             .append("select")
-//             .attr("class", "dropdown")
-//             .on("change", function(){
-//                 changeAttribute(this.value, data)
-//             });
-//
-//
-//         var attrOptions = dropdown.selectAll(".attrOptions")
-//             .data(lineageValArray)
-//             .enter()
-//           .append("option")
-//             .attr("class", "attrOptions")
-//             .attr("value", function(d){ return d })
-//             .text(function(d, i){ return lineageTextArray[i] });
-//     }
-// };
 
 function createLinFreqMenu() {
 
@@ -576,39 +491,8 @@ function createIsoLineageMenu() {
                     return lineage + " notFiltered"
                 })
 
-          // for (i=0; i<visible.length; i++) {
-          //   console.log(visible[i]);
-          // }
           //select the isolate checkboxes from legend to determine which isolates should be filtered
           var checked = d3.selectAll(".isolate_checkbox");
-          // console.log(checked);
-          //test both isolate precision checkboxes to determine which is checked
-          // checked.forEach(function(d){ //d is selection of two checkboxes
-          //
-          //     for (i=0; i<2; i++){
-          //        if (d[i].checked === true) { //shows isolates for selected lineage if precision checkbox in legend is checked
-          //            //gets ID, which contains element to update
-          //            var getID = d[i].id;
-          //            //trim "_check" from end of ID string
-          //            var isolates = getID.slice(0, -6);
-          //
-          //            //adjusts visibility for isolates of current lineage based on checkboxes for precision
-          //            d3.selectAll("." + isolates).selectAll("." + lineage)
-          //                 .attr("visibility", "visible")
-          //                 .attr("class", function() {
-          //                     return lineage + " notFiltered"
-          //                 })
-          //
-          //        } else { //hides isolates for selected lineage if precision checkbox in legend is NOT checked
-          //           d3.selectAll("." + isolates).selectAll("." + lineage)
-          //               .attr("class", function() {
-          //
-          //                   return lineage + " filtered"
-          //               })
-          //               .attr("visibility", "hidden")
-          //        }
-          //     }
-          // })
         } else if (ui.checked === false){ //lineage is unchecked in dropdown multiselect
             //update visibility and class for isolates of current lineage for selected precisions in legend
             d3.selectAll("#checked").filter("." + lineage)
@@ -622,42 +506,6 @@ function createIsoLineageMenu() {
                 .attr("class", function() {
                     return lineage + " filtered"
                 })
-
-          //
-          // //hides all isolates of selected lineage
-          // d3.selectAll("." + lineage)
-          //     .attr("class", function() {
-          //
-          //         return lineage + " filtered"
-          //     })
-          //     .attr("visibility", "hidden")
-
-        //   //select the isolate checkboxes from legend to determine which isolates should be filtered
-        //   var checked = d3.selectAll(".isolate_checkbox");
-        //   //test both isolate precision checkboxes to determine which is checked
-        //   checked.forEach(function(d){
-        //       for (i=0; i<2; i++){
-        //          if (d[i].checked === false) { //hides isolates for selected lineage if precision checkbox in legend is NOT checked
-        //              //gets ID, which contains element to update
-        //              var getID = d[i].id;
-        //              //trim "_check" from end of ID string
-        //              var isolates = getID.slice(0, -6);
-        //
-        //              var selectedLineage = d3.select("." + isolates).selectAll("." + lineage)
-        //              //adjusts visibility for isolates of current lineage based on checkboxes for precision
-        //              selectedLineage.attr("visibility", "hidden")
-        //              for (i=0; i<selectedLineage.length; i++){
-        //                 selectedLineage[i].attr("class", function(d) {
-        //                     return "." + lineage + " filtered"
-        //                 })
-        //              }
-        //
-        //          }
-        //       }
-        //   })
-        //     //
-        //     // d3.selectAll("." + ui.value)
-        //     //     .attr("visibility", "hidden")
         }
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
@@ -697,66 +545,8 @@ function createIsoLineageMenu() {
                     return lineage + " filtered"
                 })
         }
-        // for (i=0; i<isolateObjArray.length; i++) {
-        //     var lineage = isolateObjArray[i].value
-        //     d3.selectAll("." + lineage)
-        //       .attr("visibility", "hidden")
-        // }
     })
 }
-
-// function createLegend() {
-//
-//     var legendDiv = d3.select("body").append("div")
-//         .attr("id", "legendDiv")
-//         .attr("width", window.innerWidth * 0.2)
-//         .attr("height", "400px");
-//     var legendSvg = legendDiv.append("svg")
-//         .attr("id", "legendSvg")
-//         .attr("width", window.innerWidth * 0.18)
-//         .attr("height", "300px");
-//
-//
-//
-//       //set variables to define spacing/size
-//       var rectHeight = 1,
-//           rectWidth = 20,
-//           legendSpacing = 4;
-//       //color classes array
-//       var colorClasses = [];
-//
-//       var legendTextArray = [];
-//
-//       // for loop retrieving stroke color of each route for the legend
-//       for (i=0; i<routeObjArray.length; i++) {
-//           var routeText = routeObjArray[i].text
-//           //current route in loop
-//           var routeVal = routeObjArray[i].value
-//           //pull color from stroke of route
-//           var color = d3.select("." + routeVal).style("stroke")
-//           //add color to colorclasses array
-//           colorClasses.push(color)
-//
-//           legendTextArray.push(routeText)
-//           // create new property in routeObjArray for the color; easier to build legend using one array
-//           routeObjArray[i].color = color
-//       }
-//
-//       var ordinal = d3.scale.ordinal()
-//           .domain(routeText)
-//           .range(colorClasses)
-//
-//       var legend = legendSvg.append("g")
-//           .attr("class","legend")
-//           .attr("transform","translate(50,30)")
-//           .style("font-size","12px")
-//
-//
-//       var legendColor = d3.legend.color()
-//           .shape("path", d3.svg.symbol().type("triangle-up").size(150)())
-//           .shapePadding(10)
-//           .scale(ordinal)
-// }
 
 function createLegend() {
 
@@ -842,7 +632,6 @@ function createLegend() {
                 "fill": "#eee",
                 "stroke": "#ddd",
                 "stroke-width": "1px"
-
               })
           })
 
@@ -858,7 +647,7 @@ function createLegend() {
               var horz = 2 * rectWidth;
               var vert = i * height - offset + 200;
               return 'translate(' + horz + ',' + vert + ')';
-        });
+          });
 
       //creates rect elements for legened
       var legendRect = legendIsolate.append('circle')
@@ -906,7 +695,6 @@ function createLegend() {
                     d3.select("." + getClass).selectAll("path").filter(".filtered")
                         .attr("id", "checked")
 
-
                   } else { //if unchecked in legend
                       //gets ID, which contains element to update
                       var getID = checked[i].id;
@@ -920,15 +708,9 @@ function createLegend() {
                       //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
                       d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
                           .attr("id", "unchecked")
-
                   }
               }
-              // //function updates "checked" property for every route
-              // isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
-              // //updates visibility of route based on if it is checked or not
-              // updateVisibility(isolateLegendArray);
           });
-
 
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
@@ -1034,15 +816,13 @@ function createLegend() {
 
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
-          var route = routeObjArray[i].value
-          // console.log(d3.select("#" + route + "_check")[0][0].checked);
+          var route = routeObjArray[i].value;
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
       //checks all routes by default
       for (i=0; i<isolateLegendArray.length; i++) {
-          var isolate = isolateLegendArray[i].value
-          // console.log(d3.select("#" + route + "_check")[0][0].checked);
+          var isolate = isolateLegendArray[i].value;
           d3.select("#" + isolate + "_check")[0][0].checked = true;
       }
 
@@ -1057,8 +837,8 @@ function updateButton(item, array){
         horz = 9;
 
     //retrieves button text to determin action
-    var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML
-    //
+    var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
             vert += 70;
@@ -1191,7 +971,6 @@ function updateButton(item, array){
 
 //updates visibility of routes based on whether or not route is checked in legend
 function updateVisibility(array) {
-    console.log(array);
 
     for (i=0; i<array.length; i++) {
         //store class
@@ -1206,66 +985,6 @@ function updateVisibility(array) {
         }
     }
 }
-// function createLegend() {
-//
-//
-//     //set measurements for panel
-//     var legendMargin = {top: 20, right: 10, bottom: 30, left: 10},
-//     legendHeight = 800, //set height
-//     legendHeight = legendHeight - legendMargin.top,
-//     legendWidth = window.innerWidth * 0.2,//width of legendSvg
-//     legendWidth = legendWidth - legendMargin.left - legendMargin.right //width with margins for padding
-//
-//     //div container that holds SVG
-//     var legendContainer = d3.select("body").append("div")
-//         .attr("id", "legendContainer")
-//         .attr("width", legendWidth + 10)
-//         .attr("height", "400px")
-//
-//     var collapseButton = legendContainer.append("button")
-//         .html("&raquo;")
-//
-//
-//     var hideWidth = "-385px";
-//     var collapsibleE1 = $('#legendContainer')
-//     var buttonE1 = $("#legendContainer button")
-//
-//     $(buttonE1).click(function() {
-//          var curwidth = $(this).parent().offset(); //get offset value of the parent element
-//          if(curwidth.left>0) //compare margin-left value
-//          {
-//              //animate margin-left value to -490px
-//              $(this).parent().animate({marginLeft: hideWidth}, 300 );
-//              $(this).html('&raquo;'); //change text of button
-//          }else{
-//              //animate margin-left value 0px
-//              $(this).parent().animate({marginLeft: "0"}, 300 );
-//              $(this).html('&laquo;'); //change text of button
-//          }
-//     });
-//     //create svg for legendpanel
-//     var legendSvg = d3.select("#legendContainer").append("svg")
-//         .attr("class", "legendSvg")
-//         .attr("width", "300px")
-//         .attr("height", legendHeight)
-//       .append("g")
-//         .attr("transform", "translate(" + legendMargin.left + "," + legendMargin.top + ")");// adds padding to group element in SVG
-// //sets legend title
-//     var legendTitleRect = legendSvg.append("rect")
-//         .attr("id", "legendTitleRect")
-//         .attr('x', -10)
-//         .attr("y", -20)
-//         .attr("width", '100%')
-//         .attr("height", 60)
-//         .text("Attributes")
-//     //sets legend title
-//     var legendTitle = legendSvg.append("text")
-//         .attr("class", "legendTitle")
-//         .attr("x", legendWidth / 5)
-//         .attr("y", legendMargin.top)
-//         .text("Select Attributes")
-//
-// }
 // function setEnumerationUnits(franceRegions, map, path){
 //
 //   	//add France regions to map
@@ -1320,7 +1039,6 @@ function setCheckedProp(array, className) {
     var checked = d3.selectAll("." + className + "_checkbox");
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
-        console.log(d);
         // loop through each checkbox element in array
         for (j=0; j<length; j++) {
             //if the checkbox is checked, do this
