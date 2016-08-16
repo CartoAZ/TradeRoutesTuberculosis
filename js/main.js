@@ -74,6 +74,22 @@
           fill: "#aaa"
         }
     ];
+    //empty array to bind to select element
+    var isolateObjArray = [];
+    //for loop to populate isolateObjArray
+    for (i=1; i<8; i++) {
+        // set variables to be added as values in object
+        var linText = "Lineage " + i,
+            linValue = "lin_" + i;
+        //create object for each of 7 lineages
+        var linObj = {
+                        text: linText,
+                        value: linValue,
+                        filtered: 0
+                      }
+        //push object to array
+        isolateObjArray.push(linObj)
+    };
 
     var menubar = d3.select("body").append("div")
         .attr("id", "menubar")
@@ -257,8 +273,9 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage;
+                    return "lin_" + lineage + " notFiltered";
                 })
+                .attr("id", "checked")
             //add exact isolates to map
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
@@ -270,9 +287,9 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage;
+                    return "lin_" + lineage + " notFiltered";
                 })
-
+                .attr("id", "checked")
 
             //function to create a dropdown menu to add/remove isolates by lineage
             createIsoLineageMenu();
@@ -466,22 +483,9 @@ function drawLineageFrequency(expressed) {
                   rectWidth = 40;
                   // legendSpacing = 4;
               //color classes array
-              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'none']
+              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', '#ddd', 'none']
               //color values array
-              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']
-              //
-              // var freqObjArray = [];
-              //
-              // for (i=0; i<routeObjArray.length; i++) {
-              //     //current route in loop
-              //     var route = routeObjArray[i].value
-              //     //pull color from stroke of route
-              //     var color = d3.select("." + route).style("stroke")
-              //     //add color to colorclasses array
-              //     colorClasses.push(color)
-              //     // create new property in routeObjArray for the color; easier to build legend using one array
-              //     routeObjArray[i].color = color
-              // }
+              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -529,21 +533,6 @@ function drawLineageFrequency(expressed) {
     }
 }
 function createIsoLineageMenu() {
-    //empty array to bind to select element
-    var isolateObjArray = [];
-    //for loop to populate isolateObjArray
-    for (i=1; i<8; i++) {
-        // set variables to be added as values in object
-        var linText = "Lineage " + i,
-            linValue = "lin_" + i;
-        //create object for each of 7 lineages
-        var linObj = {
-                        text: linText,
-                        value: linValue
-                      }
-        //push object to array
-        isolateObjArray.push(linObj)
-    };
 
     //creates the selection menu
     var isoSelect = d3.select("#menubar").append("select")
@@ -569,12 +558,106 @@ function createIsoLineageMenu() {
         }
     ).multiselect("checkAll") //checks all routes by default
     .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
+        //store current lineage
+        var lineage = ui.value;
+
+        //checks which lineage is checked
         if (ui.checked === true) {
-          d3.selectAll("." + ui.value)
-              .attr("visibility", "visible")
-        } else {
-            d3.selectAll("." + ui.value)
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
+                .attr("visibility", "visible")
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " notFiltered"
+                })
+
+          // for (i=0; i<visible.length; i++) {
+          //   console.log(visible[i]);
+          // }
+          //select the isolate checkboxes from legend to determine which isolates should be filtered
+          var checked = d3.selectAll(".isolate_checkbox");
+          // console.log(checked);
+          //test both isolate precision checkboxes to determine which is checked
+          // checked.forEach(function(d){ //d is selection of two checkboxes
+          //
+          //     for (i=0; i<2; i++){
+          //        if (d[i].checked === true) { //shows isolates for selected lineage if precision checkbox in legend is checked
+          //            //gets ID, which contains element to update
+          //            var getID = d[i].id;
+          //            //trim "_check" from end of ID string
+          //            var isolates = getID.slice(0, -6);
+          //
+          //            //adjusts visibility for isolates of current lineage based on checkboxes for precision
+          //            d3.selectAll("." + isolates).selectAll("." + lineage)
+          //                 .attr("visibility", "visible")
+          //                 .attr("class", function() {
+          //                     return lineage + " notFiltered"
+          //                 })
+          //
+          //        } else { //hides isolates for selected lineage if precision checkbox in legend is NOT checked
+          //           d3.selectAll("." + isolates).selectAll("." + lineage)
+          //               .attr("class", function() {
+          //
+          //                   return lineage + " filtered"
+          //               })
+          //               .attr("visibility", "hidden")
+          //        }
+          //     }
+          // })
+        } else if (ui.checked === false){ //lineage is unchecked in dropdown multiselect
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.selectAll("#checked").filter("." + lineage)
                 .attr("visibility", "hidden")
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.selectAll("#unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered"
+                })
+
+          //
+          // //hides all isolates of selected lineage
+          // d3.selectAll("." + lineage)
+          //     .attr("class", function() {
+          //
+          //         return lineage + " filtered"
+          //     })
+          //     .attr("visibility", "hidden")
+
+        //   //select the isolate checkboxes from legend to determine which isolates should be filtered
+        //   var checked = d3.selectAll(".isolate_checkbox");
+        //   //test both isolate precision checkboxes to determine which is checked
+        //   checked.forEach(function(d){
+        //       for (i=0; i<2; i++){
+        //          if (d[i].checked === false) { //hides isolates for selected lineage if precision checkbox in legend is NOT checked
+        //              //gets ID, which contains element to update
+        //              var getID = d[i].id;
+        //              //trim "_check" from end of ID string
+        //              var isolates = getID.slice(0, -6);
+        //
+        //              var selectedLineage = d3.select("." + isolates).selectAll("." + lineage)
+        //              //adjusts visibility for isolates of current lineage based on checkboxes for precision
+        //              selectedLineage.attr("visibility", "hidden")
+        //              for (i=0; i<selectedLineage.length; i++){
+        //                 selectedLineage[i].attr("class", function(d) {
+        //                     return "." + lineage + " filtered"
+        //                 })
+        //              }
+        //
+        //          }
+        //       }
+        //   })
+        //     //
+        //     // d3.selectAll("." + ui.value)
+        //     //     .attr("visibility", "hidden")
         }
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
@@ -765,7 +848,7 @@ function createLegend() {
           .attr("transform", "translate(5, -97)")
           .text(function(d) { return d.text });
 
-      // //checkboxes for each route
+      // //checkboxes for each isolate precision
       var checkboxesIsolate = legendIsolate.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
@@ -776,11 +859,49 @@ function createLegend() {
               var isolateID = isolateLegendArray[i].value + "_check";
               return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
           })
-          .on("change", function(d){
-              //function updates "checked" property for every route
-              isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
-              //updates visibility of route based on if it is checked or not
-              updateVisibility(isolateLegendArray);
+          .on("change", function(){
+              //select both checkboxes
+              var checked = d3.selectAll(".isolate_checkbox")[0];
+
+              for (i=0; i<checked.length; i++) {
+                  if (checked[i].checked === true) { //isolate checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    console.log(d3.select("." + getClass).selectAll("path"));
+                    console.log(d3.select("." + getClass).selectAll("path").filter(".notFiltered"));
+
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                        .attr("visibility", "visibile")
+                        .attr("id", "checked")
+
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                        .attr("id", "checked")
+
+
+                  } else { //if unchecked in legend
+                      //gets ID, which contains element to update
+                      var getID = checked[i].id;
+                      //trim "_check" from end of ID string
+                      var getClass = getID.slice(0, -6);
+                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                      d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                          .attr("visibility", "hidden")
+                          .attr("id", "unchecked")
+
+                      //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                      d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                          .attr("id", "unchecked")
+
+                  }
+              }
+              // //function updates "checked" property for every route
+              // isolateObjArray = setCheckedProp(isolateLegendArray, "isolate");
+              // //updates visibility of route based on if it is checked or not
+              // updateVisibility(isolateLegendArray);
           });
 
 
@@ -907,7 +1028,7 @@ function createLegend() {
 
 };
 
-//changes city panel after button is clicked for displaying selected cities
+//updates button text in legend
 function updateButton(item, array){
     //calculate length of array
     var length = array.length;
@@ -996,6 +1117,7 @@ function updateButton(item, array){
 
 //updates visibility of routes based on whether or not route is checked in legend
 function updateVisibility(array) {
+    console.log(array);
 
     for (i=0; i<array.length; i++) {
         //store class
@@ -1003,6 +1125,7 @@ function updateVisibility(array) {
 
         //checks if route is selected
         if (array[i].checked === 1){
+            // console.log(item);
             item.attr("visibility", "visible")
         } else {
             item.attr("visibility", "hidden")
