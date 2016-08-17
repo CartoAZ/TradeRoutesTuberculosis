@@ -17,7 +17,6 @@
 		stroke-width: 2px;
 		opacity: 0.5;
 }
-
 #European {
 		fill: #ABADFF;
 }
@@ -52,33 +51,11 @@
 .randomIsolates {
 		fill: #aaa;
 }
-/*
-.lin_1 {
-		fill: red;
-}
-.lin_2 {
-		fill: orange;
-}
-.lin_3 {
-		fill: yellow;
-}
-.lin_4 {
-		fill: green;
-}
-.lin_5 {
-		fill: blue;
-}
-.lin_6 {
-		fill: purple;
-}
-.lin_7 {
-		fill: black;
-}*/
 
 /*routes*/
 
 g .tradeRoutes {
-		z-index: 10;
+	stroke-linecap: round;
 }
 
 .silkRoad {
@@ -148,7 +125,7 @@ g .tradeRoutes {
 
 /*lineage frequency overlays*/
 .lineageFrequencies {
-		z-index: 1;
+	stroke: #CCC;
 }
 
 /*dropdown menu for lineage frequencies*/
@@ -177,7 +154,7 @@ ul {
 }
 
 #legendSvg {
-	height: 400px;
+	height: 530px;
 	width: 100%
 }
 
@@ -190,7 +167,7 @@ ul {
 }
 
 .legendText {
-    font-size: 0.8em;
+    font-size: 10px;
     fill: #555;
     font-family: trebuchet ms;
 }
@@ -210,14 +187,16 @@ ul {
 }
 
 #isolateBack,
-#routeBack {
+#routeBack,
+#whoBack {
 		rx: 3px;
 		ry: 3px;
 		fill: #eee;
 		stroke: #ddd;
 }
 #isolateSelect,
-#routeSelect {
+#routeSelect,
+#whoSelect {
 		rx: 3px;
 		ry: 3px;
 		opacity: 0;
