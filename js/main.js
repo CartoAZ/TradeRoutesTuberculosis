@@ -108,7 +108,7 @@
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
-
+            console.log(countryData);
             //place graticule on the map
         		// setGraticule(map, path);
 
