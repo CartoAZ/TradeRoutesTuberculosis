@@ -60,6 +60,39 @@
         }
     ]
 
+    var whoObjArray = [
+        {
+          text: 'Western Pacific',
+          value: 'Western_Pacific',
+          checked: 1,
+          color: "#FF8C03"
+        },
+        {
+          text: 'Southeast Asia',
+          value: 'South_East_Asia',
+          checked: 1,
+          color: "#85FF0D"
+        },
+        {
+          text: 'Eastern Mediterranean',
+          value: 'Eastern_Mediterranean',
+          checked: 1,
+          color: "#0AFCD2"
+        },
+        {
+          text: 'African',
+          value: 'African',
+          checked: 1,
+          color: "#FFFF3B"
+        },
+        {
+          text: 'European',
+          value: 'European',
+          checked: 1,
+          color: "#ABADFF"
+        }
+    ]
+
     var isolateLegendArray = [
         {
           text: "Exact Location Known",
@@ -108,7 +141,10 @@
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+<<<<<<< HEAD
             console.log(countryData);
+=======
+>>>>>>> master
             //place graticule on the map
         		// setGraticule(map, path);
 
@@ -164,16 +200,17 @@
                 })
                 .attr("d", path)
 
-            // //add world health organization regions to map
-            // var who_regions = g.selectAll(".who_regions")
-            //    .data(whoRegionsJson)
-            //    .enter()
-            //  .append("path")
-            //     .attr("class", "who_regions")
-            //     .attr("id", function(d){
-            //         return d.properties.WHO_Region
-            //     })
-            //     .attr("d", path)
+            //add world health organization regions to map
+            var who_regions = g.selectAll(".who_regions")
+               .data(whoRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "who_regions")
+                .attr("id", function(d){
+                    return d.properties.WHO_Region
+                })
+                .attr("d", path)
+                .attr("visibility", "hidden")
 
             //add second set of countries for lineage frequencies to map
             var lineageFrequencies = g.selectAll(".lineageFrequencies")
@@ -613,7 +650,7 @@ function createLegend() {
       //set variables to define spacing/size
       var rectHeight = 1,
           rectWidth = 20,
-          legendSpacing = 4;
+          legendSpacing = 0.75;
       //color classes array
       var colorClasses = [];
 
@@ -648,19 +685,19 @@ function createLegend() {
           .attr("id", "isolateBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,50)")
+          .attr("transform", "translate(4,47)")
       //text of button
       var isoButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "isolateButtonText")
-          .attr("transform", "translate(6,62)")
+          .attr("transform", "translate(6,59)")
           .text("Clear All")
       //clickable rect
       var isoSelectButton = legendSvg.append("rect")
           .attr("id", "isolateSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,50)")
+          .attr("transform", "translate(4,47)")
           .on("click", function(){
               updateButton("isolate", isolateLegendArray);
           })
@@ -698,13 +735,13 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 200;
+              var vert = i * height - offset + 195;
               return 'translate(' + horz + ',' + vert + ')';
           });
 
       //creates rect elements for legened
-      var legendRect = legendIsolate.append('circle')
-          .attr("class", "legendCircle")
+      var legendIsolateCircle = legendIsolate.append('circle')
+          .attr("class", "legendIsolateCircle")
           .attr('cx', 25)
           .attr('cy', 25)
           .attr('r', 3)
@@ -777,19 +814,19 @@ function createLegend() {
           .attr("id", "routeBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,120)")
+          .attr("transform", "translate(4,117)")
       //text of button
       var routeButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "routeButtonText")
-          .attr("transform", "translate(6,132)")
+          .attr("transform", "translate(6,129)")
           .text("Clear All")
       //clickable rect
       var routeSelectButton = legendSvg.append("rect")
           .attr("id", "routeSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,120)")
+          .attr("transform", "translate(4,117)")
           .on("click", function(){
               updateButton("route", routeObjArray);
           })
@@ -828,13 +865,13 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 280;
+              var vert = i * height - offset + 265;
               return 'translate(' + horz + ',' + vert + ')';
         });
 
       //creates rect elements for legened
-      var legendRect = legendRoute.append('rect')
-          .attr("class", "legendRect")
+      var legendRouteRect = legendRoute.append('rect')
+          .attr("class", "legendRouteRect")
           .attr('width', rectWidth)
           .attr('height', rectHeight)
           .attr("transform", "translate(-20,-3)")
@@ -842,15 +879,13 @@ function createLegend() {
           .style('stroke', function(d){ return d.color });
 
       //adds text to legend
-      var legendText = legendRoute.append('text')
+      var legendRouteText = legendRoute.append('text')
           .attr("class", "legendText")
           .attr("transform", "translate(5, 0)")
           .text(function(d) { return d.text });
 
       //checkboxes for each route
-      var checkboxes = legendRoute.append("foreignObject")
-          // .attr('x', textX - 30)
-          // .attr('y', attHeight - 36)
+      var checkboxesRoute = legendRoute.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
           .attr("transform", "translate(-47, -12)")
@@ -865,6 +900,105 @@ function createLegend() {
               routeObjArray = setCheckedProp(routeObjArray, "route");
               //updates visibility of route based on if it is checked or not
               updateVisibility(routeObjArray);
+          });
+
+      //sets legend title
+      var legendWhoTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendWhoTitle")
+          .attr("transform", "translate(60,388)")
+          .text("WHO Regions")
+
+      //rect to hold styling
+      var whoBackButton = legendSvg.append("rect")
+          .attr("id", "whoBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,375)")
+      //text of button
+      var whoButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "whoButtonText")
+          .attr("transform", "translate(9,387)")
+          .text("Add All")
+      //clickable rect
+      var whoSelectButton = legendSvg.append("rect")
+          .attr("id", "whoSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,375)")
+          .on("click", function(){
+              updateButton("who", whoObjArray);
+          })
+          .on("mouseover", function(){
+              //extract ID of rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                  "stroke": "#aaa",
+                  "stroke-width": "2px",
+              })
+          })
+          .on("mouseout", function(){
+              //extract ID of whichever rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                "fill": "#eee",
+                "stroke": "#ddd",
+                "stroke-width": "1px"
+
+              })
+          })
+
+      //creates a group for each rectangle and offsets each by same amount
+      var legendWho = legendSvg.selectAll('.legendWho')
+          .data(whoObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendWho")
+          .attr("transform", function(d, i) {
+              var height = rectWidth + legendSpacing;
+              var offset =  height * routeObjArray.length / 2;
+              var horz = 2 * rectWidth;
+              var vert = i * height - offset + 235;
+              return 'translate(' + horz + ',' + vert + ')';
+        });
+
+      //creates rect elements for legened
+      var legendWhoRect = legendWho.append('rect')
+          .attr("class", "legendWhoRect")
+          .attr('width', 20)
+          .attr('height', 10)
+          .attr("transform", "translate(-20,280)")
+          .style('fill', function(d){ return d.color })
+
+      //adds text to legend
+      var legendWhoText = legendWho.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(5, 288.5)")
+          .text(function(d) { return d.text });
+
+      //checkboxes for each route
+      var checkboxesWho = legendWho.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-47, 274)")
+        .append("xhtml:body")
+          .html(function(d, i) {
+              //create ID for checkboxes
+              var whoID = whoObjArray[i].value + "_check";
+              return "<form><input type=checkbox class='who_checkbox' id='" + whoID + "'</input></form>"
+          })
+          .on("change", function(d){
+              //function updates "checked" property for every route
+              whoObjArray = setCheckedProp(whoObjArray, "who");
+              //updates visibility of route based on if it is checked or not
+              updateVisibility(whoObjArray);
           });
 
       //checks all routes by default
@@ -886,7 +1020,7 @@ function updateButton(item, array){
     //calculate length of array
     var length = array.length;
     //variables for placing button text
-    var vert = 62,
+    var vert = 59,
         horz = 9;
 
     //retrieves button text to determin action
@@ -895,7 +1029,9 @@ function updateButton(item, array){
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
             vert += 70;
-        };
+        } else if (item === "who") {
+            vert += 328;
+        }
 
         //change button text and text position
         d3.select("#" + item + "ButtonText").text("Add All")
@@ -951,6 +1087,11 @@ function updateButton(item, array){
           routeObjArray = setCheckedProp(array, item);
           //updates visibility based on array
           updateVisibility(routeObjArray)
+        } else if (item === "who") {
+          //updates checked property of each object
+          whoObjArray = setCheckedProp(array, item);
+          //updates visibility based on array
+          updateVisibility(whoObjArray)
         }
     }
 
@@ -962,7 +1103,9 @@ function updateButton(item, array){
         if (item === "route") {
             //moves label to appropriate place
             vert += 70;
-        };
+        } else if (item === "who") {
+            vert += 328;
+        }
 
         //change button text
         d3.select("#" + item + "ButtonText").text("Clear All")
@@ -1013,21 +1156,31 @@ function updateButton(item, array){
                 };
             };
         } else if (item === "route") {
-          //updates checked property of each object
-          routeObjArray = setCheckedProp(array, item);
-          //updates visibility based on array
-          updateVisibility(routeObjArray)
-        };
+            //updates checked property of each object
+            routeObjArray = setCheckedProp(array, item);
+            //updates visibility based on array
+            updateVisibility(routeObjArray)
+        } else if (item === "who") {
+            //updates checked property of each object
+            whoObjArray = setCheckedProp(array, item);
+            //updates visibility based on array
+            updateVisibility(whoObjArray)
+        }
     };
 };
 
 
 //updates visibility of routes based on whether or not route is checked in legend
 function updateVisibility(array) {
-
     for (i=0; i<array.length; i++) {
-        //store class
-        var item = d3.selectAll("." + array[i].value)
+
+        if (array.length === 5) { //who_regions have individual IDs
+            //store ID
+            var item = d3.selectAll("#" + array[i].value)
+        } else { //routes have classes
+            //store class
+            var item = d3.selectAll("." + array[i].value)
+        }
 
         //checks if route is selected
         if (array[i].checked === 1){
