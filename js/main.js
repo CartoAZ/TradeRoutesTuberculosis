@@ -320,10 +320,6 @@ function createLinFreqMenu() {
         },{
           text: 'Lineage 4',
           value: 'per14_Lin4'
-        },
-        {
-          text: 'Clear Lineage Frequencies',
-          value: 'clear'
         }
     ]
 
@@ -359,7 +355,7 @@ function createLinFreqMenu() {
 function drawLineageFrequency(expressed) {
     if (expressed === "clear") {
         //conditional to check if legend exists
-        if(d3.select("#freqLegendSvg").empty() == false){
+        if (d3.select("#freqLegendSvg").empty() == false){
             //removes legend
             d3.select("#freqLegendSvg").remove();
             //removes fill of countries
@@ -414,7 +410,7 @@ function drawLineageFrequency(expressed) {
 
                       return "translate(" + horz + "," + vert + ")";
                   })
-                  .text("Lineage Frequency by Country")
+                  .text("Lineage Frequency by Country (Pct.)")
 
               //creates a group for each rectangle and offsets each by same amount
               var freqLegend = freqLegendSvg.selectAll('.freqLegend')
@@ -429,6 +425,63 @@ function drawLineageFrequency(expressed) {
 
                       return 'translate(' + horz + ',' + vert + ')';
                 });
+
+              //rect to hold styling
+              var freqBackButton = d3.select(".map").append("rect")
+                  .attr("id", "freqBack")
+                  .attr("height", "15px")
+                  .attr("width", "170px")
+                  .attr("transform", "translate(670,10)")
+              //text of button
+              var freqButtonText = d3.select(".map").append("text")
+                  .attr("class", "buttonText")
+                  .attr("id", "freqButtonText")
+                  .attr("transform", "translate(690,20)")
+                  .text("Remove Lineage Frequency")
+              //clickable rect
+              var freqSelectButton = d3.select(".map").append("rect")
+                  .attr("id", "freqSelect")
+                  .attr("height", "15px")
+                  .attr("width", "170px")
+                  .attr("transform", "translate(670,10)")
+                  .on("click", function(){
+                      //remove legend from map
+                      d3.select("#freqLegendSvg").remove();
+                      //remove button
+                      d3.select("#freqBack").remove();
+                      //remove button
+                      d3.select("#freqButtonText").remove();
+                      //remove button
+                      d3.select("#freqSelect").remove();
+                      //removes fill from countries
+                      d3.selectAll(".lineageFrequencies")
+                          .style("fill", "none")
+                      //update text on dropdown menu
+                      d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
+                  })
+                  .on("mouseover", function(){
+                      //extract ID of rectangle is clicked
+                      var buttonID = this.id;
+                      //changes click to back in ID string so we can change fill
+                      var rectID = buttonID.replace("Select", "Back")
+                      //change fill
+                      d3.select("#" + rectID).style({
+                          "stroke": "#aaa",
+                          "stroke-width": "2px",
+                      })
+                  })
+                  .on("mouseout", function(){
+                      //extract ID of whichever rectangle is clicked
+                      var buttonID = this.id;
+                      //changes click to back in ID string so we can change fill
+                      var rectID = buttonID.replace("Select", "Back")
+                      //change fill
+                      d3.select("#" + rectID).style({
+                        "fill": "#eee",
+                        "stroke": "#ddd",
+                        "stroke-width": "1px"
+                      })
+                  })
 
               //creates rect elements for legened
               var freqLegendRect = freqLegend.append('rect')
