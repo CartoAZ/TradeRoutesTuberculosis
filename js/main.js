@@ -130,7 +130,7 @@
         var q = d3_queue.queue();
 
         q
-            .defer(d3.json, "data/Polygons/Countries.topojson")//load countries outline spatial data
+            .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
             .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
@@ -141,15 +141,12 @@
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
-<<<<<<< HEAD
-            console.log(countryData);
-=======
->>>>>>> master
+
             //place graticule on the map
         		// setGraticule(map, path);
 
             //translate countries topojson with zoom
-            var countryJson = topojson.feature(countryData, countryData.objects.Countries).features,
+            var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
                 whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
