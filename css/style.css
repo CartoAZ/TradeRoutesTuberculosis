@@ -229,6 +229,22 @@ ul {
 		cursor: pointer;
 		fill: none;
 }
+
+#freqBack {
+		rx: 3px;
+		ry: 3px;
+		fill: #eee;
+		stroke: #ddd;
+}
+#freqSelect {
+		rx: 3px;
+		ry: 3px;
+		opacity: 0;
+		pointer-events: all;
+		cursor: pointer;
+		fill: none;
+		float: right;
+}
 #linSelect-button {
   /*position: absolute;
 	top:0;
