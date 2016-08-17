@@ -63,31 +63,31 @@
     var whoObjArray = [
         {
           text: 'Western Pacific',
-          value: 'Western_Pacific',
+          value: 'WPR',
           checked: 1,
           color: "#FF8C03"
         },
         {
           text: 'Southeast Asia',
-          value: 'South_East_Asia',
+          value: 'SEA',
           checked: 1,
           color: "#85FF0D"
         },
         {
           text: 'Eastern Mediterranean',
-          value: 'Eastern_Mediterranean',
+          value: 'EMR',
           checked: 1,
           color: "#0AFCD2"
         },
         {
           text: 'African',
-          value: 'African',
+          value: 'AFR',
           checked: 1,
           color: "#FFFF3B"
         },
         {
           text: 'European',
-          value: 'European',
+          value: 'EUR',
           checked: 1,
           color: "#ABADFF"
         }
@@ -130,23 +130,24 @@
         var q = d3_queue.queue();
 
         q
-            .defer(d3.json, "data/Polygons/Countries.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/WHO_Regions.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
+            .defer(d3.json, "data/Polygons/WHO_Regions50m.topojson")//load WHO regions outline
             .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-            .defer(d3.json, "data/Polygons/LineageFrequency.topojson")//load lineage frequencies
+            .defer(d3.json, "data/Polygons/LineageFrequencies_50m.topojson")//load lineage frequencies
 
             .await(callback);
 
         function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+
             //place graticule on the map
         		// setGraticule(map, path);
 
             //translate countries topojson with zoom
-            var countryJson = topojson.feature(countryData, countryData.objects.Countries).features,
-                whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions).features;
+            var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
+                whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions50m).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
 
@@ -157,7 +158,7 @@
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
-            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1to4_0728).features
+            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -203,6 +204,7 @@
              .append("path")
                 .attr("class", "who_regions")
                 .attr("id", function(d){
+                    console.log(d);
                     return d.properties.WHO_Region
                 })
                 .attr("d", path)
@@ -215,6 +217,8 @@
              .append("path")
                 .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
+                    console.log(d.properties.sovereignt);
+                    console.log(d.properties.per14_Lin1);
                     return d.properties.sovereignt
                 })
                 .style("fill", "none")
@@ -309,11 +313,11 @@
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
+    var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.quantize()
-        .domain([1, 100])
+        .domain([0, 100])
         .range(colorClasses);
 
     return colorScale;
@@ -427,7 +431,7 @@ function drawLineageFrequency(expressed) {
                   rectWidth = 40;
                   // legendSpacing = 4;
               //color classes array
-              var colorClasses = ['#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', '#ddd', 'none']
+              var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'white', 'none']
               //color values array
               var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
 
