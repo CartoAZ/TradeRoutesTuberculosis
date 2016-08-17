@@ -51,33 +51,11 @@
 .randomIsolates {
 		fill: #aaa;
 }
-/*
-.lin_1 {
-		fill: red;
-}
-.lin_2 {
-		fill: orange;
-}
-.lin_3 {
-		fill: yellow;
-}
-.lin_4 {
-		fill: green;
-}
-.lin_5 {
-		fill: blue;
-}
-.lin_6 {
-		fill: purple;
-}
-.lin_7 {
-		fill: black;
-}*/
 
 /*routes*/
 
 g .tradeRoutes {
-		z-index: 10;
+	stroke-linecap: round;
 }
 
 .silkRoad {
@@ -151,7 +129,7 @@ g .tradeRoutes {
 
 /*lineage frequency overlays*/
 .lineageFrequencies {
-		z-index: 1;
+	stroke: #CCC;
 }
 
 /*dropdown menu for lineage frequencies*/
