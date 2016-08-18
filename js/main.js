@@ -217,7 +217,7 @@
                 .attr("id", function(d){
                     return d.properties.sovereignt
                 })
-                .style("fill", "white")
+                .style({"fill": "none", "stroke": "none"})
                 .attr("d", path)
                 .on("mouseover", function(d){
                     highlightCountry(d.properties);
@@ -1295,63 +1295,63 @@ function checkedAttributes(){
 
 //function to highlight enumeration units and bars
 function highlightCountry(props){
-	//change stroke
-	var selected = d3.selectAll("#" + props.sovereignt)
-		.style({
-			"stroke": "black",
-			"stroke-width": "2"
-		});
+  	//change stroke
+  	var selected = d3.selectAll("#" + props.sovereignt)
+  		.style({
+  			"stroke": "#e80a05",
+  			"stroke-width": "2"
+  		});
 
-	setLabel(props);
+  	setLabel(props);
 };
 
 //function to create dynamic label
 function setLabel(props){
-  var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
 
-  var percent1 = +props.per14_Lin1;
-  percent1 = percent1.toFixed(2) + "%";
+    var percent1 = +props.per14_Lin1;
+    percent1 = percent1.toFixed(2) + "%";
 
-  var percent2 = +props.per14_Lin2;
-  percent2 = percent2.toFixed(2) + "%";
+    var percent2 = +props.per14_Lin2;
+    percent2 = percent2.toFixed(2) + "%";
 
-  var percent3 = +props.per14_Lin3;
-  percent3 = percent3.toFixed(2) + "%";
+    var percent3 = +props.per14_Lin3;
+    percent3 = percent3.toFixed(2) + "%";
 
-  var percent4 = +props.per14_Lin4;
-  percent4 = percent4.toFixed(2) + "%";
+    var percent4 = +props.per14_Lin4;
+    percent4 = percent4.toFixed(2) + "%";
 
-  var labelArray = [percent1, percent2, percent3, percent4];
+    var labelArray = [percent1, percent2, percent3, percent4];
 
-	//label content
-	var labelAttribute = "<h1>" + props.sovereignt +
-		"</h1>";
+  	//label content
+  	var labelAttribute = "<h1>" + props.sovereignt +
+  		"</h1>";
 
-	//create info label div
-	var infolabel = d3.select("body")
-		.append("div")
-		.attr({
-			"class": "infolabel",
-			"id": props.sovereignt + "_label"
-		})
-		.html(labelAttribute);
+  	//create info label div
+  	var infolabel = d3.select("body")
+  		.append("div")
+  		.attr({
+  			"class": "infolabel",
+  			"id": props.sovereignt + "_label"
+  		})
+  		.html(labelAttribute);
 
-	var linFreqPct = infolabel.append("div")
-		.attr("class", "linFreqPct")
-		.html(function(){
-        var pctList = "<div class='pctList'>"
-        for (i=0; i<labelArray.length; i++){
-            var lineage = i + 1
-            pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
-        }
-        pctList += "</div>"
+  	var linFreqPct = infolabel.append("div")
+  		.attr("class", "linFreqPct")
+  		.html(function(){
+          var pctList = "<div class='pctList'>"
+          for (i=0; i<labelArray.length; i++){
+              var lineage = i + 1
+              pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
+          }
+          pctList += "</div>"
 
-        return pctList;
-    });
+          return pctList;
+      });
 
-  d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
+    d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
 
-  d3.select("." + currentLineage).style({"color": "#19580c", "font-weight": "bold"})
+    d3.select("." + currentLineage).style({"color": "#19580c", "font-weight": "bold"})
 };
 
 //function to reset the element style on mouseout
