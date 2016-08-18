@@ -1339,19 +1339,19 @@ function setLabel(props){
 	var linFreqPct = infolabel.append("div")
 		.attr("class", "linFreqPct")
 		.html(function(){
-        var pctList = "<ul class='pctList'>"
+        var pctList = "<div class='pctList'>"
         for (i=0; i<labelArray.length; i++){
             var lineage = i + 1
-            pctList = pctList + "<li class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</li>"
+            pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
         }
-        pctList += "</ul>"
+        pctList += "</div>"
 
         return pctList;
     });
 
-  d3.select(".pctList").style("color", "white")
+  d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
 
-  d3.select("." + currentLineage).style("color", "red")
+  d3.select("." + currentLineage).style({"color": "#19580c", "font-weight": "bold"})
 };
 
 //function to reset the element style on mouseout
