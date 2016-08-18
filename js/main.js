@@ -159,7 +159,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
-
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
           		  mapHeight = 500;
@@ -204,7 +203,6 @@
              .append("path")
                 .attr("class", "who_regions")
                 .attr("id", function(d){
-                    console.log(d);
                     return d.properties.WHO_Region
                 })
                 .attr("d", path)
@@ -217,12 +215,17 @@
              .append("path")
                 .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
-                    console.log(d.properties.sovereignt);
-                    console.log(d.properties.per14_Lin1);
                     return d.properties.sovereignt
                 })
-                .style("fill", "none")
+                .style("fill", "white")
                 .attr("d", path)
+                .on("mouseover", function(d){
+                    highlightCountry(d.properties);
+                })
+                .on("mouseout", function(d){
+                    dehighlightCountry(d.properties);
+                })
+                .on("mousemove", moveLabel);
 
             //draw trade routes
             var tradeRoutes = g.append("g")
@@ -1184,7 +1187,6 @@ function updateVisibility(array) {
 
         //checks if route is selected
         if (array[i].checked === 1){
-            // console.log(item);
             item.attr("visibility", "visible")
         } else {
             item.attr("visibility", "hidden")
@@ -1289,4 +1291,104 @@ function checkedAttributes(){
     });
 
     return checkedAtts;
+};
+
+//function to highlight enumeration units and bars
+function highlightCountry(props){
+	//change stroke
+	var selected = d3.selectAll("#" + props.sovereignt)
+		.style({
+			"stroke": "black",
+			"stroke-width": "2"
+		});
+
+	setLabel(props);
+};
+
+//function to create dynamic label
+function setLabel(props){
+  var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+
+  var percent1 = +props.per14_Lin1;
+  percent1 = percent1.toFixed(2) + "%";
+
+  var percent2 = +props.per14_Lin2;
+  percent2 = percent2.toFixed(2) + "%";
+
+  var percent3 = +props.per14_Lin3;
+  percent3 = percent3.toFixed(2) + "%";
+
+  var percent4 = +props.per14_Lin4;
+  percent4 = percent4.toFixed(2) + "%";
+
+  var labelArray = [percent1, percent2, percent3, percent4];
+
+	//label content
+	var labelAttribute = "<h1>" + props.sovereignt +
+		"</h1>";
+
+	//create info label div
+	var infolabel = d3.select("body")
+		.append("div")
+		.attr({
+			"class": "infolabel",
+			"id": props.sovereignt + "_label"
+		})
+		.html(labelAttribute);
+
+	var linFreqPct = infolabel.append("div")
+		.attr("class", "linFreqPct")
+		.html(function(){
+        var pctList = "<ul class='pctList'>"
+        for (i=0; i<labelArray.length; i++){
+            var lineage = i + 1
+            pctList = pctList + "<li class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</li>"
+        }
+        pctList += "</ul>"
+
+        return pctList;
+    });
+
+  d3.select(".pctList").style("color", "white")
+
+  d3.select("." + currentLineage).style("color", "red")
+};
+
+//function to reset the element style on mouseout
+function dehighlightCountry(props){
+	 var selected = d3.selectAll("#" + props.sovereignt)
+      .style({
+          "stroke": "#CCC",
+          "stroke-width": "1px"
+      })
+
+	//remove info label
+	d3.select(".infolabel")
+		.remove();
+};
+
+//function to move info label with mouse
+function moveLabel(){
+	//get width of label
+	var labelWidth = d3.select(".infolabel")
+		.node()
+		.getBoundingClientRect()
+		.width;
+
+	//use coordinates of mousemove event to set label coordinates
+	var x1 = d3.event.clientX + 10,
+		y1 = d3.event.clientY - 75,
+		x2 = d3.event.clientX - labelWidth - 10,
+		y2 = d3.event.clientY + 25;
+
+	//horizontal label coordinate, testing for overflow
+	var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1;
+	//vertical label coordinate, testing for overflow
+	var y = d3.event.clientY < 75 ? y2 : y1;
+
+	d3.select(".infolabel")
+		.style({
+			"left": x + "px",
+			"top": y + "px"
+		});
 };
