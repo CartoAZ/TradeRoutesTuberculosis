@@ -102,7 +102,7 @@
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          fill: "#aaa"
+          fill: "#888"
         }
     ];
     //empty array to bind to select element
@@ -316,11 +316,11 @@
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#eee','#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000', '#7f0000']
+    var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026']
 
     //create color scale generator; quantize divides domain by length of range
-    var colorScale = d3.scale.quantize()
-        .domain([0, 100])
+    var colorScale = d3.scale.threshold()
+        .domain([1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
         .range(colorClasses);
 
     return colorScale;
@@ -429,15 +429,17 @@ function drawLineageFrequency(expressed) {
             var freqLegendSvg = d3.select(".map").append("svg")
                 .attr("id", "freqLegendSvg")
 
-              //set variables to define spacing/size
-              var rectHeight = 20,
-                  rectWidth = 40;
+            //set variables to define spacing/size
+            var rectHeight = 20,
+                rectWidth = 40;
+
                   // legendSpacing = 4;
+
               //color classes array
-              var colorClasses = ['#eee','#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000', '#7f0000', 'white', 'none']
+              var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', 'white']
 
               //color values array
-              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
+              var colorValues = ['0', '1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -460,11 +462,18 @@ function drawLineageFrequency(expressed) {
                 .append("g")
                   .attr("class", "freqLegend")
                   .attr("transform", function(d, i) {
-                      var offset =  rectWidth * colorClasses.length / 2;
-                      var vert = height - 30;
-                      var horz = i * rectWidth - offset + width / 2;
+                      // if (i === 0) {
+                      //     var rectWidth = 5;
+                      // } else {
+                      //     //set variables to define spacing/size
+                      //     var rectHeight = 20,
+                      //         rectWidth = 40;
+                      // }
+                        var offset =  rectWidth * colorClasses.length / 2;
+                        var vert = height - 30;
+                        var horz = i * rectWidth - offset + width / 2;
 
-                      return 'translate(' + horz + ',' + vert + ')';
+                        return 'translate(' + horz + ',' + vert + ')';
                 });
 
               //rect to hold styling
@@ -876,6 +885,7 @@ function createLegend() {
       //creates rect elements for legened
       var legendRouteRect = legendRoute.append('rect')
           .attr("class", "legendRouteRect")
+          .attr("id", function(d){ return "legend_" + d.value })
           .attr('width', rectWidth)
           .attr('height', rectHeight)
           .attr("transform", "translate(-20,-3)")
@@ -1299,7 +1309,7 @@ function highlightCountry(props){
   	//change stroke
   	var selected = d3.selectAll("#" + props.sovereignt)
   		.style({
-  			"stroke": "#e80a05",
+  			"stroke": "black",
   			"stroke-width": "2"
   		});
 
@@ -1352,7 +1362,7 @@ function setLabel(props){
 
     d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
 
-    d3.select("." + currentLineage).style({"color": "#19580c", "font-weight": "bold"})
+    d3.select("." + currentLineage).style({"color": "#a60704", "font-weight": "bold"})
 };
 
 //function to reset the element style on mouseout
