@@ -159,6 +159,8 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
+            console.log(exactJson);
+
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
           		  mapHeight = 500;
@@ -268,10 +270,13 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered";
+                    return "lin_" + lineage + " notFiltered checked";
                 })
-                .attr("id", "checked")
-            //add exact isolates to map
+                .attr("id", function(d){
+                    return d.properties.SampleName;
+                })
+
+            //add random isolates to map
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
                 .selectAll("path")
@@ -282,9 +287,11 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered";
+                    return "lin_" + lineage + " notFiltered checked";
                 })
-                .attr("id", "checked")
+                .attr("id", function(d){
+                    return d.properties.SampleName;
+                })
 
             //function to create a dropdown menu to add/remove isolates by lineage
             createIsoLineageMenu();
@@ -550,6 +557,30 @@ function drawLineageFrequency(expressed) {
         }
     }
 }
+
+// function createSearch() {
+//     //creates search div
+//     var searchDiv = cityContainer.append("div")
+//         .attr("class", "ui-widget")
+//         .attr("id", "searchDiv")
+//         .attr("width", "100%")
+//         .attr("height", titleHeight)
+//         .html("<label for='tags'>Isolate Name: </label><input id='tags'>")
+//     //populates search with array
+//     $("#tags").autocomplete({
+//         source: citySearch,
+//         messages: {
+//             noResults: 'City not found',
+//             results: function(){}
+//         },
+//         select: function(event, ui) {
+//             var city = ui.item.value
+//             var selection = "#" + city + "_rect"
+//             selectCity(city);
+//         }
+//     });
+// }
+
 function createIsoLineageMenu() {
 
     //creates the selection menu
@@ -581,34 +612,85 @@ function createIsoLineageMenu() {
 
         //checks which lineage is checked
         if (ui.checked === true) {
-            //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.selectAll("#checked").filter("." + lineage)
-                .attr("visibility", "visible")
-                .attr("class", function() {
-                    return lineage + " notFiltered"
-                })
+          // d3.select("." + getClass).selectAll("path").filter(".notFiltered")
 
-            //update class for isolates of current lineage for unselected precision in legend
-            d3.selectAll("#unchecked").filter("." + lineage)
-                .attr("class", function() {
-                    return lineage + " notFiltered"
-                })
+          //update visibility and class for isolates of current lineage for selected precisions in legend
+          d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+              .attr("visibility", "visible")
+              .attr("class", function() {
+                  return lineage + " notFiltered checked"
+              })
+
+          //update visibility and class for isolates of current lineage for selected precisions in legend
+          d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+              .attr("visibility", "visible")
+              .attr("class", function() {
+                  return lineage + " notFiltered checked"
+              })
+
+
+            // //update visibility and class for isolates of current lineage for selected precisions in legend
+            // d3.selectAll("#checked").filter("." + lineage)
+            //     .attr("visibility", "visible")
+            //     .attr("class", function() {
+            //         return lineage + " notFiltered"
+            //     })
+
+          //update class for isolates of current lineage for unselected precision in legend
+          d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+              .attr("class", function() {
+                  return lineage + " notFiltered unchecked"
+              })
+
+          //update class for isolates of current lineage for unselected precision in legend
+          d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+              .attr("class", function() {
+                  return lineage + " notFiltered unchecked"
+              })
+            // //update class for isolates of current lineage for unselected precision in legend
+            // d3.selectAll("#unchecked").filter("." + lineage)
+            //     .attr("class", function() {
+            //         return lineage + " notFiltered"
+            //     })
 
           //select the isolate checkboxes from legend to determine which isolates should be filtered
           var checked = d3.selectAll(".isolate_checkbox");
         } else if (ui.checked === false){ //lineage is unchecked in dropdown multiselect
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.selectAll("#checked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
-                    return lineage + " filtered"
+                    return lineage + " filtered checked"
+                })
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+                .attr("visibility", "hidden")
+                .attr("class", function() {
+                    return lineage + " filtered checked"
+                })
+
+            // d3.selectAll("#checked").filter("." + lineage)
+            //     .attr("visibility", "hidden")
+            //     .attr("class", function() {
+            //         return lineage + " filtered"
+            //     })
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered unchecked"
                 })
 
             //update class for isolates of current lineage for unselected precision in legend
-            d3.selectAll("#unchecked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
-                    return lineage + " filtered"
+                    return lineage + " filtered unchecked"
                 })
+            // //update class for isolates of current lineage for unselected precision in legend
+            // d3.selectAll("#unchecked").filter("." + lineage)
+            //     .attr("class", function() {
+            //         return lineage + " filtered"
+            //     })
         }
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
@@ -616,17 +698,32 @@ function createIsoLineageMenu() {
             //store current lineage
             var lineage = "lin_" + i;
 
-            d3.selectAll("#checked").filter("." + lineage)
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
                 .attr("visibility", "visible")
                 .attr("class", function() {
-                    return lineage + " notFiltered"
+                    return lineage + " notFiltered checked"
+                })
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+                .attr("visibility", "visible")
+                .attr("class", function() {
+                    return lineage + " notFiltered checked"
                 })
 
             //update class for isolates of current lineage for unselected precision in legend
-            d3.selectAll("#unchecked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
-                    return lineage + " notFiltered"
+                    return lineage + " notFiltered unchecked"
                 })
+
+            //update class for isolates of current lineage for unselected precision in legend
+            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " notFiltered unchecked"
+                })
+
         }
     })
     .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
@@ -636,17 +733,31 @@ function createIsoLineageMenu() {
             var lineage = "lin_" + i;
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.selectAll("#checked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
-                    return lineage + " filtered"
+                    return lineage + " filtered checked"
                 })
 
-            //update class for isolates of current lineage for unselected precision in legend
-            d3.selectAll("#unchecked").filter("." + lineage)
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+                .attr("visibility", "hidden")
                 .attr("class", function() {
-                    return lineage + " filtered"
+                    return lineage + " filtered checked"
                 })
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered unchecked"
+                })
+
+            //update visibility and class for isolates of current lineage for selected precisions in legend
+            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+                .attr("class", function() {
+                    return lineage + " filtered unchecked"
+                })
+
         }
     })
 }
