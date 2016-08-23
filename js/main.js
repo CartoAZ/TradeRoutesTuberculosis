@@ -102,7 +102,7 @@
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          fill: "#aaa"
+          fill: "#888"
         }
     ];
     //empty array to bind to select element
@@ -159,7 +159,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
-
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
           		  mapHeight = 500;
@@ -204,7 +203,6 @@
              .append("path")
                 .attr("class", "who_regions")
                 .attr("id", function(d){
-                    console.log(d);
                     return d.properties.WHO_Region
                 })
                 .attr("d", path)
@@ -217,12 +215,17 @@
              .append("path")
                 .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
-                    console.log(d.properties.sovereignt);
-                    console.log(d.properties.per14_Lin1);
                     return d.properties.sovereignt
                 })
-                .style("fill", "none")
+                .style({"fill": "none", "stroke": "none"})
                 .attr("d", path)
+                .on("mouseover", function(d){
+                    highlightCountry(d.properties);
+                })
+                .on("mouseout", function(d){
+                    dehighlightCountry(d.properties);
+                })
+                .on("mousemove", moveLabel);
 
             //draw trade routes
             var tradeRoutes = g.append("g")
@@ -313,11 +316,11 @@
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
+    var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026']
 
     //create color scale generator; quantize divides domain by length of range
-    var colorScale = d3.scale.quantize()
-        .domain([0, 100])
+    var colorScale = d3.scale.threshold()
+        .domain([1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
         .range(colorClasses);
 
     return colorScale;
@@ -426,14 +429,17 @@ function drawLineageFrequency(expressed) {
             var freqLegendSvg = d3.select(".map").append("svg")
                 .attr("id", "freqLegendSvg")
 
-              //set variables to define spacing/size
-              var rectHeight = 20,
-                  rectWidth = 40;
+            //set variables to define spacing/size
+            var rectHeight = 20,
+                rectWidth = 40;
+
                   // legendSpacing = 4;
+
               //color classes array
-              var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'white', 'none']
+              var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', 'white']
+
               //color values array
-              var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
+              var colorValues = ['0', '1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -456,11 +462,18 @@ function drawLineageFrequency(expressed) {
                 .append("g")
                   .attr("class", "freqLegend")
                   .attr("transform", function(d, i) {
-                      var offset =  rectWidth * colorClasses.length / 2;
-                      var vert = height - 30;
-                      var horz = i * rectWidth - offset + width / 2;
+                      // if (i === 0) {
+                      //     var rectWidth = 5;
+                      // } else {
+                      //     //set variables to define spacing/size
+                      //     var rectHeight = 20,
+                      //         rectWidth = 40;
+                      // }
+                        var offset =  rectWidth * colorClasses.length / 2;
+                        var vert = height - 30;
+                        var horz = i * rectWidth - offset + width / 2;
 
-                      return 'translate(' + horz + ',' + vert + ')';
+                        return 'translate(' + horz + ',' + vert + ')';
                 });
 
               //rect to hold styling
@@ -872,6 +885,7 @@ function createLegend() {
       //creates rect elements for legened
       var legendRouteRect = legendRoute.append('rect')
           .attr("class", "legendRouteRect")
+          .attr("id", function(d){ return "legend_" + d.value })
           .attr('width', rectWidth)
           .attr('height', rectHeight)
           .attr("transform", "translate(-20,-3)")
@@ -1184,7 +1198,6 @@ function updateVisibility(array) {
 
         //checks if route is selected
         if (array[i].checked === 1){
-            // console.log(item);
             item.attr("visibility", "visible")
         } else {
             item.attr("visibility", "hidden")
@@ -1289,4 +1302,104 @@ function checkedAttributes(){
     });
 
     return checkedAtts;
+};
+
+//function to highlight enumeration units and bars
+function highlightCountry(props){
+  	//change stroke
+  	var selected = d3.selectAll("#" + props.sovereignt)
+  		.style({
+  			"stroke": "black",
+  			"stroke-width": "2"
+  		});
+
+  	setLabel(props);
+};
+
+//function to create dynamic label
+function setLabel(props){
+    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+
+    var percent1 = +props.per14_Lin1;
+    percent1 = percent1.toFixed(2) + "%";
+
+    var percent2 = +props.per14_Lin2;
+    percent2 = percent2.toFixed(2) + "%";
+
+    var percent3 = +props.per14_Lin3;
+    percent3 = percent3.toFixed(2) + "%";
+
+    var percent4 = +props.per14_Lin4;
+    percent4 = percent4.toFixed(2) + "%";
+
+    var labelArray = [percent1, percent2, percent3, percent4];
+
+  	//label content
+  	var labelAttribute = "<h1>" + props.sovereignt +
+  		"</h1>";
+
+  	//create info label div
+  	var infolabel = d3.select("body")
+  		.append("div")
+  		.attr({
+  			"class": "infolabel",
+  			"id": props.sovereignt + "_label"
+  		})
+  		.html(labelAttribute);
+
+  	var linFreqPct = infolabel.append("div")
+  		.attr("class", "linFreqPct")
+  		.html(function(){
+          var pctList = "<div class='pctList'>"
+          for (i=0; i<labelArray.length; i++){
+              var lineage = i + 1
+              pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
+          }
+          pctList += "</div>"
+
+          return pctList;
+      });
+
+    d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
+
+    d3.select("." + currentLineage).style({"color": "#a60704", "font-weight": "bold"})
+};
+
+//function to reset the element style on mouseout
+function dehighlightCountry(props){
+	 var selected = d3.selectAll("#" + props.sovereignt)
+      .style({
+          "stroke": "#CCC",
+          "stroke-width": "1px"
+      })
+
+	//remove info label
+	d3.select(".infolabel")
+		.remove();
+};
+
+//function to move info label with mouse
+function moveLabel(){
+	//get width of label
+	var labelWidth = d3.select(".infolabel")
+		.node()
+		.getBoundingClientRect()
+		.width;
+
+	//use coordinates of mousemove event to set label coordinates
+	var x1 = d3.event.clientX + 10,
+		y1 = d3.event.clientY - 75,
+		x2 = d3.event.clientX - labelWidth - 10,
+		y2 = d3.event.clientY + 25;
+
+	//horizontal label coordinate, testing for overflow
+	var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1;
+	//vertical label coordinate, testing for overflow
+	var y = d3.event.clientY < 75 ? y2 : y1;
+
+	d3.select(".infolabel")
+		.style({
+			"left": x + "px",
+			"top": y + "px"
+		});
 };
