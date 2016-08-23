@@ -316,7 +316,7 @@
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e']
+    var colorClasses = ['#eee','#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000', '#7f0000']
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.quantize()
@@ -434,7 +434,8 @@ function drawLineageFrequency(expressed) {
                   rectWidth = 40;
                   // legendSpacing = 4;
               //color classes array
-              var colorClasses = ['#eee','#e5f5f9','#ccece6','#99d8c9','#66c2a4','#41ae76','#238b45','#006d2c','#00441b', '#00220e', 'white', 'none']
+              var colorClasses = ['#eee','#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000', '#7f0000', 'white', 'none']
+
               //color values array
               var colorValues = ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', 'No Data']
 
