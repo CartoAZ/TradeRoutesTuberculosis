@@ -147,7 +147,6 @@ ul {
 		position: absolute;
 		top: 20px;
 		right: 20px;
-		z-index: 10;
 }
 
 #legendContainer {
@@ -198,7 +197,8 @@ ul {
 
 #isolateBack,
 #routeBack,
-#whoBack {
+#whoBack,
+#sampleBack {
 		rx: 3px;
 		ry: 3px;
 		fill: #eee;
@@ -206,7 +206,8 @@ ul {
 }
 #isolateSelect,
 #routeSelect,
-#whoSelect {
+#whoSelect,
+#sampleSelect {
 		rx: 3px;
 		ry: 3px;
 		opacity: 0;
@@ -238,11 +239,13 @@ ul {
 }
 
 
-#isoSelect_ms{
+#isoSelect_ms,
+#searchDiv{
 		/*position: absolute;
 		top:0;
 		right: 10;*/
 		float: right;
+		padding-left: 10px;
 }
 
 #menubar {
