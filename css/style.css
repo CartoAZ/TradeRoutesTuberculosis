@@ -274,3 +274,28 @@ ul {
 option {
     font-weight: normal;
 }*/
+
+.infolabel {
+	position: absolute;
+	height: 150px;
+	min-width: 100px;
+	color: #fff;
+	border: solid thin #fff;
+	padding: 5px 10px;
+	top: -75px;
+	background-color: #777;
+	font-family: trebuchet ms;
+}
+
+.infolabel h1 {
+	margin: 0 10px 0 0;
+	padding: 0;
+	display: inline-block;
+	line-height: 1em;
+	color: black;
+}
+
+.pctList{
+	line-height: 0.5em;
+	font-size: 0.9em;
+}
