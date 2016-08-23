@@ -591,20 +591,81 @@ function createSearch() {
             results: function(){}
         },
         select: function(event, ui) {
-            console.log(ui);
+
             var isolate = ui.item.value
             var selection = "#" + isolate;
 
             var selectionFill = d3.select(selection).style("fill");
 
-
             d3.select(selection)
                 .transition()
                 .duration(200)
                 .style("stroke-width", "5px")
-                .style({"stroke": selectionFill, "stroke-width": "6px"})
+                .style({"stroke": selectionFill, "stroke-width": "8px"})
+            //conditional to check if legend exists
+            if (d3.select("#sampleBack").empty() == true){
+
+                //rect to hold styling
+                var sampleBackButton = d3.select(".map").append("rect")
+                    .attr("id", "sampleBack")
+                    .attr("height", "15px")
+                    .attr("width", "140px")
+                    .attr("transform", "translate(10,10)")
+                //text of button
+                var sampleButtonText = d3.select(".map").append("text")
+                    .attr("class", "buttonText")
+                    .attr("id", "sampleButtonText")
+                    .attr("transform", "translate(25,21)")
+                    .text("Clear Selected Isolates")
+                //clickable rect
+                var sampleSelectButton = d3.select(".map").append("rect")
+                    .attr("id", "sampleSelect")
+                    .attr("height", "15px")
+                    .attr("width", "140px")
+                    .attr("transform", "translate(10,10)")
+                    .on("click", function(){
+                        d3.select(".exactIsolates").selectAll("path")
+                            .style({"fill": "#333", "stroke": "none"})
+
+                        d3.select(".randomIsolates").selectAll("path")
+                            .style({"fill": "#888", "stroke": "none"})
+
+                        //remove button
+                        d3.select("#sampleBack").remove();
+                        //remove button
+                        d3.select("#sampleButtonText").remove();
+                        //remove button
+                        d3.select("#sampleSelect").remove();
+                    })
+                    .on("mouseover", function(){
+                        //extract ID of rectangle is clicked
+                        var buttonID = this.id;
+                        //changes click to back in ID string so we can change fill
+                        var rectID = buttonID.replace("Select", "Back")
+                        //change fill
+                        d3.select("#" + rectID).style({
+                            "stroke": "#aaa",
+                            "stroke-width": "2px",
+                        })
+                    })
+                    .on("mouseout", function(){
+                        //extract ID of whichever rectangle is clicked
+                        var buttonID = this.id;
+                        //changes click to back in ID string so we can change fill
+                        var rectID = buttonID.replace("Select", "Back")
+                        //change fill
+                        d3.select("#" + rectID).style({
+                          "fill": "#eee",
+                          "stroke": "#ddd",
+                          "stroke-width": "1px"
+                        })
+                    })
+            }
         }
     });
+
+
+
 }
 
 function createIsoLineageMenu() {
