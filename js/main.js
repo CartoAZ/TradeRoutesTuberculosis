@@ -105,6 +105,9 @@
           fill: "#888"
         }
     ];
+    //empty array to hold all isolate names
+    var isolateNameArray = [];
+
     //empty array to bind to select element
     var isolateObjArray = [];
     //for loop to populate isolateObjArray
@@ -159,7 +162,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
-            console.log(exactJson);
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -293,6 +295,21 @@
                     return d.properties.SampleName;
                 })
 
+            //store features of exact isolates in variable
+            var exactSamples = exactJson.features;
+            //push isolate names into array for use with search widget
+            exactSamples.map(function(d){
+                isolateNameArray.push(d.properties.SampleName)
+            })
+
+            //store features of exact isolates in variable
+            var randomSamples = randomJson.features;
+            //push isolate names into array for use with search widget
+            randomSamples.map(function(d){
+                isolateNameArray.push(d.properties.SampleName)
+            })
+
+            createSearch();
             //function to create a dropdown menu to add/remove isolates by lineage
             createIsoLineageMenu();
 
@@ -558,28 +575,37 @@ function drawLineageFrequency(expressed) {
     }
 }
 
-// function createSearch() {
-//     //creates search div
-//     var searchDiv = cityContainer.append("div")
-//         .attr("class", "ui-widget")
-//         .attr("id", "searchDiv")
-//         .attr("width", "100%")
-//         .attr("height", titleHeight)
-//         .html("<label for='tags'>Isolate Name: </label><input id='tags'>")
-//     //populates search with array
-//     $("#tags").autocomplete({
-//         source: citySearch,
-//         messages: {
-//             noResults: 'City not found',
-//             results: function(){}
-//         },
-//         select: function(event, ui) {
-//             var city = ui.item.value
-//             var selection = "#" + city + "_rect"
-//             selectCity(city);
-//         }
-//     });
-// }
+function createSearch() {
+    //creates search div
+    var searchDiv = d3.select("#menubar").append("div")
+        .attr("class", "ui-widget")
+        .attr("id", "searchDiv")
+        .attr("width", "200px")
+        .attr("height", "80%")
+        .html("<label for='tags'>Isolate Name: </label><input id='tags'>")
+    //populates search with array
+    $("#tags").autocomplete({
+        source: isolateNameArray,
+        messages: {
+            noResults: 'Isolate not found',
+            results: function(){}
+        },
+        select: function(event, ui) {
+            console.log(ui);
+            var isolate = ui.item.value
+            var selection = "#" + isolate;
+
+            var selectionFill = d3.select(selection).style("fill");
+
+
+            d3.select(selection)
+                .transition()
+                .duration(200)
+                .style("stroke-width", "5px")
+                .style({"stroke": selectionFill, "stroke-width": "6px"})
+        }
+    });
+}
 
 function createIsoLineageMenu() {
 
