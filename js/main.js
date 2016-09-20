@@ -261,14 +261,18 @@
             //     .attr("class", "tradeHubs")
             //     .attr("d", path)
 
+
             //add exact isolates to map
             var exactIsolates = g.append("g")
                 .attr("class", "exactIsolates")
-                .selectAll("path")
+                .selectAll("rect")
               .data(exactJson.features)
                 .enter()
-              .append("path")
-                .attr("d", path)
+              .append("rect")
+                .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("width", 4)
+                .attr("height", 4)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
