@@ -261,14 +261,18 @@
             //     .attr("class", "tradeHubs")
             //     .attr("d", path)
 
+
             //add exact isolates to map
             var exactIsolates = g.append("g")
                 .attr("class", "exactIsolates")
-                .selectAll("path")
+                .selectAll("rect")
               .data(exactJson.features)
                 .enter()
-              .append("path")
-                .attr("d", path)
+              .append("rect")
+                .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("width", 4)
+                .attr("height", 4)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -284,8 +288,11 @@
                 .selectAll("path")
               .data(randomJson.features)
                 .enter()
-              .append("path")
-                .attr("d", path)
+              .append("rect")
+                .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("width", 4)
+                .attr("height", 4)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -624,10 +631,10 @@ function createSearch() {
                     .attr("width", "140px")
                     .attr("transform", "translate(10,10)")
                     .on("click", function(){
-                        d3.select(".exactIsolates").selectAll("path")
+                        d3.select(".exactIsolates").selectAll("rect")
                             .style({"fill": "#333", "stroke": "none"})
 
-                        d3.select(".randomIsolates").selectAll("path")
+                        d3.select(".randomIsolates").selectAll("rect")
                             .style({"fill": "#888", "stroke": "none"})
 
                         //remove button
@@ -702,14 +709,14 @@ function createIsoLineageMenu() {
           // d3.select("." + getClass).selectAll("path").filter(".notFiltered")
 
           //update visibility and class for isolates of current lineage for selected precisions in legend
-          d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+          d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
               .attr("visibility", "visible")
               .attr("class", function() {
                   return lineage + " notFiltered checked"
               })
 
           //update visibility and class for isolates of current lineage for selected precisions in legend
-          d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+          d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
               .attr("visibility", "visible")
               .attr("class", function() {
                   return lineage + " notFiltered checked"
@@ -724,13 +731,13 @@ function createIsoLineageMenu() {
             //     })
 
           //update class for isolates of current lineage for unselected precision in legend
-          d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+          d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
               .attr("class", function() {
                   return lineage + " notFiltered unchecked"
               })
 
           //update class for isolates of current lineage for unselected precision in legend
-          d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+          d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
               .attr("class", function() {
                   return lineage + " notFiltered unchecked"
               })
@@ -744,14 +751,14 @@ function createIsoLineageMenu() {
           var checked = d3.selectAll(".isolate_checkbox");
         } else if (ui.checked === false){ //lineage is unchecked in dropdown multiselect
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
                 })
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
@@ -763,13 +770,13 @@ function createIsoLineageMenu() {
             //         return lineage + " filtered"
             //     })
             //update class for isolates of current lineage for unselected precision in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
                 })
 
             //update class for isolates of current lineage for unselected precision in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
                 })
@@ -786,27 +793,27 @@ function createIsoLineageMenu() {
             var lineage = "lin_" + i;
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "visible")
                 .attr("class", function() {
                     return lineage + " notFiltered checked"
                 })
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "visible")
                 .attr("class", function() {
                     return lineage + " notFiltered checked"
                 })
 
             //update class for isolates of current lineage for unselected precision in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " notFiltered unchecked"
                 })
 
             //update class for isolates of current lineage for unselected precision in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " notFiltered unchecked"
                 })
@@ -820,27 +827,27 @@ function createIsoLineageMenu() {
             var lineage = "lin_" + i;
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
                 })
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".checked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
                 })
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".exactIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
                 })
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
-            d3.select(".randomIsolates").selectAll("path").filter(".unchecked").filter("." + lineage)
+            d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
                 })
@@ -951,12 +958,13 @@ function createLegend() {
           });
 
       //creates rect elements for legened
-      var legendIsolateCircle = legendIsolate.append('circle')
-          .attr("class", "legendIsolateCircle")
-          .attr('cx', 25)
-          .attr('cy', 25)
-          .attr('r', 3)
-          .attr("transform", "translate(-35,-125)")
+      var legendIsolateRect = legendIsolate.append('rect')
+          .attr("class", "legendIsolateRect")
+          .attr("x", -12)
+          .attr("y", -103)
+          .attr("width", 6)
+          .attr("height", 6)
+          // .attr("transform", "translate(-35,-125)")
           .style('fill', function(d){ return d.fill })
 
       //adds text to legend
@@ -988,12 +996,12 @@ function createLegend() {
                     var getClass = getID.slice(0, -6);
 
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                    d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "visibile")
                         .attr("id", "checked")
 
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                    d3.select("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("id", "checked")
 
                   } else { //if unchecked in legend
@@ -1002,12 +1010,12 @@ function createLegend() {
                       //trim "_check" from end of ID string
                       var getClass = getID.slice(0, -6);
                       //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                      d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
                           .attr("visibility", "hidden")
                           .attr("id", "unchecked")
 
                       //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                      d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
                           .attr("id", "unchecked")
                   }
               }
@@ -1272,12 +1280,12 @@ function updateButton(item, array){
                     var getClass = getID.slice(0, -6);
 
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                    d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "visibile")
                         .attr("id", "checked")
 
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                    d3.select("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("id", "checked")
                 } else {
                     //gets ID, which contains element to update
@@ -1285,12 +1293,12 @@ function updateButton(item, array){
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "hidden")
                         .attr("id", "unchecked")
 
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("id", "unchecked")
                 };
             };
@@ -1345,12 +1353,12 @@ function updateButton(item, array){
                     var getClass = getID.slice(0, -6);
 
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+                    d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "visibile")
                         .attr("id", "checked")
 
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("path").filter(".filtered")
+                    d3.select("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("id", "checked")
                 } else {
                     //gets ID, which contains element to update
@@ -1358,12 +1366,12 @@ function updateButton(item, array){
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
                     //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("path").filter(".notFiltered")
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "hidden")
                         .attr("id", "unchecked")
 
                     //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("path").filter(".filtered")
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("id", "unchecked")
                 };
             };
