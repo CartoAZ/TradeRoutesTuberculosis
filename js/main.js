@@ -351,7 +351,7 @@ function makeColorScale(){
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.threshold()
-        .domain([1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+        .domain([0.1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
         .range(colorClasses);
 
     return colorScale;
@@ -359,15 +359,15 @@ function makeColorScale(){
 
 //function to test for data value and return color
 function choropleth(props, colorScale, expressed){
-    console.log(props);
-    console.log(expressed);
+
   	//make sure attribute value is a number
   	var val = parseFloat(props[expressed]);
+
   	//if attribute value exists, assign a color; otherwise assign gray
-  	if (val && val != 0){
+  	if (val >= 0){
     		return colorScale(val);
   	} else {
-    		return "#ddd";
+    		return "none";
   	};
 };
 
@@ -487,7 +487,7 @@ function drawLineageFrequency(expressed) {
               var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', 'white']
 
               //color values array
-              var colorValues = ['0', '1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
+              var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -1569,10 +1569,22 @@ function highlightCountry(props){
 function setLabel(props){
     //gets current lineage from the dropdown menu selection
     var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
-
+console.log(props);
     //conditional to display appropriate percent spoligo or otherwise
-    if (currentLineage.indexOf("spoligo") != 1) {
+    if (currentLineage.indexOf("spoligo") != -1) {
+        var percent1 = +props.Per14L1Spo;
+        percent1 = percent1.toFixed(2) + "%";
 
+        var percent2 = +props.Per14L2Spo;
+        percent2 = percent2.toFixed(2) + "%";
+
+        var percent3 = +props.Per14L3Spo;
+        percent3 = percent3.toFixed(2) + "%";
+
+        var percent4 = +props.Per14L4Spo;
+        percent4 = percent4.toFixed(2) + "%";
+
+    } else {
         var percent1 = +props.per14L1Gen;
         percent1 = percent1.toFixed(2) + "%";
 
@@ -1584,6 +1596,7 @@ function setLabel(props){
 
         var percent4 = +props.per14L4Gen;
         percent4 = percent4.toFixed(2) + "%";
+
     }
     var labelArray = [percent1, percent2, percent3, percent4];
 
