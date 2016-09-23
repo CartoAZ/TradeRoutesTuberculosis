@@ -139,7 +139,7 @@
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-            .defer(d3.json, "data/Polygons/LineageFrequencies_50m.topojson")//load lineage frequencies
+            .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
 
             .await(callback);
 
@@ -161,7 +161,7 @@
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
 
-            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_50m).features
+            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -195,9 +195,9 @@
                .enter()
              .append("path")
                 .attr("class", "countries")
-                .attr("id", function(d){
-                    return d.properties.Country
-                })
+                // .attr("id", function(d){
+                //     return d.properties.Country
+                // })
                 .attr("d", path)
 
             //add world health organization regions to map
@@ -219,7 +219,8 @@
              .append("path")
                 .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
-                    return d.properties.sovereignt
+
+                    return d.properties.shortName
                 })
                 .style({"fill": "none", "stroke": "none"})
                 .attr("d", path)
@@ -351,7 +352,7 @@ function makeColorScale(){
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.threshold()
-        .domain([1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+        .domain([0.1, 10, 20, 30, 40, 50, 60, 70, 80, 90])
         .range(colorClasses);
 
     return colorScale;
@@ -359,13 +360,15 @@ function makeColorScale(){
 
 //function to test for data value and return color
 function choropleth(props, colorScale, expressed){
+
   	//make sure attribute value is a number
   	var val = parseFloat(props[expressed]);
+
   	//if attribute value exists, assign a color; otherwise assign gray
-  	if (val && val != 0){
+  	if (val >= 0){
     		return colorScale(val);
   	} else {
-    		return "#ddd";
+    		return "none";
   	};
 };
 
@@ -378,19 +381,34 @@ function createLinFreqMenu() {
           value: 'defaultLineageOption'
         },
         {
-          text: 'Lineage 1',
-          value: 'per14_Lin1'
+          text: 'Lineage 1 - Genomic',
+          value: 'per14L1Gen'
         },
         {
-          text: 'Lineage 2',
-          value: 'per14_Lin2'
+          text: 'Lineage 2 - Genomic',
+          value: 'per14L2Gen'
         },
         {
-          text: 'Lineage 3',
-          value: 'per14_Lin3'
+          text: 'Lineage 3 - Genomic',
+          value: 'per14L3Gen'
         },{
-          text: 'Lineage 4',
-          value: 'per14_Lin4'
+          text: 'Lineage 4 - Genomic',
+          value: 'per14L4Gen'
+        },
+        {
+          text: 'Lineage 1 - Spoligo',
+          value: 'Per14L1Spo'
+        },
+        {
+          text: 'Lineage 2 - Spoligo',
+          value: 'Per14L2Spo'
+        },
+        {
+          text: 'Lineage 3 - Spoligo',
+          value: 'Per14L3Spo'
+        },{
+          text: 'Lineage 4 - Spoligo',
+          value: 'Per14L4Spo'
         }
     ]
 
@@ -470,7 +488,13 @@ function drawLineageFrequency(expressed) {
               var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', 'white']
 
               //color values array
-              var colorValues = ['0', '1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
+              var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
+              //conditional to determine whether legend title should be spoligo or genomic
+              if (expressed.indexOf("Gen") != -1) {
+                  var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
+              } else {
+                  var legendTitleText = "Lineage Frequency by Country (Pct.) - Spoligo"
+              }
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -484,7 +508,7 @@ function drawLineageFrequency(expressed) {
 
                       return "translate(" + horz + "," + vert + ")";
                   })
-                  .text("Lineage Frequency by Country (Pct.)")
+                  .text(legendTitleText)
 
               //creates a group for each rectangle and offsets each by same amount
               var freqLegend = freqLegendSvg.selectAll('.freqLegend')
@@ -578,6 +602,15 @@ function drawLineageFrequency(expressed) {
                   .attr("class", "freqLegendText")
                   .attr("transform", "translate(-7, 0) ")
                   .text(function(d, i) { return colorValues[i] });
+        } else { //if the legend has already been created, this conditional updates the text of the legend title appropriately
+            if (expressed.indexOf("Gen") != -1) {
+                var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
+            } else {
+                var legendTitleText = "Lineage Frequency by Country (Pct.) - Spoligo"
+            }
+            //update legend text appropriately
+            d3.select(".freqLegendTitle")
+                .text(legendTitleText)
         }
     }
 }
@@ -1539,43 +1572,58 @@ function checkedAttributes(){
 //function to highlight enumeration units and bars
 function highlightCountry(props){
   	//change stroke
-  	var selected = d3.selectAll("#" + props.sovereignt)
-  		.style({
-  			"stroke": "black",
-  			"stroke-width": "2"
-  		});
+  	var selected = d3.selectAll("#" + props.shortName)
+    		.style({
+    			"stroke": "black",
+          "stroke-width": "2"
+    		});
 
   	setLabel(props);
 };
 
 //function to create dynamic label
 function setLabel(props){
+    //gets current lineage from the dropdown menu selection
     var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    //conditional to display appropriate percent spoligo or otherwise
+    if (currentLineage.indexOf("spoligo") != -1) {
+        var percent1 = +props.Per14L1Spo;
+        percent1 = percent1.toFixed(2) + "%";
 
-    var percent1 = +props.per14_Lin1;
-    percent1 = percent1.toFixed(2) + "%";
+        var percent2 = +props.Per14L2Spo;
+        percent2 = percent2.toFixed(2) + "%";
 
-    var percent2 = +props.per14_Lin2;
-    percent2 = percent2.toFixed(2) + "%";
+        var percent3 = +props.Per14L3Spo;
+        percent3 = percent3.toFixed(2) + "%";
 
-    var percent3 = +props.per14_Lin3;
-    percent3 = percent3.toFixed(2) + "%";
+        var percent4 = +props.Per14L4Spo;
+        percent4 = percent4.toFixed(2) + "%";
 
-    var percent4 = +props.per14_Lin4;
-    percent4 = percent4.toFixed(2) + "%";
+    } else {
+        var percent1 = +props.per14L1Gen;
+        percent1 = percent1.toFixed(2) + "%";
 
+        var percent2 = +props.per14L2Gen;
+        percent2 = percent2.toFixed(2) + "%";
+
+        var percent3 = +props.per14L3Gen;
+        percent3 = percent3.toFixed(2) + "%";
+
+        var percent4 = +props.per14L4Gen;
+        percent4 = percent4.toFixed(2) + "%";
+
+    }
     var labelArray = [percent1, percent2, percent3, percent4];
 
   	//label content
-  	var labelAttribute = "<h1>" + props.sovereignt +
-  		"</h1>";
+  	var labelAttribute = "<h1>" + props.name + "</h1>";
 
   	//create info label div
   	var infolabel = d3.select("body")
   		.append("div")
   		.attr({
   			"class": "infolabel",
-  			"id": props.sovereignt + "_label"
+  			"id": props.name + "_label"
   		})
   		.html(labelAttribute);
 
@@ -1594,12 +1642,17 @@ function setLabel(props){
 
     d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
 
-    d3.select("." + currentLineage).style({"color": "#a60704", "font-weight": "bold"})
+    //splits the current lineage by space so that I can highlight the proper lineage
+    var linSplit = currentLineage.split(" ");
+    //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
+    var linClass = linSplit[0]
+    //select current lineage in popup to highlight it
+    d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"})
 };
 
 //function to reset the element style on mouseout
 function dehighlightCountry(props){
-	 var selected = d3.selectAll("#" + props.sovereignt)
+	 var selected = d3.selectAll("#" + props.shortName)
       .style({
           "stroke": "#CCC",
           "stroke-width": "1px"
