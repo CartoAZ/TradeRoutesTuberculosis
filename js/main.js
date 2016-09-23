@@ -1573,10 +1573,10 @@ function checkedAttributes(){
 function highlightCountry(props){
   	//change stroke
   	var selected = d3.selectAll("#" + props.shortName)
-  		.style({
-  			"stroke": "black",
-  			"stroke-width": "2"
-  		});
+    		.style({
+    			"stroke": "black",
+          "stroke-width": "2"
+    		});
 
   	setLabel(props);
 };
