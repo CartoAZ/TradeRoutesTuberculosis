@@ -488,6 +488,12 @@ function drawLineageFrequency(expressed) {
 
               //color values array
               var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
+              //conditional to determine whether legend title should be spoligo or genomic
+              if (expressed.indexOf("Gen") != -1) {
+                  var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
+              } else {
+                  var legendTitleText = "Lineage Frequency by Country (Pct.) - Spoligo"
+              }
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -501,7 +507,7 @@ function drawLineageFrequency(expressed) {
 
                       return "translate(" + horz + "," + vert + ")";
                   })
-                  .text("Lineage Frequency by Country (Pct.)")
+                  .text(legendTitleText)
 
               //creates a group for each rectangle and offsets each by same amount
               var freqLegend = freqLegendSvg.selectAll('.freqLegend')
@@ -595,6 +601,15 @@ function drawLineageFrequency(expressed) {
                   .attr("class", "freqLegendText")
                   .attr("transform", "translate(-7, 0) ")
                   .text(function(d, i) { return colorValues[i] });
+        } else { //if the legend has already been created, this conditional updates the text of the legend title appropriately
+            if (expressed.indexOf("Gen") != -1) {
+                var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
+            } else {
+                var legendTitleText = "Lineage Frequency by Country (Pct.) - Spoligo"
+            }
+            //update legend text appropriately
+            d3.select(".freqLegendTitle")
+                .text(legendTitleText)
         }
     }
 }
@@ -1569,7 +1584,6 @@ function highlightCountry(props){
 function setLabel(props){
     //gets current lineage from the dropdown menu selection
     var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
-console.log(props);
     //conditional to display appropriate percent spoligo or otherwise
     if (currentLineage.indexOf("spoligo") != -1) {
         var percent1 = +props.Per14L1Spo;
@@ -1629,9 +1643,9 @@ console.log(props);
 
     //splits the current lineage by space so that I can highlight the proper lineage
     var linSplit = currentLineage.split(" ");
-
+    //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
     var linClass = linSplit[0]
-
+    //select current lineage in popup to highlight it
     d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"})
 };
 
