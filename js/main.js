@@ -219,7 +219,13 @@
              .append("path")
                 .attr("class", "lineageFrequencies")
                 .attr("id", function(d){
-                    return d.properties.name
+                  var countryName = d.properties.name.toLowerCase()
+
+                  countryName = countryName.replace(/[^0-9a-zA-Z]/g, '')
+                  console.log(countryName);
+                  // var countryName = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+
+                    // return d.properties.name
                 })
                 .style({"fill": "none", "stroke": "none"})
                 .attr("d", path)
@@ -1570,6 +1576,7 @@ function checkedAttributes(){
 
 //function to highlight enumeration units and bars
 function highlightCountry(props){
+    console.log(props.name);
   	//change stroke
   	var selected = d3.selectAll("#" + props.name)
   		.style({
