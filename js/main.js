@@ -348,7 +348,7 @@
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026']
+    var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026']
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.threshold()
@@ -462,6 +462,7 @@ function drawLineageFrequency(expressed) {
             .style("fill", function(d){
                 return choropleth(d.properties, colorScale, expressed)
             })
+            // .style({"stroke": "#ccc", "stroke-width": "1px"})
         //retrieve width of map
         var width = d3.select(".map").attr("width");
         var height = d3.select(".map").attr("height");
@@ -485,7 +486,7 @@ function drawLineageFrequency(expressed) {
                   // legendSpacing = 4;
 
               //color classes array
-              var colorClasses = ['#eee','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', 'white']
+              var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', '#eee']
 
               //color values array
               var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
