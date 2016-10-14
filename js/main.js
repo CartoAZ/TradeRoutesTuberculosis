@@ -60,36 +60,70 @@
         }
     ]
 
-    var whoObjArray = [
+    var unObjArray = [
         {
-          text: 'Western Pacific',
-          value: 'WPR',
-          checked: 1,
-          color: "#FF8C03"
+          text: 'Northern Africa',
+          checked: 1
         },
         {
-          text: 'Southeast Asia',
-          value: 'SEA',
-          checked: 1,
-          color: "#85FF0D"
+          text: 'Western Africa',
+          checked: 1
         },
         {
-          text: 'Eastern Mediterranean',
-          value: 'EMR',
-          checked: 1,
-          color: "#0AFCD2"
+          text: 'Middle Africa',
+          checked: 1
         },
         {
-          text: 'African',
-          value: 'AFR',
-          checked: 1,
-          color: "#FFFF3B"
+          text: 'Eastern Africa',
+          checked: 1
         },
         {
-          text: 'European',
-          value: 'EUR',
-          checked: 1,
-          color: "#ABADFF"
+          text: 'Southern Africa',
+          checked: 1
+        },
+        {
+          text: 'Northern Europe',
+          checked: 1
+        },
+        {
+          text: 'Eastern Europe',
+          checked: 1
+        },
+        {
+          text: 'Western Europe',
+          checked: 1
+        },
+        {
+          text: 'Southern Europe',
+          checked: 1
+        },
+        {
+          text: 'Central Asia',
+          checked: 1
+        },
+        {
+          text: 'Western Asia',
+          checked: 1
+        },
+        {
+          text: 'Eastern Asia',
+          checked: 1
+        },
+        {
+          text: 'Southern Asia',
+          checked: 1
+        },
+        {
+          text: 'Southeastern Asia',
+          checked: 1
+        },
+        {
+          text: 'Melanesia',
+          checked: 1
+        },
+        {
+          text: 'Australia and New Zealand',
+          checked: 1
         }
     ]
 
@@ -210,11 +244,11 @@
                     var region = d.properties.UN_Region
                     //remove all spaces
                     region = region.replace(/\s+/g, '')
-                    console.log(region);
+
                     return region
                 })
                 .attr("d", path)
-                // .attr("visibility", "hidden")
+                .attr("visibility", "hidden")
 
             //add second set of countries for lineage frequencies to map
             var lineageFrequencies = g.selectAll(".lineageFrequencies")
@@ -940,6 +974,26 @@ function createLegend() {
           routeObjArray[i].color = color
       }
 
+      // for loop to push value into UN Obj array
+      for (i=0; i<unObjArray.length; i++) {
+          //current region in loop
+          var region = unObjArray[i].text
+          //remove all spaces
+          region = region.replace(/\s+/g, '')
+          //add region into obj array as a value
+          unObjArray[i].value = region
+      }
+
+      // for loop retrieving fill color of each UN Region for the legend
+      for (i=0; i<unObjArray.length; i++) {
+          //current region in loop
+          var region = unObjArray[i].value
+          //pull color from stroke of route
+          var color = d3.select("#" + region).style("fill")
+          // create new property in routeObjArray for the color; easier to build legend using one array
+          unObjArray[i].color = color
+      }
+
       //sets legend title
       var legendTitle = legendSvg.append("text")
           .attr("class", "legendTitle")
@@ -1198,32 +1252,32 @@ function createLegend() {
           });
 
       //sets legend title
-      var legendWhoTitle = legendSvg.append("text")
+      var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
-          .attr("id", "legendWhoTitle")
+          .attr("id", "legendUNTitle")
           .attr("transform", "translate(60,388)")
-          .text("WHO Regions")
+          .text("UN Regions")
 
       //rect to hold styling
-      var whoBackButton = legendSvg.append("rect")
-          .attr("id", "whoBack")
+      var UNBackButton = legendSvg.append("rect")
+          .attr("id", "unBack")
           .attr("height", "15px")
           .attr("width", "50px")
           .attr("transform", "translate(4,375)")
       //text of button
-      var whoButtonText = legendSvg.append("text")
+      var unButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
-          .attr("id", "whoButtonText")
+          .attr("id", "unButtonText")
           .attr("transform", "translate(9,387)")
           .text("Add All")
       //clickable rect
-      var whoSelectButton = legendSvg.append("rect")
-          .attr("id", "whoSelect")
+      var unSelectButton = legendSvg.append("rect")
+          .attr("id", "unSelect")
           .attr("height", "15px")
           .attr("width", "50px")
           .attr("transform", "translate(4,375)")
           .on("click", function(){
-              updateButton("who", whoObjArray);
+              updateButton("un", unObjArray);
           })
           .on("mouseover", function(){
               //extract ID of rectangle is clicked
@@ -1251,11 +1305,11 @@ function createLegend() {
           })
 
       //creates a group for each rectangle and offsets each by same amount
-      var legendWho = legendSvg.selectAll('.legendWho')
-          .data(whoObjArray)
+      var legendUN = legendSvg.selectAll('.legendUN')
+          .data(unObjArray)
           .enter()
         .append("g")
-          .attr("class", "legendWho")
+          .attr("class", "legendUN")
           .attr("transform", function(d, i) {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
@@ -1265,35 +1319,61 @@ function createLegend() {
         });
 
       //creates rect elements for legened
-      var legendWhoRect = legendWho.append('rect')
-          .attr("class", "legendWhoRect")
+      var legendUNRect = legendUN.append('rect')
+          .attr("class", "legendUNRect")
           .attr('width', 20)
           .attr('height', 10)
           .attr("transform", "translate(-20,280)")
           .style('fill', function(d){ return d.color })
 
       //adds text to legend
-      var legendWhoText = legendWho.append('text')
+      var legendUNText = legendUN.append('text')
           .attr("class", "legendText")
           .attr("transform", "translate(5, 288.5)")
           .text(function(d) { return d.text });
 
       //checkboxes for each route
-      var checkboxesWho = legendWho.append("foreignObject")
+      var checkboxesUN = legendUN.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
           .attr("transform", "translate(-47, 274)")
         .append("xhtml:body")
           .html(function(d, i) {
               //create ID for checkboxes
-              var whoID = whoObjArray[i].value + "_check";
-              return "<form><input type=checkbox class='who_checkbox' id='" + whoID + "'</input></form>"
+              var unID = unObjArray[i].value + "_check";
+              return "<form><input type=checkbox class='un_checkbox' id='" + unID + "'</input></form>"
           })
           .on("change", function(d){
-              //function updates "checked" property for every route
-              whoObjArray = setCheckedProp(whoObjArray, "who");
-              //updates visibility of route based on if it is checked or not
-              updateVisibility(whoObjArray);
+
+              //select both checkboxes
+              var checked = d3.selectAll(".un_checkbox")[0];
+
+              for (i=0; i<checked.length; i++) {
+                  if (checked[i].checked === true) { //un checkbox checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+
+                    //update visibility of selected un region
+                    d3.select("#" + getClass)
+                        .attr("visibility", "visibile")
+
+                  } else { //if unchecked in legend
+                      //gets ID, which contains element to update
+                      var getID = checked[i].id;
+                      //trim "_check" from end of ID string
+                      var getClass = getID.slice(0, -6);
+                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                      d3.select("#" + getClass)
+                          .attr("visibility", "hidden")
+                  }
+              }
+              //
+              // //function updates "checked" property for every route
+              // unObjArray = setCheckedProp(unObjArray, "un");
+              // //updates visibility of route based on if it is checked or not
+              // updateVisibility(unObjArray);
           });
 
       //checks all routes by default
@@ -1324,7 +1404,7 @@ function updateButton(item, array){
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
             vert += 70;
-        } else if (item === "who") {
+        } else if (item === "un") {
             vert += 328;
         }
 
@@ -1378,11 +1458,21 @@ function updateButton(item, array){
           routeObjArray = setCheckedProp(array, item);
           //updates visibility based on array
           updateVisibility(routeObjArray)
-        } else if (item === "who") {
-          //updates checked property of each object
-          whoObjArray = setCheckedProp(array, item);
-          //updates visibility based on array
-          updateVisibility(whoObjArray)
+        } else if (item === "un") {
+            //select both checkboxes
+            var checked = d3.selectAll(".un_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === false) { //if unchecked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for UN regions
+                    d3.select("#" + getClass)
+                        .attr("visibility", "hidden")
+                }
+            }
         }
     }
 
@@ -1394,7 +1484,7 @@ function updateButton(item, array){
         if (item === "route") {
             //moves label to appropriate place
             vert += 70;
-        } else if (item === "who") {
+        } else if (item === "un") {
             vert += 328;
         }
 
@@ -1447,11 +1537,21 @@ function updateButton(item, array){
             routeObjArray = setCheckedProp(array, item);
             //updates visibility based on array
             updateVisibility(routeObjArray)
-        } else if (item === "who") {
-            //updates checked property of each object
-            whoObjArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(whoObjArray)
+        } else if (item === "un") {
+            //select both checkboxes
+            var checked = d3.selectAll(".un_checkbox")[0];
+
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //if checked in legend
+                    //gets ID, which contains element to update
+                    var getID = checked[i].id;
+                    //trim "_check" from end of ID string
+                    var getClass = getID.slice(0, -6);
+                    //update ID and visibility for UN regions
+                    d3.select("#" + getClass)
+                        .attr("visibility", "visible")
+                }
+            }
         }
     };
 };

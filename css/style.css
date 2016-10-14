@@ -211,7 +211,7 @@ ul {
 }
 
 #legendSvg {
-	height: 530px;
+	height: 800px;
 	width: 100%
 }
 
@@ -245,7 +245,7 @@ ul {
 
 #isolateBack,
 #routeBack,
-#whoBack,
+#unBack,
 #sampleBack {
 		rx: 3px;
 		ry: 3px;
@@ -254,7 +254,7 @@ ul {
 }
 #isolateSelect,
 #routeSelect,
-#whoSelect,
+#unSelect,
 #sampleSelect {
 		rx: 3px;
 		ry: 3px;
