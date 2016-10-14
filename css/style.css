@@ -9,7 +9,7 @@ body {
 }
 
 .countries {
-		fill: white;
+		fill: #eee;
 		stroke: #CCC;
 		stroke-width: 1px;
 }
