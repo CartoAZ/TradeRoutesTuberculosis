@@ -134,7 +134,7 @@
 
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/WHO_Regions50m.topojson")//load WHO regions outline
+            .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
             .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
@@ -143,14 +143,13 @@
 
             .await(callback);
 
-        function callback(error, countryData, whoRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
 
             //place graticule on the map
         		// setGraticule(map, path);
-
             //translate countries topojson with zoom
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
-                whoRegionsJson = topojson.feature(whoRegionsData, whoRegionsData.objects.WHO_Regions50m).features;
+                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
 
@@ -200,17 +199,22 @@
                 // })
                 .attr("d", path)
 
-            //add world health organization regions to map
-            var who_regions = g.selectAll(".who_regions")
-               .data(whoRegionsJson)
+            //add UN regions to map
+            var un_regions = g.selectAll(".un_regions")
+               .data(UNRegionsJson)
                .enter()
              .append("path")
-                .attr("class", "who_regions")
+                .attr("class", "un_regions")
                 .attr("id", function(d){
-                    return d.properties.WHO_Region
+                    //place region name into variable
+                    var region = d.properties.UN_Region
+                    //remove all spaces
+                    region = region.replace(/\s+/g, '')
+                    console.log(region);
+                    return region
                 })
                 .attr("d", path)
-                .attr("visibility", "hidden")
+                // .attr("visibility", "hidden")
 
             //add second set of countries for lineage frequencies to map
             var lineageFrequencies = g.selectAll(".lineageFrequencies")

@@ -41,6 +41,50 @@ body {
 		fill: #FFFF3B;
 }
 
+
+/*UN regions*/
+
+.un_regions {
+		stroke: #AAA;
+		stroke-width: 2px;
+		opacity: 0.5;
+}
+#NorthernAfrica,
+#NorthernEurope,
+#AustraliaandNewZealand,
+#EasternAsia {
+		fill: #8dd3c7;
+}
+
+#MiddleAfrica,
+#CentralAsia,
+#Melanesia {
+		fill: #ffffb3;
+}
+
+#WesternAfrica,
+#WesternEurope,
+#WesternAsia {
+		fill: #bebada;
+}
+
+#EasternAfrica,
+#EasternEurope,
+#SoutheasternAsia {
+		fill: #80b1d3;
+}
+
+#SouthernAfrica,
+#SouthernAsia,
+#SouthernEurope {
+		fill: #fb8072;
+}
+
+#AFR {
+		fill: #FFFF3B;
+}
+
+
 /*trade hubs*/
 
 .tradeHubs {
