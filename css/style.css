@@ -41,6 +41,54 @@ body {
 		fill: #FFFF3B;
 }
 
+
+/*UN regions*/
+
+.un_regions {
+		stroke-width: 3px;
+		opacity: 0.5;
+}
+#NorthernAfrica,
+#NorthernEurope,
+#AustraliaandNewZealand,
+#EasternAsia {
+		fill: #8dd3c7;
+		stroke: #46b4a1;
+}
+
+#MiddleAfrica,
+#CentralAsia,
+#Melanesia {
+		fill: #ffffb3;
+		stroke: #ffff4d;
+}
+
+#WesternAfrica,
+#WesternEurope,
+#WesternAsia {
+		fill: #bebada;
+		stroke: #8078b6;
+}
+
+#EasternAfrica,
+#EasternEurope,
+#SoutheasternAsia {
+		fill: #80b1d3;
+		stroke: #418abd;
+}
+
+#SouthernAfrica,
+#SouthernAsia,
+#SouthernEurope {
+		fill: #fb8072;
+		stroke: #ef1f07;
+}
+
+#AFR {
+		fill: #FFFF3B;
+}
+
+
 /*trade hubs*/
 
 .tradeHubs {
@@ -167,7 +215,7 @@ ul {
 }
 
 #legendSvg {
-	height: 530px;
+	height: 800px;
 	width: 100%
 }
 
@@ -201,7 +249,7 @@ ul {
 
 #isolateBack,
 #routeBack,
-#whoBack,
+#unBack,
 #sampleBack {
 		rx: 3px;
 		ry: 3px;
@@ -210,7 +258,7 @@ ul {
 }
 #isolateSelect,
 #routeSelect,
-#whoSelect,
+#unSelect,
 #sampleSelect {
 		rx: 3px;
 		ry: 3px;
