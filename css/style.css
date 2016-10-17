@@ -45,8 +45,7 @@ body {
 /*UN regions*/
 
 .un_regions {
-		stroke: #AAA;
-		stroke-width: 2px;
+		stroke-width: 3px;
 		opacity: 0.5;
 }
 #NorthernAfrica,
@@ -54,30 +53,35 @@ body {
 #AustraliaandNewZealand,
 #EasternAsia {
 		fill: #8dd3c7;
+		stroke: #46b4a1;
 }
 
 #MiddleAfrica,
 #CentralAsia,
 #Melanesia {
 		fill: #ffffb3;
+		stroke: #ffff4d;
 }
 
 #WesternAfrica,
 #WesternEurope,
 #WesternAsia {
 		fill: #bebada;
+		stroke: #8078b6;
 }
 
 #EasternAfrica,
 #EasternEurope,
 #SoutheasternAsia {
 		fill: #80b1d3;
+		stroke: #418abd;
 }
 
 #SouthernAfrica,
 #SouthernAsia,
 #SouthernEurope {
 		fill: #fb8072;
+		stroke: #ef1f07;
 }
 
 #AFR {

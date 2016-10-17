@@ -233,23 +233,6 @@
                 // })
                 .attr("d", path)
 
-            //add UN regions to map
-            var un_regions = g.selectAll(".un_regions")
-               .data(UNRegionsJson)
-               .enter()
-             .append("path")
-                .attr("class", "un_regions")
-                .attr("id", function(d){
-                    //place region name into variable
-                    var region = d.properties.UN_Region
-                    //remove all spaces
-                    region = region.replace(/\s+/g, '')
-
-                    return region
-                })
-                .attr("d", path)
-                .attr("visibility", "hidden")
-
             //add second set of countries for lineage frequencies to map
             var lineageFrequencies = g.selectAll(".lineageFrequencies")
                .data(linFreqJson)
@@ -272,6 +255,23 @@
                 .on("mousemove", function(d){
                     moveLabel(d.properties)
                 });
+
+            //add UN regions to map
+            var un_regions = g.selectAll(".un_regions")
+               .data(UNRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "un_regions")
+                .attr("id", function(d){
+                    //place region name into variable
+                    var region = d.properties.UN_Region
+                    //remove all spaces
+                    region = region.replace(/\s+/g, '')
+
+                    return region
+                })
+                .attr("d", path)
+                .attr("visibility", "hidden")
 
             //draw trade routes
             var tradeRoutes = g.append("g")
