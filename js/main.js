@@ -169,7 +169,7 @@
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
-            .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
+            .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
@@ -192,7 +192,7 @@
             var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
 
             //convert topojsons into geojson objects; coastLine is an array full of objects
-            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
+            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
 
