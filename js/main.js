@@ -60,70 +60,60 @@
         }
     ]
 
+    // var hubObjArray = [
+    //     {
+    //       text: 'Trade Hub'
+    //     }
+    // ]
+
     var unObjArray = [
         {
-          text: 'Northern Africa',
-          checked: 1
+          text: 'Northern Africa'
         },
         {
-          text: 'Western Africa',
-          checked: 1
+          text: 'Western Africa'
         },
         {
-          text: 'Middle Africa',
-          checked: 1
+          text: 'Middle Africa'
         },
         {
-          text: 'Eastern Africa',
-          checked: 1
+          text: 'Eastern Africa'
         },
         {
-          text: 'Southern Africa',
-          checked: 1
+          text: 'Southern Africa'
         },
         {
-          text: 'Northern Europe',
-          checked: 1
+          text: 'Northern Europe'
         },
         {
-          text: 'Eastern Europe',
-          checked: 1
+          text: 'Eastern Europe'
         },
         {
-          text: 'Western Europe',
-          checked: 1
+          text: 'Western Europe'
         },
         {
-          text: 'Southern Europe',
-          checked: 1
+          text: 'Southern Europe'
         },
         {
-          text: 'Central Asia',
-          checked: 1
+          text: 'Central Asia'
         },
         {
-          text: 'Western Asia',
-          checked: 1
+          text: 'Western Asia'
         },
         {
-          text: 'Eastern Asia',
-          checked: 1
+          text: 'Eastern Asia'
         },
         {
-          text: 'Southern Asia',
-          checked: 1
+          text: 'Southern Asia'
         },
         {
-          text: 'Southeastern Asia',
-          checked: 1
+          text: 'Southeastern Asia'
         },
         {
-          text: 'Melanesia',
-          checked: 1
+          text: 'Melanesia'
         },
         {
-          text: 'Australia and New Zealand',
-          checked: 1
+          text: 'Australia and New Zealand'
         }
     ]
 
@@ -136,7 +126,7 @@
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          fill: "#888"
+          fill: "#aaa"
         }
     ];
     //empty array to hold all isolate names
@@ -170,7 +160,7 @@
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
             .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
-            .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
+            .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
@@ -185,7 +175,7 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
                 UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
 
-            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018)
 
             var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
 
@@ -297,11 +287,11 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
-            // //add near trade hub cities to map
-            // var tradeHubs = g.append("path")
-            //     .datum(tradeHubJson)
-            //     .attr("class", "tradeHubs")
-            //     .attr("d", path)
+            //add trade hub cities to map
+            var tradeHubs = g.append("path")
+                .datum(tradeHubJson)
+                .attr("class", "tradeHubs")
+                .attr("d", path)
 
 
             //add exact isolates to map
@@ -1375,6 +1365,104 @@ function createLegend() {
               // //updates visibility of route based on if it is checked or not
               // updateVisibility(unObjArray);
           });
+
+
+      //sets legend title
+      var legendHubTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendHubTitle")
+          .attr("transform", "translate(60,745)")
+          .text("Trade Hubs")
+
+      //rect to hold styling
+      var hubBackButton = legendSvg.append("rect")
+          .attr("id", "hubBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,732)")
+      //text of button
+      var hubButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "hubButtonText")
+          .attr("transform", "translate(6,744)")
+          .text("Clear All")
+      //clickable rect
+      var hubSelectButton = legendSvg.append("rect")
+          .attr("id", "hubSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", "translate(4,732)")
+          // .on("click", function(){
+          //     updateButton("hub", routeObjArray);
+          // })
+          .on("mouseover", function(){
+              //extract ID of rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                  "stroke": "#aaa",
+                  "stroke-width": "2px",
+              })
+          })
+          .on("mouseout", function(){
+              //extract ID of whichever rectangle is clicked
+              var buttonID = this.id;
+              //changes click to back in ID string so we can change fill
+              var rectID = buttonID.replace("Select", "Back")
+              //change fill
+              d3.select("#" + rectID).style({
+                "fill": "#eee",
+                "stroke": "#ddd",
+                "stroke-width": "1px"
+
+              })
+          })
+
+      // //creates a group for each rectangle and offsets each by same amount
+      // var legendHub = legendSvg.selectAll('.legendHub')
+      //     .data(routeObjArray)
+      //     .enter()
+      //   .append("g")
+      //     .attr("class", "legendHub")
+      //     .attr("transform", function(d, i) {
+      //         var height = rectWidth + legendSpacing;
+      //         var offset =  height * routeObjArray.length / 2;
+      //         var horz = 2 * rectWidth;
+      //         var vert = i * height - offset + 265;
+      //         return 'translate(' + horz + ',' + vert + ')';
+      //   });
+
+      //creates rect elements for legened
+      var legendHubCircle = legendSvg.append('circle')
+          .attr("class", "tradeHubs")
+          .attr("cx", "25")
+          .attr("cy", "25")
+          .attr("r", "5")
+          .attr("transform", "translate(4,735)")
+
+      //adds text to legend
+      var legendHubText = legendSvg.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(44,763)")
+          .text("Trade Hub");
+
+      //checkboxes for each route
+      var checkboxesHub = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 749)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='hub_checkbox'" + "'</input></form>")
+      //     .on("change", function(d){
+      //         //function updates "checked" property for every route
+      //         routeObjArray = setCheckedProp(routeObjArray, "route");
+      //         //updates visibility of route based on if it is checked or not
+      //         updateVisibility(routeObjArray);
+      //     });
+      //
+
 
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
