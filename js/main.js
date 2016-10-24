@@ -317,7 +317,7 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered checked";
+                    return "lin_" + lineage + " notFiltered unchecked";
                 })
                 .attr("id", function(d){
                     return d.properties.SampleName;
@@ -338,7 +338,7 @@
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered checked";
+                    return "lin_" + lineage + " notFiltered unchecked";
                 })
                 .attr("id", function(d){
                     return d.properties.SampleName;
