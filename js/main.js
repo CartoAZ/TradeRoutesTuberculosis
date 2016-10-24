@@ -322,6 +322,7 @@
                 .attr("id", function(d){
                     return d.properties.SampleName;
                 })
+                .attr("visibility", "hidden")
 
             //add random isolates to map
             var randomIsolates = g.append("g")
@@ -342,6 +343,8 @@
                 .attr("id", function(d){
                     return d.properties.SampleName;
                 })
+                .attr("visibility", "hidden")
+
 
             //push isolate names into array for use with search widget
             exactJson.map(function(d){
@@ -1013,8 +1016,8 @@ function createLegend() {
       var isoButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "isolateButtonText")
-          .attr("transform", "translate(6,59)")
-          .text("Clear All")
+          .attr("transform", "translate(10,59)")
+          .text("Add All")
       //clickable rect
       var isoSelectButton = legendSvg.append("rect")
           .attr("id", "isolateSelect")
@@ -1022,18 +1025,25 @@ function createLegend() {
           .attr("width", "50px")
           .attr("transform", "translate(4,47)")
           .on("click", function(){
-              updateButton("isolate", isolateLegendArray);
+              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                  updateButton("isolate", isolateLegendArray);
+              }
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                  //extract ID of rectangle is clicked
+                  var buttonID = this.id;
+                  //changes click to back in ID string so we can change fill
+                  var rectID = buttonID.replace("Select", "Back")
+                  //change fill
+                  d3.select("#" + rectID).style({
+                      "stroke": "#aaa",
+                      "stroke-width": "2px",
+                  })
+              } else {
+                  d3.select("#isolateSelect")
+                      .style("cursor", "not-allowed")
+              }
           })
           .on("mouseout", function(){
               //extract ID of whichever rectangle is clicked
@@ -1429,7 +1439,7 @@ function createLegend() {
       //checks all isolates by default
       for (i=0; i<isolateLegendArray.length; i++) {
           var isolate = isolateLegendArray[i].value;
-          d3.select("#" + isolate + "_check")[0][0].checked = true;
+          d3.select("#" + isolate + "_check")[0][0].disabled = true;
       }
 
       //checks trade hubs by default
