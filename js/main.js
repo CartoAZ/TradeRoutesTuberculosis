@@ -175,11 +175,11 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
                 UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
 
-            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018)
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
-            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
+            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features
 
-            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
+            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features
 
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
@@ -288,23 +288,32 @@
                 // });
 
             //add trade hub cities to map
-            var tradeHubs = g.append("path")
-                .datum(tradeHubJson)
+            // var tradeHubs = g.append("path")
+            //     .datum(tradeHubJson)
+            //     .attr("class", "tradeHubs")
+            //     .attr("d", path)
+            var tradeHubs = g.append("g")
                 .attr("class", "tradeHubs")
-                .attr("d", path)
+                .selectAll("circle")
+              .data(tradeHubJson)
+                .enter()
+              .append("circle")
+                .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("r", 4)
 
 
             //add exact isolates to map
             var exactIsolates = g.append("g")
                 .attr("class", "exactIsolates")
                 .selectAll("rect")
-              .data(exactJson.features)
+              .data(exactJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -318,13 +327,13 @@
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
                 .selectAll("path")
-              .data(randomJson.features)
+              .data(randomJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -334,17 +343,13 @@
                     return d.properties.SampleName;
                 })
 
-            //store features of exact isolates in variable
-            var exactSamples = exactJson.features;
             //push isolate names into array for use with search widget
-            exactSamples.map(function(d){
+            exactJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
-            //store features of exact isolates in variable
-            var randomSamples = randomJson.features;
             //push isolate names into array for use with search widget
-            randomSamples.map(function(d){
+            randomJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
@@ -1372,81 +1377,20 @@ function createLegend() {
           .attr("class", "legendSubHead")
           .attr("id", "legendHubTitle")
           .attr("transform", "translate(60,745)")
-          .text("Trade Hubs")
-
-      //rect to hold styling
-      var hubBackButton = legendSvg.append("rect")
-          .attr("id", "hubBack")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,732)")
-      //text of button
-      var hubButtonText = legendSvg.append("text")
-          .attr("class", "buttonText")
-          .attr("id", "hubButtonText")
-          .attr("transform", "translate(6,744)")
-          .text("Clear All")
-      //clickable rect
-      var hubSelectButton = legendSvg.append("rect")
-          .attr("id", "hubSelect")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,732)")
-          // .on("click", function(){
-          //     updateButton("hub", routeObjArray);
-          // })
-          .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
-          })
-          .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-
-              })
-          })
-
-      // //creates a group for each rectangle and offsets each by same amount
-      // var legendHub = legendSvg.selectAll('.legendHub')
-      //     .data(routeObjArray)
-      //     .enter()
-      //   .append("g")
-      //     .attr("class", "legendHub")
-      //     .attr("transform", function(d, i) {
-      //         var height = rectWidth + legendSpacing;
-      //         var offset =  height * routeObjArray.length / 2;
-      //         var horz = 2 * rectWidth;
-      //         var vert = i * height - offset + 265;
-      //         return 'translate(' + horz + ',' + vert + ')';
-      //   });
+          .text("Trade Cities")
 
       //creates rect elements for legened
       var legendHubCircle = legendSvg.append('circle')
           .attr("class", "tradeHubs")
-          .attr("cx", "25")
-          .attr("cy", "25")
+          .attr("cx", "29")
+          .attr("cy", "760")
           .attr("r", "5")
-          .attr("transform", "translate(4,735)")
 
       //adds text to legend
       var legendHubText = legendSvg.append('text')
           .attr("class", "legendText")
           .attr("transform", "translate(44,763)")
-          .text("Trade Hub");
+          .text("Major Trade City");
 
       //checkboxes for each route
       var checkboxesHub = legendSvg.append("foreignObject")
@@ -1455,13 +1399,25 @@ function createLegend() {
           .attr("transform", "translate(-7, 749)")
         .append("xhtml:body")
           .html("<form><input type=checkbox class='hub_checkbox'" + "'</input></form>")
-      //     .on("change", function(d){
-      //         //function updates "checked" property for every route
-      //         routeObjArray = setCheckedProp(routeObjArray, "route");
-      //         //updates visibility of route based on if it is checked or not
-      //         updateVisibility(routeObjArray);
-      //     });
-      //
+          .on("change", function(d){
+
+              //select both checkboxes
+              var checked = d3.selectAll(".hub_checkbox")[0];
+
+              if (checked[0].checked === true) { //un checkbox checked in legend
+
+                  //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "visibile")
+
+              } else { //if unchecked in legend
+
+                //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "hidden")
+              }
+          });
+
 
 
       //checks all routes by default
@@ -1470,11 +1426,14 @@ function createLegend() {
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
-      //checks all routes by default
+      //checks all isolates by default
       for (i=0; i<isolateLegendArray.length; i++) {
           var isolate = isolateLegendArray[i].value;
           d3.select("#" + isolate + "_check")[0][0].checked = true;
       }
+
+      //checks trade hubs by default
+      d3.select(".hub_checkbox")[0][0].checked = true;
 
 };
 

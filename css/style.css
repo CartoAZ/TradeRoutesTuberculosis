@@ -92,8 +92,7 @@ body {
 /*trade hubs*/
 
 .tradeHubs {
-		fill: #ccc;
-		stroke: #222;
+		fill: #000;
 }
 
 .exactIsolates {
