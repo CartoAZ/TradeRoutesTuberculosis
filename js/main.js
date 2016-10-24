@@ -998,6 +998,7 @@ function createLegend() {
           .attr("transform", "translate(75,30)")
           .text("Legend")
 
+
       //sets legend title
       var legendIsolateTitle = legendSvg.append("text")
             .attr("class", "legendSubHead")
@@ -1024,6 +1025,7 @@ function createLegend() {
           .attr("height", "15px")
           .attr("width", "50px")
           .attr("transform", "translate(4,47)")
+          .attr("title", "Cannot display isolates while trade cities are showing on map.")
           .on("click", function(){
               if (d3.select(".isolate_checkbox")[0][0].disabled == false){
                   updateButton("isolate", isolateLegendArray);
@@ -1041,9 +1043,16 @@ function createLegend() {
                       "stroke": "#aaa",
                       "stroke-width": "2px",
                   })
+
+                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                  $("#isolateSelect").tooltip("disable");
+
               } else {
                   d3.select("#isolateSelect")
                       .style("cursor", "not-allowed")
+
+                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                  $("#isolateSelect").tooltip("enable");
               }
           })
           .on("mouseout", function(){
@@ -1098,17 +1107,45 @@ function createLegend() {
           .html(function(d, i) {
               //create ID for checkboxes
               var isolateID = isolateLegendArray[i].value + "_check";
-              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
+
+              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
           })
           .on("mouseover", function(d){
               var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
 
               if (isolateCheckboxes.disabled == false){
+                  //changes cursor to pointer when checkboxes can be clicked
                   d3.selectAll(".isolate_checkbox")
                       .style("cursor", "pointer")
+                  //retrieve innerHTML of the checkbox as a string to search
+                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+                  //search string for substring to determine which checkbox is selected
+                  var isExact = checkboxHTML.indexOf("exact")
+
+                  if (isExact == -1) { //randomIsolates checkbox selected
+                      //disables jQuery UI tooltip for checkbox
+                      $("#randomIsolates_check").tooltip("disable");
+                  } else if (isExact > -1) { //exactIsolates checkbox selected
+                      //disables jQuery UI tooltip for checkbox
+                      $("#exactIsolates_check").tooltip("disable");
+                  }
+
               } else {
                   d3.selectAll(".isolate_checkbox")
                       .style("cursor", "not-allowed")
+
+                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+
+                  var isExact = checkboxHTML.indexOf("exact")
+
+                  if (isExact == -1) {
+                      //enables jQuery UI tooltip for checkbox
+                      $("#randomIsolates_check").tooltip("enable");
+                  } else if (isExact > -1) {
+                      //enables jQuery UI tooltip for checkbox
+                      $("#exactIsolates_check").tooltip("enable");
+
+                  }
               }
 
           })
@@ -1169,6 +1206,13 @@ function createLegend() {
               //updates disabled property of trade hub checkbox appropriately
               setCheckbox();
           });
+
+      //initializes jQuery UI tooltip for Add All button
+      $("#isolateSelect").tooltip();
+      //initializes jQuery UI tooltip for checkbox
+      $("#exactIsolates_check").tooltip();
+      //initializes jQuery UI tooltip for checkbox
+      $("#randomIsolates_check").tooltip();
 
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
@@ -1423,17 +1467,23 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-7, 749)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='hub_checkbox'" + "'</input></form>")
+          .html("<form><input type=checkbox class='hub_checkbox' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
           .on("mouseover", function(){
               //checks if trade hub checkbox is disabled
               if (d3.select(".hub_checkbox")[0][0].disabled == true){
                   //make the cursor a not allowed symbol
                   d3.select(".hub_checkbox")
                       .style("cursor", "not-allowed")
+
+                  //enable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("enable");
               } else { //if checkbox is enabled
                   //make cursor the pointer symbol
                   d3.select(".hub_checkbox")
                       .style("cursor", "pointer")
+
+                  //disable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("disable");
               }
           })
           .on("change", function(d){
@@ -1457,7 +1507,10 @@ function createLegend() {
               setCheckbox();
           });
 
-
+        //initializes jQuery UI tooltip for checkbox
+        $(".hub_checkbox").tooltip();
+        //disables tooltip because the checkbox is checked and we only need message when it is not
+        $(".hub_checkbox").tooltip("disable");
 
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
