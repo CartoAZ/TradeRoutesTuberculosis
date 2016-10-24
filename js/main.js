@@ -60,70 +60,60 @@
         }
     ]
 
+    // var hubObjArray = [
+    //     {
+    //       text: 'Trade Hub'
+    //     }
+    // ]
+
     var unObjArray = [
         {
-          text: 'Northern Africa',
-          checked: 1
+          text: 'Northern Africa'
         },
         {
-          text: 'Western Africa',
-          checked: 1
+          text: 'Western Africa'
         },
         {
-          text: 'Middle Africa',
-          checked: 1
+          text: 'Middle Africa'
         },
         {
-          text: 'Eastern Africa',
-          checked: 1
+          text: 'Eastern Africa'
         },
         {
-          text: 'Southern Africa',
-          checked: 1
+          text: 'Southern Africa'
         },
         {
-          text: 'Northern Europe',
-          checked: 1
+          text: 'Northern Europe'
         },
         {
-          text: 'Eastern Europe',
-          checked: 1
+          text: 'Eastern Europe'
         },
         {
-          text: 'Western Europe',
-          checked: 1
+          text: 'Western Europe'
         },
         {
-          text: 'Southern Europe',
-          checked: 1
+          text: 'Southern Europe'
         },
         {
-          text: 'Central Asia',
-          checked: 1
+          text: 'Central Asia'
         },
         {
-          text: 'Western Asia',
-          checked: 1
+          text: 'Western Asia'
         },
         {
-          text: 'Eastern Asia',
-          checked: 1
+          text: 'Eastern Asia'
         },
         {
-          text: 'Southern Asia',
-          checked: 1
+          text: 'Southern Asia'
         },
         {
-          text: 'Southeastern Asia',
-          checked: 1
+          text: 'Southeastern Asia'
         },
         {
-          text: 'Melanesia',
-          checked: 1
+          text: 'Melanesia'
         },
         {
-          text: 'Australia and New Zealand',
-          checked: 1
+          text: 'Australia and New Zealand'
         }
     ]
 
@@ -136,7 +126,7 @@
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          fill: "#888"
+          fill: "#aaa"
         }
     ];
     //empty array to hold all isolate names
@@ -170,7 +160,7 @@
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
             .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
-            .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
+            .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
@@ -185,11 +175,11 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
                 UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
 
-            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
-            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
+            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features
 
-            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
+            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features
 
             //convert topojsons into geojson objects; coastLine is an array full of objects
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
@@ -297,24 +287,33 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
-            // //add near trade hub cities to map
+            //add trade hub cities to map
             // var tradeHubs = g.append("path")
             //     .datum(tradeHubJson)
             //     .attr("class", "tradeHubs")
             //     .attr("d", path)
+            var tradeHubs = g.append("g")
+                .attr("class", "tradeHubs")
+                .selectAll("circle")
+              .data(tradeHubJson)
+                .enter()
+              .append("circle")
+                .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("r", 4)
 
 
             //add exact isolates to map
             var exactIsolates = g.append("g")
                 .attr("class", "exactIsolates")
                 .selectAll("rect")
-              .data(exactJson.features)
+              .data(exactJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -328,13 +327,13 @@
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
                 .selectAll("path")
-              .data(randomJson.features)
+              .data(randomJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
@@ -344,17 +343,13 @@
                     return d.properties.SampleName;
                 })
 
-            //store features of exact isolates in variable
-            var exactSamples = exactJson.features;
             //push isolate names into array for use with search widget
-            exactSamples.map(function(d){
+            exactJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
-            //store features of exact isolates in variable
-            var randomSamples = randomJson.features;
             //push isolate names into array for use with search widget
-            randomSamples.map(function(d){
+            randomJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
@@ -1376,17 +1371,69 @@ function createLegend() {
               // updateVisibility(unObjArray);
           });
 
+
+      //sets legend title
+      var legendHubTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendHubTitle")
+          .attr("transform", "translate(60,745)")
+          .text("Trade Cities")
+
+      //creates rect elements for legened
+      var legendHubCircle = legendSvg.append('circle')
+          .attr("class", "tradeHubs")
+          .attr("cx", "29")
+          .attr("cy", "760")
+          .attr("r", "5")
+
+      //adds text to legend
+      var legendHubText = legendSvg.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(44,763)")
+          .text("Major Trade City");
+
+      //checkboxes for each route
+      var checkboxesHub = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 749)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='hub_checkbox'" + "'</input></form>")
+          .on("change", function(d){
+
+              //select both checkboxes
+              var checked = d3.selectAll(".hub_checkbox")[0];
+
+              if (checked[0].checked === true) { //un checkbox checked in legend
+
+                  //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "visibile")
+
+              } else { //if unchecked in legend
+
+                //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "hidden")
+              }
+          });
+
+
+
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
           var route = routeObjArray[i].value;
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
-      //checks all routes by default
+      //checks all isolates by default
       for (i=0; i<isolateLegendArray.length; i++) {
           var isolate = isolateLegendArray[i].value;
           d3.select("#" + isolate + "_check")[0][0].checked = true;
       }
+
+      //checks trade hubs by default
+      d3.select(".hub_checkbox")[0][0].checked = true;
 
 };
 
