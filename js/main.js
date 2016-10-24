@@ -770,9 +770,10 @@ function createIsoLineageMenu() {
         {
             noneSelectedText: "Filter Isolates by Lineage",
             selectedList: false,
-            selectedText: "Filter Isolates by Lineage"
+            selectedText: "Filter Isolates by Lineage",
         }
     ).multiselect("checkAll") //checks all routes by default
+    .multiselect("disable") //disables by default since you cannot show isolates on map when cities are displayed (cities displayed by default)
     .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
         //store current lineage
         var lineage = ui.value;
@@ -1557,6 +1558,8 @@ function setCheckbox(){
         //set both isolate checkboxes to be enabled
         exactCheck.disabled = false
         randomCheck.disabled = false
+        //enable lineage multiselect
+        $("#isoSelect").multiselect("enable")
 
         //update cursor property for "add all"/"clear all" button to be pointer again
         d3.select("#isolateSelect")
@@ -1569,6 +1572,10 @@ function setCheckbox(){
     } else if (checkedExact == false && checkedRandom == false) { //if both isolate checkboxes are NOT checked...
         //set trade hub checkbox to enabled
         hubCheck.disabled = false
+
+        //disable lineage multiselect
+        $("#isoSelect").multiselect("disable")
+
     }
 
 }
