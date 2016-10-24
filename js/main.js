@@ -1027,6 +1027,7 @@ function createLegend() {
           .on("click", function(){
               if (d3.select(".isolate_checkbox")[0][0].disabled == false){
                   updateButton("isolate", isolateLegendArray);
+                  setCheckbox();
               }
           })
           .on("mouseover", function(){
@@ -1099,6 +1100,18 @@ function createLegend() {
               var isolateID = isolateLegendArray[i].value + "_check";
               return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
           })
+          .on("mouseover", function(d){
+              var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
+
+              if (isolateCheckboxes.disabled == false){
+                  d3.selectAll(".isolate_checkbox")
+                      .style("cursor", "pointer")
+              } else {
+                  d3.selectAll(".isolate_checkbox")
+                      .style("cursor", "not-allowed")
+              }
+
+          })
           .on("change", function(){
               //select both checkboxes
               var checked = d3.selectAll(".isolate_checkbox")[0];
@@ -1153,6 +1166,8 @@ function createLegend() {
                           })
                   }
               }
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           });
 
       //sets legend title
@@ -1409,6 +1424,18 @@ function createLegend() {
           .attr("transform", "translate(-7, 749)")
         .append("xhtml:body")
           .html("<form><input type=checkbox class='hub_checkbox'" + "'</input></form>")
+          .on("mouseover", function(){
+              //checks if trade hub checkbox is disabled
+              if (d3.select(".hub_checkbox")[0][0].disabled == true){
+                  //make the cursor a not allowed symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "not-allowed")
+              } else { //if checkbox is enabled
+                  //make cursor the pointer symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "pointer")
+              }
+          })
           .on("change", function(d){
 
               //select both checkboxes
@@ -1426,6 +1453,8 @@ function createLegend() {
                   d3.select(".tradeHubs")
                       .attr("visibility", "hidden")
               }
+              //updates disabled property of isolate checkboxes appropriately
+              setCheckbox();
           });
 
 
@@ -1446,6 +1475,50 @@ function createLegend() {
       d3.select(".hub_checkbox")[0][0].checked = true;
 
 };
+
+//update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
+function setCheckbox(){
+    //selects trade hub checkbox
+    var hubCheck = d3.select(".hub_checkbox")[0][0]
+
+    //selects exact isolates checkbox
+    var exactCheck = d3.select("#exactIsolates_check")[0][0]
+
+    //selects random isolates checkbox
+    var randomCheck = d3.select("#randomIsolates_check")[0][0]
+
+    //retrieves whether trade hub checkbox is checked or not (stored as true/false)
+    var checkedHub = hubCheck.checked
+
+    //retrieves whether exact isolates is checked or not (stored as true/false)
+    var checkedExact = exactCheck.checked
+
+    //retrieves whether random isolates is checked or not (stored as true/false)
+    var checkedRandom = randomCheck.checked
+
+    if (checkedHub == true) { //if trade hubs checkbox is checked...
+        //set both isolate checkboxes to be disabled
+        exactCheck.disabled = true
+        randomCheck.disabled = true
+    } else if (checkedHub == false) { //if trade hubs checkbox is NOT checked...
+        //set both isolate checkboxes to be enabled
+        exactCheck.disabled = false
+        randomCheck.disabled = false
+
+        //update cursor property for "add all"/"clear all" button to be pointer again
+        d3.select("#isolateSelect")
+            .style("cursor", "pointer")
+    }
+
+    if (checkedExact == true || checkedRandom == true) { //if either isolate checkbox is checked...
+        //set trade hub checkbox to disabled
+        hubCheck.disabled = true
+    } else if (checkedExact == false && checkedRandom == false) { //if both isolate checkboxes are NOT checked...
+        //set trade hub checkbox to enabled
+        hubCheck.disabled = false
+    }
+
+}
 
 //updates button text in legend
 function updateButton(item, array){
