@@ -114,7 +114,8 @@ g .tradeRoutes {
 		height: 3px;
 }
 
-.route_checkbox {
+.route_checkbox,
+.un_checkbox {
 		cursor: pointer;
 }
 
