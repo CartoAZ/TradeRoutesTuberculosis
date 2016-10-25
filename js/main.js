@@ -1376,10 +1376,8 @@ function createLegend() {
 };
 
 function checkboxChange(item){
-    console.log(item);
     //select all checkboxes
     var checked = d3.selectAll("." + item + "_checkbox")[0];
-    console.log(checked);
     for (i=0; i<checked.length; i++) {
         if (checked[i].checked === true) { //un checkbox checked in legend
           //gets ID, which contains element to update
@@ -1544,26 +1542,9 @@ function updateButton(item, array){
                         })
                 };
             };
-        } else if (item === "route") {
-          //updates checked property of each object
-          routeObjArray = setCheckedProp(array, item);
-          //updates visibility based on array
-          updateVisibility(routeObjArray)
-        } else if (item === "un") {
-            //select both checkboxes
-            var checked = d3.selectAll(".un_checkbox")[0];
-
-            for (i=0; i<checked.length; i++) {
-                if (checked[i].checked === false) { //if unchecked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-                    //update ID and visibility for UN regions
-                    d3.select("#" + getClass)
-                        .attr("visibility", "hidden")
-                }
-            }
+        } else if (item === "route" || item === "un") {
+            //updates visibility of item appropriately
+            checkboxChange(item)
         }
     }
 
@@ -1623,26 +1604,9 @@ function updateButton(item, array){
                         })
                 }
             };
-        } else if (item === "route") {
-            //updates checked property of each object
-            routeObjArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(routeObjArray)
-        } else if (item === "un") {
-            //select both checkboxes
-            var checked = d3.selectAll(".un_checkbox")[0];
-
-            for (i=0; i<checked.length; i++) {
-                if (checked[i].checked === true) { //if checked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-                    //update ID and visibility for UN regions
-                    d3.select("#" + getClass)
-                        .attr("visibility", "visible")
-                }
-            }
+        } else if (item === "route" || item === "un") {
+            //updates visibility of item appropriately
+            checkboxChange(item);
         }
     };
 };
