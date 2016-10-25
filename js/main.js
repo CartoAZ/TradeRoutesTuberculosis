@@ -4,58 +4,23 @@
     window.onload = setMap();
     var routeObjArray = [
         {
-          text: 'Silk Road',
-          value: 'silkRoad',
+          text: 'Land - Major',
+          value: 'majorLand',
           checked: 1
         },
         {
-          text: 'Maritime Silk',
-          value: 'maritimeSilk',
+          text: 'Land - Minor',
+          value: 'minorLand',
           checked: 1
         },
         {
-          text: 'Europe',
-          value: 'europe',
+          text: 'Sea - Major',
+          value: 'majorSea',
           checked: 1
         },
         {
-          text: 'East Africa',
-          value: 'eastAfrica',
-          checked: 1
-        },
-        {
-          text: 'West Africa',
-          value: 'westAfrica',
-          checked: 1
-        },
-        {
-          text: 'Mediterranean Maritime',
-          value: 'medMaritime',
-          checked: 1
-        },
-        {
-          text: 'China Imperial',
-          value: 'chinaImperial',
-          checked: 1
-        },
-        {
-          text: 'Northern Minor Silk',
-          value: 'northSilk',
-          checked: 1
-        },
-        {
-          text: 'Southern Minor Silk',
-          value: 'southSilk',
-          checked: 1
-        },
-        {
-          text: 'Pacific Maritime',
-          value: 'pacific',
-          checked: 1
-        },
-        {
-          text: 'Europe Maritime',
-          value: 'europeMaritime',
+          text: 'Sea - Minor',
+          value: 'minorSea',
           checked: 1
         }
     ]
@@ -272,26 +237,9 @@
               .append("path")
                 .attr("d", path)
                 .attr("class", function(d){
-                  return d.properties.RouteShort
+                  return d.properties.routeName
                 })
-                // .attr("id", function(d){
-                //   return "c" + d.properties.ID;
-                // })
-                // .style("stroke", function(d){
-                //     return choropleth(d.properties, colorScale);
-                // })
-                // .on("mouseover", function(d){
-                //     highlightLine(d.properties, expressed);
-                // })
-                // .on("mouseout", function(d){
-                //     dehighlightLine(d.properties, colorScale);
-                // });
-
-            //add trade hub cities to map
-            // var tradeHubs = g.append("path")
-            //     .datum(tradeHubJson)
-            //     .attr("class", "tradeHubs")
-            //     .attr("d", path)
+  
             var tradeHubs = g.append("g")
                 .attr("class", "tradeHubs")
                 .selectAll("circle")
@@ -972,7 +920,7 @@ function createLegend() {
           // create new property in routeObjArray for the color; easier to build legend using one array
           routeObjArray[i].color = color
       }
-
+      console.log(routeObjArray);
       // for loop to push value into UN Obj array
       for (i=0; i<unObjArray.length; i++) {
           //current region in loop
