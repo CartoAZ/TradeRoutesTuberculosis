@@ -554,27 +554,10 @@ function drawLineageFrequency(expressed) {
                       d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
                   })
                   .on("mouseover", function(){
-                      //extract ID of rectangle is clicked
-                      var buttonID = this.id;
-                      //changes click to back in ID string so we can change fill
-                      var rectID = buttonID.replace("Select", "Back")
-                      //change fill
-                      d3.select("#" + rectID).style({
-                          "stroke": "#aaa",
-                          "stroke-width": "2px",
-                      })
+                      buttonMouseover(this);
                   })
                   .on("mouseout", function(){
-                      //extract ID of whichever rectangle is clicked
-                      var buttonID = this.id;
-                      //changes click to back in ID string so we can change fill
-                      var rectID = buttonID.replace("Select", "Back")
-                      //change fill
-                      d3.select("#" + rectID).style({
-                        "fill": "#eee",
-                        "stroke": "#ddd",
-                        "stroke-width": "1px"
-                      })
+                      buttonMouseout(this);
                   })
 
               //creates rect elements for legened
@@ -980,24 +963,10 @@ function createLegend() {
                 setCheckbox();
             }
         })
-        .on("mouseover", function(){
-            if (d3.select(".isolate_checkbox")[0][0].disabled == false){
-
-                //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                $("#isolateSelect").tooltip("disable");
-
-                //call mouseover event listener
-                buttonMouseover(this);
-
-            } else {
-                d3.select("#isolateSelect")
-                    .style("cursor", "not-allowed")
-
-                //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                $("#isolateSelect").tooltip("enable");
-            }
+        .on("mouseover", isoButtonMouseover)
+        .on("mouseout", function(){
+            buttonMouseout(this);
         })
-        .on("mouseout", buttonMouseout)
 
     //creates a group for each rectangle and offsets each by same amount
     var legendIsolate = legendSvg.selectAll('.legendIsolate')
@@ -1041,110 +1010,8 @@ function createLegend() {
 
             return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
         })
-        .on("mouseover", function(d){
-            var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
-
-            if (isolateCheckboxes.disabled == false){
-                //changes cursor to pointer when checkboxes can be clicked
-                d3.selectAll(".isolate_checkbox")
-                    .style("cursor", "pointer")
-                //retrieve innerHTML of the checkbox as a string to search
-                var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-                //search string for substring to determine which checkbox is selected
-                var isExact = checkboxHTML.indexOf("exact")
-
-                if (isExact == -1) { //randomIsolates checkbox selected
-                    //disables jQuery UI tooltip for checkbox
-                    $("#randomIsolates_check").tooltip("disable");
-                } else if (isExact > -1) { //exactIsolates checkbox selected
-                    //disables jQuery UI tooltip for checkbox
-                    $("#exactIsolates_check").tooltip("disable");
-                }
-
-            } else {
-                d3.selectAll(".isolate_checkbox")
-                    .style("cursor", "not-allowed")
-
-                var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-
-                var isExact = checkboxHTML.indexOf("exact")
-
-                if (isExact == -1) {
-                    //enables jQuery UI tooltip for checkbox
-                    $("#randomIsolates_check").tooltip("enable");
-                } else if (isExact > -1) {
-                    //enables jQuery UI tooltip for checkbox
-                    $("#exactIsolates_check").tooltip("enable");
-
-                }
-            }
-
-        })
-        .on("change", function(){
-            //select both checkboxes
-            var checked = d3.selectAll(".isolate_checkbox")[0];
-
-            for (i=0; i<checked.length; i++) {
-                if (checked[i].checked === true) { //isolate checkbox checked in legend
-                  //gets ID, which contains element to update
-                  var getID = checked[i].id;
-                  //trim "_check" from end of ID string
-                  var getClass = getID.slice(0, -6);
-
-                  //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                  d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-                      .attr("visibility", "visibile")
-                      .attr("class", function(d){
-                          //retrieve lineage of current isolate for class
-                          var lineage = d.properties.lineage_of
-                          //update class from unchecked to checked
-                          return "lin_" + lineage + " notFiltered checked"
-                      })
-
-                  //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                  d3.select("." + getClass).selectAll("rect").filter(".filtered")
-                      .attr("class", function(d){
-                          //retrieve lineage of current isolate for class
-                          var lineage = d.properties.lineage_of
-                          //update class from unchecked to checked
-                          return "lin_" + lineage + " filtered checked"
-                      })
-
-                } else { //if unchecked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
-                        .attr("visibility", "hidden")
-                        .attr("class", function(d){
-                            //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
-                            //update class from unchecked to checked
-                            return "lin_" + lineage + " notFiltered unchecked"
-                        })
-                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                    d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
-                        .attr("class", function(d){
-                            //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
-                            //update class from unchecked to checked
-                            return "lin_" + lineage + " filtered unchecked"
-                        })
-                }
-            }
-            //updates disabled property of trade hub checkbox appropriately
-            setCheckbox();
-        });
-
-      //initializes jQuery UI tooltip for Add All button
-      $("#isolateSelect").tooltip();
-      //initializes jQuery UI tooltip for checkbox
-      $("#exactIsolates_check").tooltip();
-      //initializes jQuery UI tooltip for checkbox
-      $("#randomIsolates_check").tooltip();
-
+        .on("mouseover", isoCheckboxMouseover)
+        .on("change", isoCheckboxChange);
 
       //sets legend title
       var legendHubTitle = legendSvg.append("text")
@@ -1173,25 +1040,9 @@ function createLegend() {
           .attr("transform", "translate(-7, 129)")
         .append("xhtml:body")
           .html("<form><input type=checkbox class='hub_checkbox' id='tradeHubs_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
-          .on("mouseover", function(){
-              //checks if trade hub checkbox is disabled
-              if (d3.select(".hub_checkbox")[0][0].disabled == true){
-                  //make the cursor a not allowed symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "not-allowed")
-
-                  //enable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("enable");
-              } else { //if checkbox is enabled
-                  //make cursor the pointer symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "pointer")
-
-                  //disable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("disable");
-              }
-          })
+          .on("mouseover", hubMouseover)
           .on("change", function(){
+              //event listener function for clicking checkbox
               checkboxChange("hub")
               //updates disabled property of isolate checkboxes appropriately
               setCheckbox();
@@ -1228,7 +1079,9 @@ function createLegend() {
           .on("mouseover", function(){
               buttonMouseover(this)
           })
-          .on("mouseout", buttonMouseout)
+          .on("mouseout", function(){
+              buttonMouseout(this);
+          })
 
 
       //creates a group for each rectangle and offsets each by same amount
@@ -1307,7 +1160,9 @@ function createLegend() {
           .on("mouseover", function(){
               buttonMouseover(this)
           })
-          .on("mouseout", buttonMouseout)
+          .on("mouseout", function(){
+              buttonMouseout(this);
+          })
 
       //creates a group for each rectangle and offsets each by same amount
       var legendUN = legendSvg.selectAll('.legendUN')
@@ -1352,28 +1207,39 @@ function createLegend() {
               checkboxChange("un")
           });
 
-
-        //initializes jQuery UI tooltip for checkbox
-        $(".hub_checkbox").tooltip();
-        //disables tooltip because the checkbox is checked and we only need message when it is not
-        $(".hub_checkbox").tooltip("disable");
-
-      //checks all routes by default
-      for (i=0; i<routeObjArray.length; i++) {
-          var route = routeObjArray[i].value;
-          d3.select("#" + route + "_check")[0][0].checked = true;
-      }
-
-      //checks all isolates by default
-      for (i=0; i<isolateLegendArray.length; i++) {
-          var isolate = isolateLegendArray[i].value;
-          d3.select("#" + isolate + "_check")[0][0].disabled = true;
-      }
-
-      //checks trade hubs by default
-      d3.select(".hub_checkbox")[0][0].checked = true;
-
+      //function that sets default state of legend
+      initializeLegend();
 };
+
+// calls code that sets default state of legend; keeping it separate from code for structure of legend
+function initializeLegend() {
+    //initializes jQuery UI tooltip for Add All button
+    $("#isolateSelect").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $("#exactIsolates_check").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $("#randomIsolates_check").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $(".hub_checkbox").tooltip();
+    //disables tooltip because the checkbox is checked and we only need message when it is not
+    $(".hub_checkbox").tooltip("disable");
+
+    //checks all routes by default
+    for (i=0; i<routeObjArray.length; i++) {
+        var route = routeObjArray[i].value;
+        d3.select("#" + route + "_check")[0][0].checked = true;
+    }
+
+    //checks all isolates by default
+    for (i=0; i<isolateLegendArray.length; i++) {
+        var isolate = isolateLegendArray[i].value;
+        d3.select("#" + isolate + "_check")[0][0].disabled = true;
+    }
+
+    //checks trade hubs by default
+    d3.select(".hub_checkbox")[0][0].checked = true;
+
+}
 
 function checkboxChange(item){
     //select all checkboxes
@@ -1382,7 +1248,6 @@ function checkboxChange(item){
         if (checked[i].checked === true) { //un checkbox checked in legend
           //gets ID, which contains element to update
           var getID = checked[i].id;
-          console.log(getID);
           //trim "_check" from end of ID string
           var getClass = getID.slice(0, -6);
 
@@ -1401,10 +1266,30 @@ function checkboxChange(item){
         }
     }
 }
+
+function hubMouseover() {
+    //checks if trade hub checkbox is disabled
+    if (d3.select(".hub_checkbox")[0][0].disabled == true){
+        //make the cursor a not allowed symbol
+        d3.select(".hub_checkbox")
+            .style("cursor", "not-allowed")
+
+        //enable jQuery UI Tooltip for the trade hub checkbox
+        $(".hub_checkbox").tooltip("enable");
+    } else { //if checkbox is enabled
+        //make cursor the pointer symbol
+        d3.select(".hub_checkbox")
+            .style("cursor", "pointer")
+
+        //disable jQuery UI Tooltip for the trade hub checkbox
+        $(".hub_checkbox").tooltip("disable");
+    }
+}
+
 //holds event function for mouseout of all/clear all buttons
-function buttonMouseout() {
+function buttonMouseout(button) {
     //extract ID of whichever rectangle is clicked
-    var buttonID = this.id;
+    var buttonID = button.id;
     //changes click to back in ID string so we can change fill
     var rectID = buttonID.replace("Select", "Back")
     //change fill
@@ -1428,7 +1313,123 @@ function buttonMouseover(button) {
     })
 }
 
+//function to hold event listener for mouseover of Add/Clear ALl button for isolates in legend
+function isoButtonMouseover(){
+    if (d3.select(".isolate_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
 
+        //display tooltip instructing user they can't have isolates and trade cities on map at same time
+        $("#isolateSelect").tooltip("disable");
+
+        //call mouseover event listener
+        buttonMouseover(this);
+
+    } else { //if isolate checkboxes are disabled (i.e., cities showing on the map
+        //update cursor
+        d3.select("#isolateSelect")
+            .style("cursor", "not-allowed")
+
+        //display tooltip instructing user they can't have isolates and trade cities on map at same time
+        $("#isolateSelect").tooltip("enable");
+    }
+}
+
+//function holding event listener for mouseover of isolate checkboxes in legend
+function isoCheckboxMouseover(){
+    //select both isolate checkboxes
+    var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
+
+    if (isolateCheckboxes.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
+        //changes cursor to pointer when checkboxes can be clicked
+        d3.selectAll(".isolate_checkbox")
+            .style("cursor", "pointer")
+        //retrieve innerHTML of the checkbox as a string to search
+        var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+        //search string for substring to determine which checkbox is selected
+        var isExact = checkboxHTML.indexOf("exact")
+
+        if (isExact == -1) { //randomIsolates checkbox selected
+            //disables jQuery UI tooltip for checkbox
+            $("#randomIsolates_check").tooltip("disable");
+        } else if (isExact > -1) { //exactIsolates checkbox selected
+            //disables jQuery UI tooltip for checkbox
+            $("#exactIsolates_check").tooltip("disable");
+        }
+
+    } else { //if the isolate checkboxes are disabled (i.e., trade cities are on map)
+        d3.selectAll(".isolate_checkbox")
+            .style("cursor", "not-allowed")
+        //retrieve innerHTML of the checkbox as a string to search
+        var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+        //search string for substring to determine which checkbox is selected
+        var isExact = checkboxHTML.indexOf("exact")
+
+        if (isExact == -1) { //randomIsolates checkbox selected
+            //enables jQuery UI tooltip for checkbox
+            $("#randomIsolates_check").tooltip("enable");
+        } else if (isExact > -1) { //exactIsolates checkbox selected
+            //enables jQuery UI tooltip for checkbox
+            $("#exactIsolates_check").tooltip("enable");
+        }
+    }
+}
+
+function isoCheckboxChange(){
+    //select both checkboxes
+    var checked = d3.selectAll(".isolate_checkbox")[0];
+
+    for (i=0; i<checked.length; i++) {
+        if (checked[i].checked === true) { //isolate checkbox checked in legend
+          //gets ID, which contains element to update
+          var getID = checked[i].id;
+          //trim "_check" from end of ID string
+          var getClass = getID.slice(0, -6);
+
+          //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+          d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
+              .attr("visibility", "visibile")
+              .attr("class", function(d){
+                  //retrieve lineage of current isolate for class
+                  var lineage = d.properties.lineage_of
+                  //update class from unchecked to checked
+                  return "lin_" + lineage + " notFiltered checked"
+              })
+
+          //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+          d3.select("." + getClass).selectAll("rect").filter(".filtered")
+              .attr("class", function(d){
+                  //retrieve lineage of current isolate for class
+                  var lineage = d.properties.lineage_of
+                  //update class from unchecked to checked
+                  return "lin_" + lineage + " filtered checked"
+              })
+
+        } else { //if unchecked in legend
+            //gets ID, which contains element to update
+            var getID = checked[i].id;
+            //trim "_check" from end of ID string
+            var getClass = getID.slice(0, -6);
+            //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+            d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
+                .attr("visibility", "hidden")
+                .attr("class", function(d){
+                    //retrieve lineage of current isolate for class
+                    var lineage = d.properties.lineage_of
+                    //update class from unchecked to checked
+                    return "lin_" + lineage + " notFiltered unchecked"
+                })
+            //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+            d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
+                .attr("class", function(d){
+                    //retrieve lineage of current isolate for class
+                    var lineage = d.properties.lineage_of
+                    //update class from unchecked to checked
+                    return "lin_" + lineage + " filtered unchecked"
+                })
+        }
+    }
+    //updates disabled property of trade hub checkbox appropriately
+    setCheckbox();
+}
 //update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
 function setCheckbox(){
     //selects trade hub checkbox
