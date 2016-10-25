@@ -60,70 +60,60 @@
         }
     ]
 
+    // var hubObjArray = [
+    //     {
+    //       text: 'Trade Hub'
+    //     }
+    // ]
+
     var unObjArray = [
         {
-          text: 'Northern Africa',
-          checked: 1
+          text: 'Northern Africa'
         },
         {
-          text: 'Western Africa',
-          checked: 1
+          text: 'Western Africa'
         },
         {
-          text: 'Middle Africa',
-          checked: 1
+          text: 'Middle Africa'
         },
         {
-          text: 'Eastern Africa',
-          checked: 1
+          text: 'Eastern Africa'
         },
         {
-          text: 'Southern Africa',
-          checked: 1
+          text: 'Southern Africa'
         },
         {
-          text: 'Northern Europe',
-          checked: 1
+          text: 'Northern Europe'
         },
         {
-          text: 'Eastern Europe',
-          checked: 1
+          text: 'Eastern Europe'
         },
         {
-          text: 'Western Europe',
-          checked: 1
+          text: 'Western Europe'
         },
         {
-          text: 'Southern Europe',
-          checked: 1
+          text: 'Southern Europe'
         },
         {
-          text: 'Central Asia',
-          checked: 1
+          text: 'Central Asia'
         },
         {
-          text: 'Western Asia',
-          checked: 1
+          text: 'Western Asia'
         },
         {
-          text: 'Eastern Asia',
-          checked: 1
+          text: 'Eastern Asia'
         },
         {
-          text: 'Southern Asia',
-          checked: 1
+          text: 'Southern Asia'
         },
         {
-          text: 'Southeastern Asia',
-          checked: 1
+          text: 'Southeastern Asia'
         },
         {
-          text: 'Melanesia',
-          checked: 1
+          text: 'Melanesia'
         },
         {
-          text: 'Australia and New Zealand',
-          checked: 1
+          text: 'Australia and New Zealand'
         }
     ]
 
@@ -136,7 +126,7 @@
         {
           text: "Only Country of Origin Known",
           value: "randomIsolates",
-          fill: "#888"
+          fill: "#aaa"
         }
     ];
     //empty array to hold all isolate names
@@ -169,8 +159,8 @@
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
-            .defer(d3.json, "data/Routes/TradeRoutes.topojson")//load trade routes polylines
-            .defer(d3.json, "data/Points/NearTradeHubsSimple.topojson")//load trade hubs
+            .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
+            .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
@@ -185,14 +175,14 @@
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
                 UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
 
-            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.NearTradeHubsSimple)
+            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
-            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact)
+            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features
 
-            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random)
+            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features
 
             //convert topojsons into geojson objects; coastLine is an array full of objects
-            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes).features;
+            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
 
@@ -297,64 +287,72 @@
                 //     dehighlightLine(d.properties, colorScale);
                 // });
 
-            // //add near trade hub cities to map
+            //add trade hub cities to map
             // var tradeHubs = g.append("path")
             //     .datum(tradeHubJson)
             //     .attr("class", "tradeHubs")
             //     .attr("d", path)
+            var tradeHubs = g.append("g")
+                .attr("class", "tradeHubs")
+                .selectAll("circle")
+              .data(tradeHubJson)
+                .enter()
+              .append("circle")
+                .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
+                .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
+                .attr("r", 4)
 
 
             //add exact isolates to map
             var exactIsolates = g.append("g")
                 .attr("class", "exactIsolates")
                 .selectAll("rect")
-              .data(exactJson.features)
+              .data(exactJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered checked";
+                    return "lin_" + lineage + " notFiltered unchecked";
                 })
                 .attr("id", function(d){
                     return d.properties.SampleName;
                 })
+                .attr("visibility", "hidden")
 
             //add random isolates to map
             var randomIsolates = g.append("g")
                 .attr("class", "randomIsolates")
                 .selectAll("path")
-              .data(randomJson.features)
+              .data(randomJson)
                 .enter()
               .append("rect")
                 .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 4)
-                .attr("height", 4)
+                .attr("width", 5)
+                .attr("height", 5)
                 .attr("class", function(d){
                     var lineage = d.properties.lineage_of;
 
-                    return "lin_" + lineage + " notFiltered checked";
+                    return "lin_" + lineage + " notFiltered unchecked";
                 })
                 .attr("id", function(d){
                     return d.properties.SampleName;
                 })
+                .attr("visibility", "hidden")
 
-            //store features of exact isolates in variable
-            var exactSamples = exactJson.features;
+
             //push isolate names into array for use with search widget
-            exactSamples.map(function(d){
+            exactJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
-            //store features of exact isolates in variable
-            var randomSamples = randomJson.features;
             //push isolate names into array for use with search widget
-            randomSamples.map(function(d){
+            randomJson.map(function(d){
                 isolateNameArray.push(d.properties.SampleName)
             })
 
@@ -772,9 +770,10 @@ function createIsoLineageMenu() {
         {
             noneSelectedText: "Filter Isolates by Lineage",
             selectedList: false,
-            selectedText: "Filter Isolates by Lineage"
+            selectedText: "Filter Isolates by Lineage",
         }
     ).multiselect("checkAll") //checks all routes by default
+    .multiselect("disable") //disables by default since you cannot show isolates on map when cities are displayed (cities displayed by default)
     .on("multiselectclick", function(event, ui) { //event listener for check/uncheck a box
         //store current lineage
         var lineage = ui.value;
@@ -1000,6 +999,7 @@ function createLegend() {
           .attr("transform", "translate(75,30)")
           .text("Legend")
 
+
       //sets legend title
       var legendIsolateTitle = legendSvg.append("text")
             .attr("class", "legendSubHead")
@@ -1018,27 +1018,43 @@ function createLegend() {
       var isoButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "isolateButtonText")
-          .attr("transform", "translate(6,59)")
-          .text("Clear All")
+          .attr("transform", "translate(10,59)")
+          .text("Add All")
       //clickable rect
       var isoSelectButton = legendSvg.append("rect")
           .attr("id", "isolateSelect")
           .attr("height", "15px")
           .attr("width", "50px")
           .attr("transform", "translate(4,47)")
+          .attr("title", "Cannot display isolates while trade cities are showing on map.")
           .on("click", function(){
-              updateButton("isolate", isolateLegendArray);
+              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                  updateButton("isolate", isolateLegendArray);
+                  setCheckbox();
+              }
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                  //extract ID of rectangle is clicked
+                  var buttonID = this.id;
+                  //changes click to back in ID string so we can change fill
+                  var rectID = buttonID.replace("Select", "Back")
+                  //change fill
+                  d3.select("#" + rectID).style({
+                      "stroke": "#aaa",
+                      "stroke-width": "2px",
+                  })
+
+                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                  $("#isolateSelect").tooltip("disable");
+
+              } else {
+                  d3.select("#isolateSelect")
+                      .style("cursor", "not-allowed")
+
+                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                  $("#isolateSelect").tooltip("enable");
+              }
           })
           .on("mouseout", function(){
               //extract ID of whichever rectangle is clicked
@@ -1092,7 +1108,47 @@ function createLegend() {
           .html(function(d, i) {
               //create ID for checkboxes
               var isolateID = isolateLegendArray[i].value + "_check";
-              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "'</input></form>"
+
+              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+          })
+          .on("mouseover", function(d){
+              var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
+
+              if (isolateCheckboxes.disabled == false){
+                  //changes cursor to pointer when checkboxes can be clicked
+                  d3.selectAll(".isolate_checkbox")
+                      .style("cursor", "pointer")
+                  //retrieve innerHTML of the checkbox as a string to search
+                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+                  //search string for substring to determine which checkbox is selected
+                  var isExact = checkboxHTML.indexOf("exact")
+
+                  if (isExact == -1) { //randomIsolates checkbox selected
+                      //disables jQuery UI tooltip for checkbox
+                      $("#randomIsolates_check").tooltip("disable");
+                  } else if (isExact > -1) { //exactIsolates checkbox selected
+                      //disables jQuery UI tooltip for checkbox
+                      $("#exactIsolates_check").tooltip("disable");
+                  }
+
+              } else {
+                  d3.selectAll(".isolate_checkbox")
+                      .style("cursor", "not-allowed")
+
+                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+
+                  var isExact = checkboxHTML.indexOf("exact")
+
+                  if (isExact == -1) {
+                      //enables jQuery UI tooltip for checkbox
+                      $("#randomIsolates_check").tooltip("enable");
+                  } else if (isExact > -1) {
+                      //enables jQuery UI tooltip for checkbox
+                      $("#exactIsolates_check").tooltip("enable");
+
+                  }
+              }
+
           })
           .on("change", function(){
               //select both checkboxes
@@ -1148,7 +1204,16 @@ function createLegend() {
                           })
                   }
               }
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           });
+
+      //initializes jQuery UI tooltip for Add All button
+      $("#isolateSelect").tooltip();
+      //initializes jQuery UI tooltip for checkbox
+      $("#exactIsolates_check").tooltip();
+      //initializes jQuery UI tooltip for checkbox
+      $("#randomIsolates_check").tooltip();
 
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
@@ -1376,19 +1441,144 @@ function createLegend() {
               // updateVisibility(unObjArray);
           });
 
+
+      //sets legend title
+      var legendHubTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendHubTitle")
+          .attr("transform", "translate(60,745)")
+          .text("Trade Cities")
+
+      //creates rect elements for legened
+      var legendHubCircle = legendSvg.append('circle')
+          .attr("class", "tradeHubs")
+          .attr("cx", "29")
+          .attr("cy", "760")
+          .attr("r", "5")
+
+      //adds text to legend
+      var legendHubText = legendSvg.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(44,763)")
+          .text("Major Trade City");
+
+      //checkboxes for each route
+      var checkboxesHub = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 749)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='hub_checkbox' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("mouseover", function(){
+              //checks if trade hub checkbox is disabled
+              if (d3.select(".hub_checkbox")[0][0].disabled == true){
+                  //make the cursor a not allowed symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "not-allowed")
+
+                  //enable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("enable");
+              } else { //if checkbox is enabled
+                  //make cursor the pointer symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "pointer")
+
+                  //disable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("disable");
+              }
+          })
+          .on("change", function(d){
+
+              //select both checkboxes
+              var checked = d3.selectAll(".hub_checkbox")[0];
+
+              if (checked[0].checked === true) { //un checkbox checked in legend
+
+                  //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "visibile")
+
+              } else { //if unchecked in legend
+
+                //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "hidden")
+              }
+              //updates disabled property of isolate checkboxes appropriately
+              setCheckbox();
+          });
+
+        //initializes jQuery UI tooltip for checkbox
+        $(".hub_checkbox").tooltip();
+        //disables tooltip because the checkbox is checked and we only need message when it is not
+        $(".hub_checkbox").tooltip("disable");
+
       //checks all routes by default
       for (i=0; i<routeObjArray.length; i++) {
           var route = routeObjArray[i].value;
           d3.select("#" + route + "_check")[0][0].checked = true;
       }
 
-      //checks all routes by default
+      //checks all isolates by default
       for (i=0; i<isolateLegendArray.length; i++) {
           var isolate = isolateLegendArray[i].value;
-          d3.select("#" + isolate + "_check")[0][0].checked = true;
+          d3.select("#" + isolate + "_check")[0][0].disabled = true;
       }
 
+      //checks trade hubs by default
+      d3.select(".hub_checkbox")[0][0].checked = true;
+
 };
+
+//update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
+function setCheckbox(){
+    //selects trade hub checkbox
+    var hubCheck = d3.select(".hub_checkbox")[0][0]
+
+    //selects exact isolates checkbox
+    var exactCheck = d3.select("#exactIsolates_check")[0][0]
+
+    //selects random isolates checkbox
+    var randomCheck = d3.select("#randomIsolates_check")[0][0]
+
+    //retrieves whether trade hub checkbox is checked or not (stored as true/false)
+    var checkedHub = hubCheck.checked
+
+    //retrieves whether exact isolates is checked or not (stored as true/false)
+    var checkedExact = exactCheck.checked
+
+    //retrieves whether random isolates is checked or not (stored as true/false)
+    var checkedRandom = randomCheck.checked
+
+    if (checkedHub == true) { //if trade hubs checkbox is checked...
+        //set both isolate checkboxes to be disabled
+        exactCheck.disabled = true
+        randomCheck.disabled = true
+    } else if (checkedHub == false) { //if trade hubs checkbox is NOT checked...
+        //set both isolate checkboxes to be enabled
+        exactCheck.disabled = false
+        randomCheck.disabled = false
+        //enable lineage multiselect
+        $("#isoSelect").multiselect("enable")
+
+        //update cursor property for "add all"/"clear all" button to be pointer again
+        d3.select("#isolateSelect")
+            .style("cursor", "pointer")
+    }
+
+    if (checkedExact == true || checkedRandom == true) { //if either isolate checkbox is checked...
+        //set trade hub checkbox to disabled
+        hubCheck.disabled = true
+    } else if (checkedExact == false && checkedRandom == false) { //if both isolate checkboxes are NOT checked...
+        //set trade hub checkbox to enabled
+        hubCheck.disabled = false
+
+        //disable lineage multiselect
+        $("#isoSelect").multiselect("disable")
+
+    }
+
+}
 
 //updates button text in legend
 function updateButton(item, array){

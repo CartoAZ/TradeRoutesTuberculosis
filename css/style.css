@@ -92,8 +92,7 @@ body {
 /*trade hubs*/
 
 .tradeHubs {
-		fill: #ccc;
-		stroke: #222;
+		fill: #000;
 }
 
 .exactIsolates {
@@ -101,7 +100,7 @@ body {
 }
 
 .randomIsolates {
-		fill: #888;
+		fill: #aaa;
 }
 
 /*routes*/
@@ -113,6 +112,11 @@ g .tradeRoutes {
 #legend_silkRoad,
 #legend_maritimeSilk {
 		height: 3px;
+}
+
+.route_checkbox,
+.un_checkbox {
+		cursor: pointer;
 }
 
 .silkRoad {
@@ -230,7 +234,7 @@ ul {
 }
 
 
-.legendRoute, .legendIsolate {
+.legendRoute, .legendIsolate, .legendHub {
     font-size: 12px;
     fill: #555;
 }
@@ -246,7 +250,8 @@ ul {
 #isolateBack,
 #routeBack,
 #unBack,
-#sampleBack {
+#sampleBack,
+#hubBack {
 		rx: 3px;
 		ry: 3px;
 		fill: #eee;
@@ -255,7 +260,8 @@ ul {
 #isolateSelect,
 #routeSelect,
 #unSelect,
-#sampleSelect {
+#sampleSelect,
+#hubSelect {
 		rx: 3px;
 		ry: 3px;
 		opacity: 0;
