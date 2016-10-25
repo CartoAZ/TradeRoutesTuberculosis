@@ -89,23 +89,23 @@ g .tradeRoutes {
 		cursor: pointer;
 }
 
-.minorLand {
+#minorLand {
 	stroke: #226b1d;
 	fill: none;
 }
 
-.majorLand {
+#majorLand {
 	stroke: #226b1d;
 	fill: none;
 	stroke-width: 2px;
 }
 
-.majorSea {
+#majorSea {
 		stroke: #48a3e0;
 		fill: none;
 		stroke-width: 2px;
 }
-.minorSea {
+#minorSea {
 		stroke: #48a3e0;
 		fill: none;
 }
@@ -210,7 +210,7 @@ ul {
 }
 
 #legendSvg {
-	height: 800px;
+	height: 640px;
 	width: 100%
 }
 
