@@ -14,33 +14,6 @@ body {
 		stroke-width: 1px;
 }
 
-/*who regions*/
-
-.who_regions {
-		stroke: #AAA;
-		stroke-width: 2px;
-		opacity: 0.5;
-}
-#EUR {
-		fill: #ABADFF;
-}
-
-#WPR {
-		fill: #FF8C03;
-}
-
-#SEA {
-		fill: #85FF0D;
-}
-
-#EMR {
-		fill: #0AFCD2;
-}
-
-#AFR {
-		fill: #FFFF3B;
-}
-
 
 /*UN regions*/
 
@@ -84,9 +57,6 @@ body {
 		stroke: #ef1f07;
 }
 
-#AFR {
-		fill: #FFFF3B;
-}
 
 
 /*trade hubs*/
@@ -109,8 +79,8 @@ g .tradeRoutes {
 	stroke-linecap: round;
 }
 
-#legend_silkRoad,
-#legend_maritimeSilk {
+#legend_majorLand,
+#legend_majorSea {
 		height: 3px;
 }
 
@@ -119,6 +89,27 @@ g .tradeRoutes {
 		cursor: pointer;
 }
 
+.minorLand {
+	stroke: #226b1d;
+	fill: none;
+}
+
+.majorLand {
+	stroke: #226b1d;
+	fill: none;
+	stroke-width: 2px;
+}
+
+.majorSea {
+		stroke: #48a3e0;
+		fill: none;
+		stroke-width: 2px;
+}
+.minorSea {
+		stroke: #48a3e0;
+		fill: none;
+}
+/*
 .silkRoad {
 		stroke: #e31a1c;
 		fill: none;
@@ -176,7 +167,7 @@ g .tradeRoutes {
 		fill: none;
 		stroke-width: 2px;
 }
-
+*/
 /*.sphere {
     fill: #fff;
 }*/
