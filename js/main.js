@@ -894,266 +894,248 @@ function createIsoLineageMenu() {
 }
 
 function createLegend() {
-
+    //div to hold SVG for legend
     var legendContainer = d3.select("body").append("div")
         .attr("id", "legendContainer")
-
+    //SVG inside div container
     var legendSvg = legendContainer.append("svg")
         .attr("id", "legendSvg")
 
+    //set variables to define spacing/size for displaying items withing <g> elements
+    var rectHeight = 1,
+        rectWidth = 20,
+        legendSpacing = 0.75;
+    //color classes array for retrieving color of trade routes
+    var colorClasses = [];
 
-      //set variables to define spacing/size
-      var rectHeight = 1,
-          rectWidth = 20,
-          legendSpacing = 0.75;
-      //color classes array
-      var colorClasses = [];
+    // for loop retrieving stroke color of each route for the legend
+    for (i=0; i<routeObjArray.length; i++) {
+        //current route in loop
+        var route = routeObjArray[i].value
+        //pull color from stroke of route
+        var color = d3.select("." + route).style("stroke")
+        //add color to colorclasses array
+        colorClasses.push(color)
+        // create new property in routeObjArray for the color; easier to build legend using one array
+        routeObjArray[i].color = color
+    }
 
-      // for loop retrieving stroke color of each route for the legend
-      for (i=0; i<routeObjArray.length; i++) {
-          //current route in loop
-          var route = routeObjArray[i].value
-          //pull color from stroke of route
-          var color = d3.select("." + route).style("stroke")
-          //add color to colorclasses array
-          colorClasses.push(color)
-          // create new property in routeObjArray for the color; easier to build legend using one array
-          routeObjArray[i].color = color
-      }
+    // for loop to push value into UN Obj array
+    for (i=0; i<unObjArray.length; i++) {
+        //current region in loop
+        var region = unObjArray[i].text
+        //remove all spaces
+        region = region.replace(/\s+/g, '')
+        //add region into obj array as a value
+        unObjArray[i].value = region
+    }
 
-      // for loop to push value into UN Obj array
-      for (i=0; i<unObjArray.length; i++) {
-          //current region in loop
-          var region = unObjArray[i].text
-          //remove all spaces
-          region = region.replace(/\s+/g, '')
-          //add region into obj array as a value
-          unObjArray[i].value = region
-      }
+    // for loop retrieving fill color of each UN Region for the legend
+    for (i=0; i<unObjArray.length; i++) {
+        //current region in loop
+        var region = unObjArray[i].value
+        //pull color from stroke of route
+        var color = d3.select("#" + region).style("fill")
+        // create new property in unObjArray for the color; easier to build legend using one array
+        unObjArray[i].color = color
+    }
 
-      // for loop retrieving fill color of each UN Region for the legend
-      for (i=0; i<unObjArray.length; i++) {
-          //current region in loop
-          var region = unObjArray[i].value
-          //pull color from stroke of route
-          var color = d3.select("#" + region).style("fill")
-          // create new property in routeObjArray for the color; easier to build legend using one array
-          unObjArray[i].color = color
-      }
+    //sets legend title
+    var legendTitle = legendSvg.append("text")
+        .attr("class", "legendTitle")
+        .attr("transform", "translate(75,30)")
+        .text("Legend")
 
-      //sets legend title
-      var legendTitle = legendSvg.append("text")
-          .attr("class", "legendTitle")
-          .attr("transform", "translate(75,30)")
-          .text("Legend")
+    //sets legend subtitle
+    var legendIsolateTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendIsolateTitle")
+          .attr("transform", "translate(81,60)")
+          .text("Isolates")
+          .style("text-align", "center")
 
-      //sets legend title
-      var legendIsolateTitle = legendSvg.append("text")
-            .attr("class", "legendSubHead")
-            .attr("id", "legendIsolateTitle")
-            .attr("transform", "translate(81,60)")
-            .text("Isolates")
-            .style("text-align", "center")
+    //rect to hold styling
+    var isoBackButton = legendSvg.append("rect")
+        .attr("id", "isolateBack")
+        .attr("height", "15px")
+        .attr("width", "50px")
+        .attr("transform", "translate(4,47)")
+    //text of button
+    var isoButtonText = legendSvg.append("text")
+        .attr("class", "buttonText")
+        .attr("id", "isolateButtonText")
+        .attr("transform", "translate(10,59)")
+        .text("Add All")
+    //clickable rect
+    var isoSelectButton = legendSvg.append("rect")
+        .attr("id", "isolateSelect")
+        .attr("height", "15px")
+        .attr("width", "50px")
+        .attr("transform", "translate(4,47)")
+        .attr("title", "Cannot display isolates while trade cities are showing on map.")
+        .on("click", function(){
+            if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                updateButton("isolate", isolateLegendArray);
+                setCheckbox();
+            }
+        })
+        .on("mouseover", function(){
+            if (d3.select(".isolate_checkbox")[0][0].disabled == false){
 
-      //rect to hold styling
-      var isoBackButton = legendSvg.append("rect")
-          .attr("id", "isolateBack")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,47)")
-      //text of button
-      var isoButtonText = legendSvg.append("text")
-          .attr("class", "buttonText")
-          .attr("id", "isolateButtonText")
-          .attr("transform", "translate(10,59)")
-          .text("Add All")
-      //clickable rect
-      var isoSelectButton = legendSvg.append("rect")
-          .attr("id", "isolateSelect")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,47)")
-          .attr("title", "Cannot display isolates while trade cities are showing on map.")
-          .on("click", function(){
-              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
-                  updateButton("isolate", isolateLegendArray);
-                  setCheckbox();
-              }
-          })
-          .on("mouseover", function(){
-              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
-                  //extract ID of rectangle is clicked
-                  var buttonID = this.id;
-                  //changes click to back in ID string so we can change fill
-                  var rectID = buttonID.replace("Select", "Back")
-                  //change fill
-                  d3.select("#" + rectID).style({
-                      "stroke": "#aaa",
-                      "stroke-width": "2px",
-                  })
+                //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                $("#isolateSelect").tooltip("disable");
 
-                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                  $("#isolateSelect").tooltip("disable");
+                //call mouseover event listener
+                buttonMouseover(this);
 
-              } else {
-                  d3.select("#isolateSelect")
-                      .style("cursor", "not-allowed")
+            } else {
+                d3.select("#isolateSelect")
+                    .style("cursor", "not-allowed")
 
-                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                  $("#isolateSelect").tooltip("enable");
-              }
-          })
-          .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-              })
-          })
+                //display tooltip instructing user they can't have isolates and trade cities on map at same time
+                $("#isolateSelect").tooltip("enable");
+            }
+        })
+        .on("mouseout", buttonMouseout)
 
-      //creates a group for each rectangle and offsets each by same amount
-      var legendIsolate = legendSvg.selectAll('.legendIsolate')
-          .data(isolateLegendArray)
-          .enter()
-        .append("g")
-          .attr("class", "legendIsolate")
-          .attr("transform", function(d, i) {
-              var height = rectWidth + legendSpacing;
-              var offset =  height;
-              var horz = 2 * rectWidth;
-              var vert = i * height - offset + 195;
-              return 'translate(' + horz + ',' + vert + ')';
-          });
+    //creates a group for each rectangle and offsets each by same amount
+    var legendIsolate = legendSvg.selectAll('.legendIsolate')
+        .data(isolateLegendArray)
+        .enter()
+      .append("g")
+        .attr("class", "legendIsolate")
+        .attr("transform", function(d, i) {
+            var height = rectWidth + legendSpacing;
+            var offset =  height;
+            var horz = 2 * rectWidth;
+            var vert = i * height - offset + 195;
+            return 'translate(' + horz + ',' + vert + ')';
+        });
 
-      //creates rect elements for legened
-      var legendIsolateRect = legendIsolate.append('rect')
-          .attr("class", "legendIsolateRect")
-          .attr("x", -12)
-          .attr("y", -103)
-          .attr("width", 6)
-          .attr("height", 6)
-          // .attr("transform", "translate(-35,-125)")
-          .style('fill', function(d){ return d.fill })
+    //creates rect elements for legened
+    var legendIsolateRect = legendIsolate.append('rect')
+        .attr("class", "legendIsolateRect")
+        .attr("x", -12)
+        .attr("y", -103)
+        .attr("width", 6)
+        .attr("height", 6)
+        // .attr("transform", "translate(-35,-125)")
+        .style('fill', function(d){ return d.fill })
 
-      //adds text to legend
-      var legendIsolateText = legendIsolate.append('text')
-          .attr("class", "legendText")
-          .attr("transform", "translate(5, -97)")
-          .text(function(d) { return d.text });
+    //adds text to legend
+    var legendIsolateText = legendIsolate.append('text')
+        .attr("class", "legendText")
+        .attr("transform", "translate(5, -97)")
+        .text(function(d) { return d.text });
 
-      // //checkboxes for each isolate precision
-      var checkboxesIsolate = legendIsolate.append("foreignObject")
-          .attr('width', "20px")
-          .attr('height', "20px")
-          .attr("transform", "translate(-47, -108)")
-        .append("xhtml:body")
-          .html(function(d, i) {
-              //create ID for checkboxes
-              var isolateID = isolateLegendArray[i].value + "_check";
+    // //checkboxes for each isolate precision
+    var checkboxesIsolate = legendIsolate.append("foreignObject")
+        .attr('width', "20px")
+        .attr('height', "20px")
+        .attr("transform", "translate(-47, -108)")
+      .append("xhtml:body")
+        .html(function(d, i) {
+            //create ID for checkboxes
+            var isolateID = isolateLegendArray[i].value + "_check";
 
-              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
-          })
-          .on("mouseover", function(d){
-              var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
+            return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+        })
+        .on("mouseover", function(d){
+            var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
 
-              if (isolateCheckboxes.disabled == false){
-                  //changes cursor to pointer when checkboxes can be clicked
-                  d3.selectAll(".isolate_checkbox")
-                      .style("cursor", "pointer")
-                  //retrieve innerHTML of the checkbox as a string to search
-                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-                  //search string for substring to determine which checkbox is selected
-                  var isExact = checkboxHTML.indexOf("exact")
+            if (isolateCheckboxes.disabled == false){
+                //changes cursor to pointer when checkboxes can be clicked
+                d3.selectAll(".isolate_checkbox")
+                    .style("cursor", "pointer")
+                //retrieve innerHTML of the checkbox as a string to search
+                var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+                //search string for substring to determine which checkbox is selected
+                var isExact = checkboxHTML.indexOf("exact")
 
-                  if (isExact == -1) { //randomIsolates checkbox selected
-                      //disables jQuery UI tooltip for checkbox
-                      $("#randomIsolates_check").tooltip("disable");
-                  } else if (isExact > -1) { //exactIsolates checkbox selected
-                      //disables jQuery UI tooltip for checkbox
-                      $("#exactIsolates_check").tooltip("disable");
-                  }
+                if (isExact == -1) { //randomIsolates checkbox selected
+                    //disables jQuery UI tooltip for checkbox
+                    $("#randomIsolates_check").tooltip("disable");
+                } else if (isExact > -1) { //exactIsolates checkbox selected
+                    //disables jQuery UI tooltip for checkbox
+                    $("#exactIsolates_check").tooltip("disable");
+                }
 
-              } else {
-                  d3.selectAll(".isolate_checkbox")
-                      .style("cursor", "not-allowed")
+            } else {
+                d3.selectAll(".isolate_checkbox")
+                    .style("cursor", "not-allowed")
 
-                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+                var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
 
-                  var isExact = checkboxHTML.indexOf("exact")
+                var isExact = checkboxHTML.indexOf("exact")
 
-                  if (isExact == -1) {
-                      //enables jQuery UI tooltip for checkbox
-                      $("#randomIsolates_check").tooltip("enable");
-                  } else if (isExact > -1) {
-                      //enables jQuery UI tooltip for checkbox
-                      $("#exactIsolates_check").tooltip("enable");
+                if (isExact == -1) {
+                    //enables jQuery UI tooltip for checkbox
+                    $("#randomIsolates_check").tooltip("enable");
+                } else if (isExact > -1) {
+                    //enables jQuery UI tooltip for checkbox
+                    $("#exactIsolates_check").tooltip("enable");
 
-                  }
-              }
+                }
+            }
 
-          })
-          .on("change", function(){
-              //select both checkboxes
-              var checked = d3.selectAll(".isolate_checkbox")[0];
+        })
+        .on("change", function(){
+            //select both checkboxes
+            var checked = d3.selectAll(".isolate_checkbox")[0];
 
-              for (i=0; i<checked.length; i++) {
-                  if (checked[i].checked === true) { //isolate checkbox checked in legend
+            for (i=0; i<checked.length; i++) {
+                if (checked[i].checked === true) { //isolate checkbox checked in legend
+                  //gets ID, which contains element to update
+                  var getID = checked[i].id;
+                  //trim "_check" from end of ID string
+                  var getClass = getID.slice(0, -6);
+
+                  //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                  d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
+                      .attr("visibility", "visibile")
+                      .attr("class", function(d){
+                          //retrieve lineage of current isolate for class
+                          var lineage = d.properties.lineage_of
+                          //update class from unchecked to checked
+                          return "lin_" + lineage + " notFiltered checked"
+                      })
+
+                  //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                  d3.select("." + getClass).selectAll("rect").filter(".filtered")
+                      .attr("class", function(d){
+                          //retrieve lineage of current isolate for class
+                          var lineage = d.properties.lineage_of
+                          //update class from unchecked to checked
+                          return "lin_" + lineage + " filtered checked"
+                      })
+
+                } else { //if unchecked in legend
                     //gets ID, which contains element to update
                     var getID = checked[i].id;
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
-
-                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-                        .attr("visibility", "visibile")
+                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
+                        .attr("visibility", "hidden")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
                             var lineage = d.properties.lineage_of
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " notFiltered checked"
+                            return "lin_" + lineage + " notFiltered unchecked"
                         })
-
-                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("rect").filter(".filtered")
+                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                    d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
                             var lineage = d.properties.lineage_of
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " filtered checked"
+                            return "lin_" + lineage + " filtered unchecked"
                         })
-
-                  } else { //if unchecked in legend
-                      //gets ID, which contains element to update
-                      var getID = checked[i].id;
-                      //trim "_check" from end of ID string
-                      var getClass = getID.slice(0, -6);
-                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
-                          .attr("visibility", "hidden")
-                          .attr("class", function(d){
-                              //retrieve lineage of current isolate for class
-                              var lineage = d.properties.lineage_of
-                              //update class from unchecked to checked
-                              return "lin_" + lineage + " notFiltered unchecked"
-                          })
-                      //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
-                          .attr("class", function(d){
-                              //retrieve lineage of current isolate for class
-                              var lineage = d.properties.lineage_of
-                              //update class from unchecked to checked
-                              return "lin_" + lineage + " filtered unchecked"
-                          })
-                  }
-              }
-              //updates disabled property of trade hub checkbox appropriately
-              setCheckbox();
-          });
+                }
+            }
+            //updates disabled property of trade hub checkbox appropriately
+            setCheckbox();
+        });
 
       //initializes jQuery UI tooltip for Add All button
       $("#isolateSelect").tooltip();
@@ -1258,29 +1240,10 @@ function createLegend() {
               updateButton("route", routeObjArray);
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              buttonMouseover(this)
           })
-          .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
+          .on("mouseout", buttonMouseout)
 
-              })
-          })
 
       //creates a group for each rectangle and offsets each by same amount
       var legendRoute = legendSvg.selectAll('.legendRoute')
@@ -1359,29 +1322,9 @@ function createLegend() {
               updateButton("un", unObjArray);
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              buttonMouseover(this)
           })
-          .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-
-              })
-          })
+          .on("mouseout", buttonMouseout)
 
       //creates a group for each rectangle and offsets each by same amount
       var legendUN = legendSvg.selectAll('.legendUN')
@@ -1472,6 +1415,33 @@ function createLegend() {
       d3.select(".hub_checkbox")[0][0].checked = true;
 
 };
+//holds event function for mouseout of all/clear all buttons
+function buttonMouseout() {
+    //extract ID of whichever rectangle is clicked
+    var buttonID = this.id;
+    //changes click to back in ID string so we can change fill
+    var rectID = buttonID.replace("Select", "Back")
+    //change fill
+    d3.select("#" + rectID).style({
+      "fill": "#eee",
+      "stroke": "#ddd",
+      "stroke-width": "1px"
+    })
+}
+
+//holds event function for mouseover of add all/clear all button
+function buttonMouseover(button) {
+    //extract ID of rectangle is clicked
+    var buttonID = button.id;
+    //changes click to back in ID string so we can change fill
+    var rectID = buttonID.replace("Select", "Back")
+    //change fill
+    d3.select("#" + rectID).style({
+        "stroke": "#aaa",
+        "stroke-width": "2px",
+    })
+}
+
 
 //update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
 function setCheckbox(){
@@ -1536,9 +1506,9 @@ function updateButton(item, array){
 
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
-            vert += 70;
+            vert += 114;
         } else if (item === "un") {
-            vert += 328;
+            vert += 228;
         }
 
         //change button text and text position
@@ -1616,9 +1586,9 @@ function updateButton(item, array){
 
         if (item === "route") {
             //moves label to appropriate place
-            vert += 70;
+            vert += 114;
         } else if (item === "un") {
-            vert += 328;
+            vert += 228;
         }
 
         //change button text
