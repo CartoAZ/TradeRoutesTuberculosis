@@ -239,7 +239,7 @@
                 .attr("class", function(d){
                   return d.properties.routeName
                 })
-  
+
             var tradeHubs = g.append("g")
                 .attr("class", "tradeHubs")
                 .selectAll("circle")
@@ -920,7 +920,7 @@ function createLegend() {
           // create new property in routeObjArray for the color; easier to build legend using one array
           routeObjArray[i].color = color
       }
-      console.log(routeObjArray);
+
       // for loop to push value into UN Obj array
       for (i=0; i<unObjArray.length; i++) {
           //current region in loop
@@ -947,12 +947,11 @@ function createLegend() {
           .attr("transform", "translate(75,30)")
           .text("Legend")
 
-
       //sets legend title
       var legendIsolateTitle = legendSvg.append("text")
             .attr("class", "legendSubHead")
             .attr("id", "legendIsolateTitle")
-            .attr("transform", "translate(85,60)")
+            .attr("transform", "translate(81,60)")
             .text("Isolates")
             .style("text-align", "center")
 
@@ -1163,11 +1162,78 @@ function createLegend() {
       //initializes jQuery UI tooltip for checkbox
       $("#randomIsolates_check").tooltip();
 
+
+      //sets legend title
+      var legendHubTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendHubTitle")
+          .attr("transform", "translate(63,128)")
+          .text("Trade Cities")
+
+      //creates rect elements for legened
+      var legendHubCircle = legendSvg.append('circle')
+          .attr("class", "tradeHubs")
+          .attr("cx", "32")
+          .attr("cy", "140")
+          .attr("r", "5")
+
+      //adds text to legend
+      var legendHubText = legendSvg.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(44,143)")
+          .text("Major Trade City");
+
+      //checkboxes for each route
+      var checkboxesHub = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 129)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='hub_checkbox' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("mouseover", function(){
+              //checks if trade hub checkbox is disabled
+              if (d3.select(".hub_checkbox")[0][0].disabled == true){
+                  //make the cursor a not allowed symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "not-allowed")
+
+                  //enable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("enable");
+              } else { //if checkbox is enabled
+                  //make cursor the pointer symbol
+                  d3.select(".hub_checkbox")
+                      .style("cursor", "pointer")
+
+                  //disable jQuery UI Tooltip for the trade hub checkbox
+                  $(".hub_checkbox").tooltip("disable");
+              }
+          })
+          .on("change", function(d){
+
+              //select both checkboxes
+              var checked = d3.selectAll(".hub_checkbox")[0];
+
+              if (checked[0].checked === true) { //un checkbox checked in legend
+
+                  //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "visibile")
+
+              } else { //if unchecked in legend
+
+                //update visibility of tradehubs
+                  d3.select(".tradeHubs")
+                      .attr("visibility", "hidden")
+              }
+              //updates disabled property of isolate checkboxes appropriately
+              setCheckbox();
+          });
+
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendRouteTitle")
-          .attr("transform", "translate(65,130)")
+          .attr("transform", "translate(60,174)")
           .text("Trade Routes")
 
       //rect to hold styling
@@ -1175,19 +1241,19 @@ function createLegend() {
           .attr("id", "routeBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,117)")
+          .attr("transform", "translate(4,161)")
       //text of button
       var routeButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "routeButtonText")
-          .attr("transform", "translate(6,129)")
+          .attr("transform", "translate(6,173)")
           .text("Clear All")
       //clickable rect
       var routeSelectButton = legendSvg.append("rect")
           .attr("id", "routeSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,117)")
+          .attr("transform", "translate(4,161)")
           .on("click", function(){
               updateButton("route", routeObjArray);
           })
@@ -1226,11 +1292,11 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 265;
+              var vert = i * height - offset + 235;
               return 'translate(' + horz + ',' + vert + ')';
         });
 
-      //creates rect elements for legened
+      // //creates rect elements for legened
       var legendRouteRect = legendRoute.append('rect')
           .attr("class", "legendRouteRect")
           .attr("id", function(d){ return "legend_" + d.value })
@@ -1250,7 +1316,7 @@ function createLegend() {
       var checkboxesRoute = legendRoute.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, -12)")
+          .attr("transform", "translate(-47, -11)")
         .append("xhtml:body")
           .html(function(d, i) {
               //create ID for checkboxes
@@ -1268,7 +1334,7 @@ function createLegend() {
       var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendUNTitle")
-          .attr("transform", "translate(60,388)")
+          .attr("transform", "translate(60,288)")
           .text("UN Regions")
 
       //rect to hold styling
@@ -1276,19 +1342,19 @@ function createLegend() {
           .attr("id", "unBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,375)")
+          .attr("transform", "translate(4,275)")
       //text of button
       var unButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "unButtonText")
-          .attr("transform", "translate(9,387)")
+          .attr("transform", "translate(9,287)")
           .text("Add All")
       //clickable rect
       var unSelectButton = legendSvg.append("rect")
           .attr("id", "unSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,375)")
+          .attr("transform", "translate(4,275)")
           .on("click", function(){
               updateButton("un", unObjArray);
           })
@@ -1327,7 +1393,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 235;
+              var vert = i * height - offset + 62;
               return 'translate(' + horz + ',' + vert + ')';
         });
 
@@ -1382,79 +1448,8 @@ function createLegend() {
                           .attr("visibility", "hidden")
                   }
               }
-              //
-              // //function updates "checked" property for every route
-              // unObjArray = setCheckedProp(unObjArray, "un");
-              // //updates visibility of route based on if it is checked or not
-              // updateVisibility(unObjArray);
           });
 
-
-      //sets legend title
-      var legendHubTitle = legendSvg.append("text")
-          .attr("class", "legendSubHead")
-          .attr("id", "legendHubTitle")
-          .attr("transform", "translate(60,745)")
-          .text("Trade Cities")
-
-      //creates rect elements for legened
-      var legendHubCircle = legendSvg.append('circle')
-          .attr("class", "tradeHubs")
-          .attr("cx", "29")
-          .attr("cy", "760")
-          .attr("r", "5")
-
-      //adds text to legend
-      var legendHubText = legendSvg.append('text')
-          .attr("class", "legendText")
-          .attr("transform", "translate(44,763)")
-          .text("Major Trade City");
-
-      //checkboxes for each route
-      var checkboxesHub = legendSvg.append("foreignObject")
-          .attr('width', "20px")
-          .attr('height', "20px")
-          .attr("transform", "translate(-7, 749)")
-        .append("xhtml:body")
-          .html("<form><input type=checkbox class='hub_checkbox' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
-          .on("mouseover", function(){
-              //checks if trade hub checkbox is disabled
-              if (d3.select(".hub_checkbox")[0][0].disabled == true){
-                  //make the cursor a not allowed symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "not-allowed")
-
-                  //enable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("enable");
-              } else { //if checkbox is enabled
-                  //make cursor the pointer symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "pointer")
-
-                  //disable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("disable");
-              }
-          })
-          .on("change", function(d){
-
-              //select both checkboxes
-              var checked = d3.selectAll(".hub_checkbox")[0];
-
-              if (checked[0].checked === true) { //un checkbox checked in legend
-
-                  //update visibility of tradehubs
-                  d3.select(".tradeHubs")
-                      .attr("visibility", "visibile")
-
-              } else { //if unchecked in legend
-
-                //update visibility of tradehubs
-                  d3.select(".tradeHubs")
-                      .attr("visibility", "hidden")
-              }
-              //updates disabled property of isolate checkboxes appropriately
-              setCheckbox();
-          });
 
         //initializes jQuery UI tooltip for checkbox
         $(".hub_checkbox").tooltip();
