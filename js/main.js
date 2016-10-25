@@ -159,7 +159,7 @@
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
             .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
-            .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
+            .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
