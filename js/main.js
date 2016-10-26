@@ -161,10 +161,19 @@
                 .scale(230)
                 // .rotate([0,0]);
 
+            //set projection of map
+            var shadow_projection = d3.geo.mercator()
+                .center([80, 10])
+                .scale(250)
+
             // Create a path generator
             var path = d3.geo.path()
                 .projection(projection)
                 .pointRadius(2);
+
+            // Create a path generator
+            var shadow_path = d3.geo.path()
+                  .projection(shadow_projection)
 
             //create new svg container for the map
             var map = d3.select("body").append("svg")
@@ -227,6 +236,26 @@
                 })
                 .attr("d", path)
                 .attr("visibility", "hidden")
+
+            //add UN regions to map
+            var un_shadow = g.selectAll(".un_shadow")
+               .data(UNRegionsJson)
+               .enter()
+             .append("path")
+                .attr("class", "un_shadow")
+                .attr("id", function(d){
+                    //place region name into variable
+                    var region = d.properties.UN_Region
+                    //remove all spaces
+                    region = region.replace(/\s+/g, '')
+
+                    region += "_shadow"
+
+                    return region
+                })
+                .attr("d", shadow_path)
+                .attr("visibility", "visible")
+
 
             //draw trade routes
             var tradeRoutes = g.append("g")
@@ -319,8 +348,12 @@
                 .on("zoom",function() {
                     g.attr("transform","translate("+
                         d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                    // g.selectAll("circle")
-                    //     .attr("d", path.projection(projection));
+                    g.selectAll("circle")
+                        .attr("d", path.projection(projection))
+                    g.selectAll("rect")
+                        .attr("d", path.projection(projection))
+                    g.selectAll(".un_shadow")
+                        .attr("d", shadow_path.projection(shadow_projection))
                     g.selectAll("path")
                         .attr("d", path.projection(projection));
 
