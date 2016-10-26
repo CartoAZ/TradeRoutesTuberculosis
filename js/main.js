@@ -123,22 +123,22 @@
 
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
+            .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
             .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
-
+            .defer(d3.json, "data/Polygons/UN_Regions_Scaled.topojson")
             .await(callback);
 
-        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
             //place graticule on the map
         		// setGraticule(map, path);
             //translate countries topojson with zoom
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
-                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
+                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
@@ -151,6 +151,8 @@
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
 
+            var unScaleJson = topojson.feature(unScaleData, unScaleData.objects.UN_Regions_Scaled).features
+
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
           		  mapHeight = 500;
@@ -161,20 +163,11 @@
                 .scale(230)
                 // .rotate([0,0]);
 
-            //set projection of map
-            var shadow_projection = d3.geo.mercator()
-                .center([80, 10])
-                .scale(250)
 
             // Create a path generator
             var path = d3.geo.path()
                 .projection(projection)
                 .pointRadius(2);
-
-            // Create a path generator
-            var shadow_path = d3.geo.path()
-                  .projection(shadow_projection)
-
             //create new svg container for the map
             var map = d3.select("body").append("svg")
                 .attr("class", "map")
@@ -239,7 +232,7 @@
 
             //add UN regions to map
             var un_shadow = g.selectAll(".un_shadow")
-               .data(UNRegionsJson)
+               .data(unScaleJson)
                .enter()
              .append("path")
                 .attr("class", "un_shadow")
@@ -253,7 +246,7 @@
 
                     return region
                 })
-                .attr("d", shadow_path)
+                .attr("d", path)
                 .attr("visibility", "visible")
 
 
@@ -352,8 +345,6 @@
                         .attr("d", path.projection(projection))
                     g.selectAll("rect")
                         .attr("d", path.projection(projection))
-                    g.selectAll(".un_shadow")
-                        .attr("d", shadow_path.projection(shadow_projection))
                     g.selectAll("path")
                         .attr("d", path.projection(projection));
 
