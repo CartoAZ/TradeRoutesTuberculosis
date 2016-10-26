@@ -32,54 +32,54 @@
     // ]
 
     var unObjArray = [
-        {
-          text: 'Northern Africa'
-        },
-        {
-          text: 'Western Africa'
-        },
-        {
-          text: 'Middle Africa'
-        },
-        {
-          text: 'Eastern Africa'
-        },
-        {
-          text: 'Southern Africa'
-        },
-        {
-          text: 'Northern Europe'
-        },
-        {
-          text: 'Eastern Europe'
-        },
-        {
-          text: 'Western Europe'
-        },
-        {
-          text: 'Southern Europe'
-        },
-        {
-          text: 'Central Asia'
-        },
-        {
-          text: 'Western Asia'
-        },
-        {
-          text: 'Eastern Asia'
-        },
-        {
-          text: 'Southern Asia'
-        },
-        {
-          text: 'Southeastern Asia'
-        },
-        {
-          text: 'Melanesia'
-        },
-        {
-          text: 'Australia and New Zealand'
-        }
+        // {
+        //   text: 'Northern Africa'
+        // },
+        // {
+        //   text: 'Western Africa'
+        // },
+        // {
+        //   text: 'Middle Africa'
+        // },
+        // {
+        //   text: 'Eastern Africa'
+        // },
+        // {
+        //   text: 'Southern Africa'
+        // },
+        // {
+        //   text: 'Northern Europe'
+        // },
+        // {
+        //   text: 'Eastern Europe'
+        // },
+        // {
+        //   text: 'Western Europe'
+        // },
+        // {
+        //   text: 'Southern Europe'
+        // },
+        // {
+        //   text: 'Central Asia'
+        // },
+        // {
+        //   text: 'Western Asia'
+        // },
+        // {
+        //   text: 'Eastern Asia'
+        // },
+        // {
+        //   text: 'Southern Asia'
+        // },
+        // {
+        //   text: 'Southeastern Asia'
+        // },
+        // {
+        //   text: 'Melanesia'
+        // },
+        // {
+        //   text: 'Australia and New Zealand'
+        // }
     ]
 
     var isolateLegendArray = [
@@ -312,6 +312,39 @@
 
             //function to create a dropdown menu to add/remove lineage frequencies
             createLinFreqMenu();
+            console.log(unObjArray);
+            UNRegionsJson.map(function(d, i){
+                var un_region = new Object();
+
+                var region = d.properties.UN_Region
+
+                un_region.text = region
+
+                var regionValue = region.replace(/\s+/g, '')
+                //add region into obj array as a value
+                un_region.value = regionValue
+
+                // pull color from stroke of route
+                var unColor = d3.select("#" + regionValue).style("fill")
+                // create new property in unObjArray for the color; easier to build legend using one array
+                un_region.color = unColor
+
+                un_region.group = d.properties.UN_Group
+
+                unObjArray.push(un_region)
+
+                // console.log(d.properties);
+                // console.log(i);
+
+            })
+
+            unObjArray.sort(function(a,b){
+                if (a.group < b.group)
+                  return -1;
+                if (a.group > b.group)
+                  return 1;
+                return 0;
+            })
 
             createLegend();
 
@@ -907,25 +940,25 @@ function createLegend() {
         routeObjArray[i].color = color
     }
 
-    // for loop to push value into UN Obj array
-    for (i=0; i<unObjArray.length; i++) {
-        //current region in loop
-        var region = unObjArray[i].text
-        //remove all spaces
-        region = region.replace(/\s+/g, '')
-        //add region into obj array as a value
-        unObjArray[i].value = region
-    }
+    // // for loop to push value into UN Obj array
+    // for (i=0; i<unObjArray.length; i++) {
+    //     //current region in loop
+    //     var region = unObjArray[i].text
+    //     //remove all spaces
+    //     region = region.replace(/\s+/g, '')
+    //     //add region into obj array as a value
+    //     unObjArray[i].value = region
+    // }
 
-    // for loop retrieving fill color of each UN Region for the legend
-    for (i=0; i<unObjArray.length; i++) {
-        //current region in loop
-        var region = unObjArray[i].value
-        //pull color from stroke of route
-        var color = d3.select("#" + region).style("fill")
-        // create new property in unObjArray for the color; easier to build legend using one array
-        unObjArray[i].color = color
-    }
+    // // for loop retrieving fill color of each UN Region for the legend
+    // for (i=0; i<unObjArray.length; i++) {
+    //     //current region in loop
+    //     var region = unObjArray[i].value
+    //     //pull color from stroke of route
+    //     var color = d3.select("#" + region).style("fill")
+    //     // create new property in unObjArray for the color; easier to build legend using one array
+    //     unObjArray[i].color = color
+    // }
 
     //sets legend title
     var legendTitle = legendSvg.append("text")
@@ -1167,6 +1200,26 @@ function createLegend() {
               buttonMouseout(this);
           })
 
+      var AfrRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(4, 314)")
+          .text("Africa")
+
+      var AsiaRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(4, 438.5)")
+          .text("Asia")
+
+      var EurRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(4, 563)")
+          .text("Europe")
+
+      var OceaniaRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(4, 666.75)")
+          .text("Oceania")
+
       //creates a group for each rectangle and offsets each by same amount
       var legendUN = legendSvg.selectAll('.legendUN')
           .data(unObjArray)
@@ -1174,11 +1227,26 @@ function createLegend() {
         .append("g")
           .attr("class", "legendUN")
           .attr("transform", function(d, i) {
+
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 62;
+
+              //conditionals to leave a space after each Continent
+              if (d.group == "Africa"){
+                  var vert = i * height - offset + 82.75;
+
+              } else if (d.group == "Asia") {
+                  var vert = (i+1) * height - offset + 82.75;
+              } else if (d.group == "Europe") {
+                  var vert = (i+2) * height - offset + 82.75;
+              } else if (d.group == "Oceania") {
+                  var vert = (i+3) * height - offset + 82.75;
+              }
+
               return 'translate(' + horz + ',' + vert + ')';
+
+
         });
 
       //creates rect elements for legened

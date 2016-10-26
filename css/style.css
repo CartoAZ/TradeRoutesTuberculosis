@@ -211,7 +211,7 @@ ul {
 }
 
 #legendSvg {
-	height: 640px;
+	height: 720px;
 	width: 100%
 }
 
@@ -236,6 +236,9 @@ ul {
 }
 .legendSubHead {
 		text-align: center;
+}
+.unRegionTitle {
+		font-size: 0.8em;
 }
 
 .buttonText {
