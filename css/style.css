@@ -20,7 +20,9 @@ body {
 .un_regions {
 		stroke-width: 3px;
 		opacity: 0.5;
+		outline-offset: 13px;
 }
+
 #NorthernAfrica,
 #NorthernEurope,
 #AustraliaandNewZealand,
@@ -56,7 +58,6 @@ body {
 		fill: #fb8072;
 		stroke: #ef1f07;
 }
-
 
 
 /*trade hubs*/

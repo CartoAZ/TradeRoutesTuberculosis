@@ -123,22 +123,21 @@
 
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
+            .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
             .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
-
             .await(callback);
 
-        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
             //place graticule on the map
         		// setGraticule(map, path);
             //translate countries topojson with zoom
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
-                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
+                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
@@ -161,11 +160,11 @@
                 .scale(230)
                 // .rotate([0,0]);
 
+
             // Create a path generator
             var path = d3.geo.path()
                 .projection(projection)
                 .pointRadius(2);
-
             //create new svg container for the map
             var map = d3.select("body").append("svg")
                 .attr("class", "map")
@@ -216,7 +215,9 @@
                .data(UNRegionsJson)
                .enter()
              .append("path")
-                .attr("class", "un_regions")
+                .attr("class", function(d){
+                      return "un_regions " + d.properties.UN_Group
+                })
                 .attr("id", function(d){
                     //place region name into variable
                     var region = d.properties.UN_Region
@@ -319,8 +320,10 @@
                 .on("zoom",function() {
                     g.attr("transform","translate("+
                         d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                    // g.selectAll("circle")
-                    //     .attr("d", path.projection(projection));
+                    g.selectAll("circle")
+                        .attr("d", path.projection(projection))
+                    g.selectAll("rect")
+                        .attr("d", path.projection(projection))
                     g.selectAll("path")
                         .attr("d", path.projection(projection));
 
