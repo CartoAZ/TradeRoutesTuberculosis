@@ -17,84 +17,47 @@ body {
 
 /*UN regions*/
 
-.un_regions,
-.un_shadow {
+.un_regions {
 		stroke-width: 3px;
 		opacity: 0.5;
-		fill: #eee;
+		outline-offset: 13px;
 }
-/*#NorthernAfrica,
+
+#NorthernAfrica,
 #NorthernEurope,
 #AustraliaandNewZealand,
 #EasternAsia {
-		/*fill: #8dd3c7;*/
-		/*stroke: #46b4a1;
+		fill: #8dd3c7;
+		stroke: #46b4a1;
 }
 
 #MiddleAfrica,
 #CentralAsia,
 #Melanesia {
-		/*fill: #ffffb3;*/
-		/*stroke: #ffff4d;
+		fill: #ffffb3;
+		stroke: #ffff4d;
 }
 
 #WesternAfrica,
 #WesternEurope,
 #WesternAsia {
-		/*fill: #bebada;*/
-		/*stroke: #8078b6;
+		fill: #bebada;
+		stroke: #8078b6;
 }
 
 #EasternAfrica,
 #EasternEurope,
 #SoutheasternAsia {
-		/*fill: #80b1d3;*/
-		/*stroke: #418abd;
+		fill: #80b1d3;
+		stroke: #418abd;
 }
 
 #SouthernAfrica,
 #SouthernAsia,
 #SouthernEurope {
-		/*fill: #fb8072;*/
-		/*stroke: #ef1f07;
-}*/
-
-#NorthernAfrica_shadow,
-#NorthernEurope_shadow,
-#AustraliaandNewZealand_shadow,
-#EasternAsia_shadow {
-		/*fill: #8dd3c7;*/
-		stroke: #46b4a1;
-}
-
-#MiddleAfrica_shadow,
-#CentralAsia_shadow,
-#Melanesia_shadow {
-		/*fill: #ffffb3;*/
-		stroke: #ffff4d;
-}
-
-#WesternAfrica_shadow,
-#WesternEurope_shadow,
-#WesternAsia_shadow {
-		/*fill: #bebada;*/
-		stroke: #8078b6;
-}
-
-#EasternAfrica_shadow,
-#EasternEurope_shadow,
-#SoutheasternAsia_shadow {
-		/*fill: #80b1d3;*/
-		stroke: #418abd;
-}
-
-#SouthernAfrica_shadow,
-#SouthernAsia_shadow,
-#SouthernEurope_shadow {
-		/*fill: #fb8072;*/
+		fill: #fb8072;
 		stroke: #ef1f07;
 }
-
 
 
 /*trade hubs*/

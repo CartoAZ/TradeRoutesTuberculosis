@@ -129,7 +129,6 @@
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
-            .defer(d3.json, "data/Polygons/UN_Regions_Scaled.topojson")
             .await(callback);
 
         function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
@@ -150,8 +149,6 @@
             var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
 
             var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
-
-            var unScaleJson = topojson.feature(unScaleData, unScaleData.objects.UN_Regions_Scaled).features
 
             //set default height and width of map
             var mapWidth = window.innerWidth * 0.75,
@@ -218,7 +215,9 @@
                .data(UNRegionsJson)
                .enter()
              .append("path")
-                .attr("class", "un_regions")
+                .attr("class", function(d){
+                      return "un_regions " + d.properties.UN_Group
+                })
                 .attr("id", function(d){
                     //place region name into variable
                     var region = d.properties.UN_Region
@@ -229,26 +228,6 @@
                 })
                 .attr("d", path)
                 .attr("visibility", "hidden")
-
-            //add UN regions to map
-            var un_shadow = g.selectAll(".un_shadow")
-               .data(unScaleJson)
-               .enter()
-             .append("path")
-                .attr("class", "un_shadow")
-                .attr("id", function(d){
-                    //place region name into variable
-                    var region = d.properties.UN_Region
-                    //remove all spaces
-                    region = region.replace(/\s+/g, '')
-
-                    region += "_shadow"
-
-                    return region
-                })
-                .attr("d", path)
-                .attr("visibility", "visible")
-
 
             //draw trade routes
             var tradeRoutes = g.append("g")
