@@ -310,7 +310,7 @@
 
             //function to create a dropdown menu to add/remove lineage frequencies
             createLinFreqMenu();
-            console.log(unObjArray);
+
             UNRegionsJson.map(function(d, i){
                 var un_region = new Object();
 
@@ -464,7 +464,9 @@ function createLinFreqMenu() {
 }
 
 function drawLineageFrequency(expressed) {
+
     if (expressed === "clear") {
+
         //conditional to check if legend exists
         if (d3.select("#freqLegendSvg").empty() == false){
             //removes legend
@@ -474,6 +476,10 @@ function drawLineageFrequency(expressed) {
                 .style("fill", "none")
         }
     } else {
+        //disable each checkbox for UN regions when lineage frequency is drawn
+        d3.selectAll(".un_checkbox")[0].forEach(function(d){
+            d.disabled = true
+        });
 
         //create the color scale
         var colorScale = makeColorScale();
@@ -586,6 +592,12 @@ function drawLineageFrequency(expressed) {
                           .style("fill", "none")
                       //update text on dropdown menu
                       d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
+
+                      //enables each checkbox for UN regions when lineage frequency is removed
+                      d3.selectAll(".un_checkbox")[0].forEach(function(d){
+                          d.disabled = false
+                      });
+
                   })
                   .on("mouseover", function(){
                       buttonMouseover(this);
@@ -1191,11 +1203,33 @@ function createLegend() {
           .attr("height", "15px")
           .attr("width", "50px")
           .attr("transform", "translate(4,275)")
+          .attr("title", 'Cannot display UN Regions while Lineage Frequency overlays are on the map.')
           .on("click", function(){
-              updateButton("un", unObjArray);
+              if (d3.select(".un_checkbox")[0][0].disabled == false){
+
+                  updateButton("un", unObjArray);
+                  //updates disabled property of trade hub checkbox appropriately
+                  setCheckbox();
+              }
           })
           .on("mouseover", function(){
-              buttonMouseover(this)
+              if (d3.select(".un_checkbox")[0][0].disabled == false){
+
+                //changes cursor because check boxes are disabled
+                d3.select(this).style("cursor", "pointer")
+
+                //remove tooltip instructing user they can't have lineage frequency and Un overlays on map at same time
+                $("#unSelect").tooltip("disable");
+
+                buttonMouseover(this);
+              } else {
+                  //changes cursor because check boxes are disabled
+                  d3.select(this).style("cursor", "not-allowed")
+
+                  //display tooltip instructing user they can't have lineage frequency and Un overlays on map at same time
+                  $("#unSelect").tooltip("enable");
+
+              }
           })
           .on("mouseout", function(){
               buttonMouseout(this);
@@ -1215,6 +1249,8 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Africa");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           })
           .on("mouseover", function(){
               checkboxMouseover("un");
@@ -1234,6 +1270,8 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Asia");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           })
           .on("mouseover", function(){
               checkboxMouseover("un");
@@ -1253,6 +1291,8 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Europe");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           })
           .on("mouseover", function(){
               checkboxMouseover("un");
@@ -1272,6 +1312,8 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Oceania");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           })
           .on("mouseover", function(){
               checkboxMouseover("un");
@@ -1333,8 +1375,9 @@ function createLegend() {
               return "<form><input type=checkbox class='un_checkbox " + unGroup + "' id='" + unID + "' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>"
           })
           .on("change", function(d){
-
               checkboxChange("un", d.group)
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
           })
           .on("mouseover", function(){
               checkboxMouseover("un")
@@ -1360,6 +1403,11 @@ function initializeLegend() {
     $(".un_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
     $(".un_checkbox").tooltip("disable");
+    //initializes jQuery UI tooltip for Add All button
+    $("#unSelect").tooltip();
+    //disables jQuery UI tooltip for Add All button
+    $("#unSelect").tooltip("disable");
+
 
     //checks all routes by default
     for (i=0; i<routeObjArray.length; i++) {
@@ -1626,7 +1674,6 @@ function checkboxMouseover(item){
 
     //select both all checkboxes for item
     var checkbox = d3.selectAll("." + item + "_checkbox")[0][0]
-    console.log(checkbox);
     if (checkbox.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
         //changes cursor to pointer when checkboxes can be clicked
         d3.selectAll("." + item + "_checkbox")
@@ -1761,6 +1808,9 @@ function setCheckbox(){
     //selects random isolates checkbox
     var randomCheck = d3.select("#randomIsolates_check")[0][0]
 
+    //selects un checkboxes
+    var unCheck = d3.selectAll(".un_checkbox")[0]
+
     //retrieves whether trade hub checkbox is checked or not (stored as true/false)
     var checkedHub = hubCheck.checked
 
@@ -1769,6 +1819,16 @@ function setCheckbox(){
 
     //retrieves whether random isolates is checked or not (stored as true/false)
     var checkedRandom = randomCheck.checked
+
+    //creates variable with default of false because following statement changes to true if any checkbox is checked
+    var checkedUn = false;
+
+    //retrieves whether any UN checkbox is checked or not (stored as true/false)
+    unCheck.forEach(function(d){
+        if (d.checked == true) {
+            checkedUn = true
+        }
+    })
 
     if (checkedHub == true) { //if trade hubs checkbox is checked...
         //set both isolate checkboxes to be disabled
@@ -1798,6 +1858,13 @@ function setCheckbox(){
 
     }
 
+    if (checkedUn == true) {
+        //disables lineage frequency overlays if any un checkbox is checked
+        $("#linSelect").selectmenu("disable")
+    } else {
+        //enables lineage frequency overlays if any un checkbox is checked
+        $("#linSelect").selectmenu("enable")
+    }
 }
 
 //updates button text in legend
