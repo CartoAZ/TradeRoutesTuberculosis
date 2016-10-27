@@ -1422,7 +1422,7 @@ function checkboxChange(item, unGroup){
     }
     var vert = 0;
     var horz = 0;
-    var itemCount = 0; 
+    var itemCount = 0;
 
 
     if (item == "route") {
@@ -1736,7 +1736,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = false
               }
@@ -1798,7 +1798,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = true
               }
