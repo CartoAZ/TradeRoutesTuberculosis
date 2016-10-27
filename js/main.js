@@ -156,9 +156,8 @@
 
             //set projection of map
             var projection = d3.geo.mercator()
-                .center([80, 10])
-                .scale(230)
-                // .rotate([0,0]);
+                .center([95, 23])
+                .scale(210)
 
 
             // Create a path generator
