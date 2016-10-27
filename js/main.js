@@ -159,7 +159,6 @@
                 .center([95, 23])
                 .scale(210)
 
-
             // Create a path generator
             var path = d3.geo.path()
                 .projection(projection)
@@ -1210,7 +1209,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-7, 299)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Africa");
           });
@@ -1226,7 +1225,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-7, 423.5)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Asia");
           });
@@ -1242,7 +1241,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-7, 548)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Europe");
           });
@@ -1258,7 +1257,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-7, 651.75)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Oceania");
           });
@@ -1306,7 +1305,7 @@ function createLegend() {
           .attr("transform", "translate(5, 288.5)")
           .text(function(d) { return d.text });
 
-      //checkboxes for each route
+      //checkboxes for each UN Region
       var checkboxesUN = legendUN.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
