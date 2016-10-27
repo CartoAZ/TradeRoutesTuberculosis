@@ -1079,7 +1079,7 @@ function createLegend() {
           .on("mouseover", hubMouseover)
           .on("change", function(){
               //event listener function for clicking checkbox
-              checkboxChange("hub")
+              checkboxChange("hub", "none")
               //updates disabled property of isolate checkboxes appropriately
               setCheckbox();
           });
@@ -1162,7 +1162,7 @@ function createLegend() {
               return "<form><input type=checkbox class='route_checkbox' id='" + routeID + "'</input></form>"
           })
           .on("change", function(){
-              checkboxChange("route")
+              checkboxChange("route", "none")
           });
 
       //sets legend title
@@ -1202,23 +1202,67 @@ function createLegend() {
 
       var AfrRegionTitle = legendSvg.append("text")
           .attr("class", "unRegionTitle")
-          .attr("transform", "translate(4, 314)")
+          .attr("transform", "translate(24, 314)")
           .text("Africa")
+
+      //checkboxes for UN Group
+      var checkboxAfrUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 299)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Africa");
+          });
 
       var AsiaRegionTitle = legendSvg.append("text")
           .attr("class", "unRegionTitle")
-          .attr("transform", "translate(4, 438.5)")
+          .attr("transform", "translate(24, 438.5)")
           .text("Asia")
+
+      //checkboxes for UN Group
+      var checkboxAsiaUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 423.5)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Asia");
+          });
 
       var EurRegionTitle = legendSvg.append("text")
           .attr("class", "unRegionTitle")
-          .attr("transform", "translate(4, 563)")
+          .attr("transform", "translate(24, 563)")
           .text("Europe")
+
+      //checkboxes for UN Group
+      var checkboxEurUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 548)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Europe");
+          });
 
       var OceaniaRegionTitle = legendSvg.append("text")
           .attr("class", "unRegionTitle")
-          .attr("transform", "translate(4, 666.75)")
+          .attr("transform", "translate(24, 666.75)")
           .text("Oceania")
+
+      //checkboxes for UN Group
+      var checkboxOceaniaUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 651.75)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Oceania");
+          });
 
       //creates a group for each rectangle and offsets each by same amount
       var legendUN = legendSvg.selectAll('.legendUN')
@@ -1269,13 +1313,15 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", "translate(-47, 274)")
         .append("xhtml:body")
-          .html(function(d, i) {
+          .html(function(d) {
               //create ID for checkboxes
-              var unID = unObjArray[i].value + "_check";
-              return "<form><input type=checkbox class='un_checkbox' id='" + unID + "'</input></form>"
+              var unID = d.value + "_check";
+              var unGroup = d.group + "_check"
+              return "<form><input type=checkbox class='un_checkbox " + unGroup + "' id='" + unID + "'</input></form>"
           })
-          .on("change", function(){
-              checkboxChange("un")
+          .on("change", function(d){
+
+              checkboxChange("un", d.group)
           });
 
       //function that sets default state of legend
@@ -1312,16 +1358,55 @@ function initializeLegend() {
 
 }
 
-function checkboxChange(item){
+//function to update checkboxes of UN Group as well as depict UN Regions on map
+function unGroupCheckboxChange(unGroup){
+    //selects current checkbox and stores whether or not it is checked
+    var checked = d3.select("#" + unGroup + "_check")[0][0].checked
+
+    if (checked == true){  //if unchecking UN Group checkbox...
+        var checkboxes = d3.selectAll("." + unGroup + "_check")
+        //updates checkboxes
+        checkboxes.forEach(function(d, i){
+            // loop through each checkbox element in array
+            for (j=0; j<checkboxes[0].length; j++) {
+
+                // checks each checkbox
+                d[j].checked = true
+            }
+        })
+        //updates visibility of all UN Regions in Africa UN Group
+        d3.selectAll("." + unGroup).attr("visibility", "visible");
+
+    } else if (checked == false){ //if unchecking UN Group checkbox...
+        var checkboxes = d3.selectAll("." + unGroup + "_check")
+        //updates checkboxes
+        checkboxes.forEach(function(d, i){
+        // loop through each checkbox element in array
+            for (j=0; j<checkboxes[0].length; j++) {
+
+                // unchecks each checkbox
+                d[j].checked = false
+            };
+        });
+        //updates visibility of all UN Regions in Africa UN Group
+        d3.selectAll("." + unGroup).attr("visibility", "hidden");
+    };
+};
+
+function checkboxChange(item, unGroup){
     //select all checkboxes
     var checked = d3.selectAll("." + item + "_checkbox")[0];
+
+    // checked.forEach(function(d, i){console.log(checked[i].attr("class"));})
     for (i=0; i<checked.length; i++) {
         if (checked[i].checked === true) { //un checkbox checked in legend
+          // console.log(checked[i]);
           //gets ID, which contains element to update
           var getID = checked[i].id;
+          // console.log(checked[i]);
           //trim "_check" from end of ID string
           var getClass = getID.slice(0, -6);
-
+          // console.log(getClass);
           //update visibility of selected un region
           d3.selectAll("#" + getClass)
               .attr("visibility", "visibile")
@@ -1336,6 +1421,54 @@ function checkboxChange(item){
                 .attr("visibility", "hidden")
         }
     }
+
+    //conditional only for UN Regions -- if all UN Regions in a group are selected, select that group's checkbox
+    if (unGroup != "none") {
+        //select all Africa checkboxes
+        var groupCheckboxes = d3.selectAll("." + unGroup + "_check")[0];
+        //counter variable to determine when to check/uncheck UN Group checkbox
+        var checkCount = 0;
+        // loops through all checkboxes of this UN Group
+        for (j=0; j<groupCheckboxes.length; j++){
+            if (groupCheckboxes[j].checked == true){ //if checkbox is checked, add one to counter
+                checkCount += 1
+            }
+            if  (unGroup == "Africa") {
+                if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
+                    //check the checkbox
+                    d3.select("#Africa_check")[0][0].checked = true;
+                } else {
+                    //uncheck the checkbox
+                    d3.select("#Africa_check")[0][0].checked = false;
+                }
+            } else if (unGroup == "Asia") {
+                if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
+                    //check the checkbox
+                    d3.select("#Asia_check")[0][0].checked = true;
+                } else {
+                    //uncheck the checkbox
+                    d3.select("#Asia_check")[0][0].checked = false;
+                }
+            } else if (unGroup == "Europe") {
+                if (checkCount == 4) { //if counter variable reaches threshold, check UN Group checkbox
+                    //check the checkbox
+                    d3.select("#Europe_check")[0][0].checked = true;
+                } else {
+                    //uncheck the checkbox
+                    d3.select("#Europe_check")[0][0].checked = false;
+                }
+            } else if (unGroup == "Oceania") {
+                if (checkCount == 2) { //if counter variable reaches threshold, check UN Group checkbox
+                    //check the checkbox
+                    d3.select("#Oceania_check")[0][0].checked = true;
+                } else {
+                    //uncheck the checkbox
+                    d3.select("#Oceania_check")[0][0].checked = false;
+                }
+            }
+        }
+    }
+
 }
 
 function hubMouseover() {
@@ -1578,7 +1711,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = false
               }
@@ -1640,7 +1773,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = true
               }
@@ -1759,7 +1892,7 @@ function setCheckedProp(array, className) {
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
         // loop through each checkbox element in array
-        for (j=0; j<length; j++) {
+        for (j=0; j<checkboxes[0].length; j++) {
             //if the checkbox is checked, do this
             if (d[j].checked == true) {
                 //gets ID, which contains element to update
