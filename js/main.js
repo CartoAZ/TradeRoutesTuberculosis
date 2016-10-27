@@ -1044,7 +1044,10 @@ function createLegend() {
 
             return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
         })
-        .on("mouseover", isoCheckboxMouseover)
+        .on("mouseover", function(){
+
+          checkboxMouseover("isolate")
+        })
         .on("change", isoCheckboxChange);
 
       //sets legend title
@@ -1212,7 +1215,10 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Africa");
-          });
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
+          })
 
       var AsiaRegionTitle = legendSvg.append("text")
           .attr("class", "unRegionTitle")
@@ -1228,6 +1234,9 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Asia");
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
           });
 
       var EurRegionTitle = legendSvg.append("text")
@@ -1244,6 +1253,9 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Europe");
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
           });
 
       var OceaniaRegionTitle = legendSvg.append("text")
@@ -1260,6 +1272,9 @@ function createLegend() {
           .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
               unGroupCheckboxChange("Oceania");
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
           });
 
       //creates a group for each rectangle and offsets each by same amount
@@ -1320,6 +1335,9 @@ function createLegend() {
           .on("change", function(d){
 
               checkboxChange("un", d.group)
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un")
           });
 
       //function that sets default state of legend
@@ -1338,6 +1356,10 @@ function initializeLegend() {
     $(".hub_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
     $(".hub_checkbox").tooltip("disable");
+    //initializes jQuery UI tooltip for checkbox
+    $(".un_checkbox").tooltip();
+    //disables tooltip because the checkbox is checked and we only need message when it is not
+    $(".un_checkbox").tooltip("disable");
 
     //checks all routes by default
     for (i=0; i<routeObjArray.length; i++) {
@@ -1600,41 +1622,55 @@ function isoButtonMouseover(){
 }
 
 //function holding event listener for mouseover of isolate checkboxes in legend
-function isoCheckboxMouseover(){
-    //select both isolate checkboxes
-    var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
+function checkboxMouseover(item){
 
-    if (isolateCheckboxes.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
+    //select both all checkboxes for item
+    var checkbox = d3.selectAll("." + item + "_checkbox")[0][0]
+    console.log(checkbox);
+    if (checkbox.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
         //changes cursor to pointer when checkboxes can be clicked
-        d3.selectAll(".isolate_checkbox")
+        d3.selectAll("." + item + "_checkbox")
             .style("cursor", "pointer")
-        //retrieve innerHTML of the checkbox as a string to search
-        var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-        //search string for substring to determine which checkbox is selected
-        var isExact = checkboxHTML.indexOf("exact")
 
-        if (isExact == -1) { //randomIsolates checkbox selected
+        if (item == "isolate"){
+            //retrieve innerHTML of the checkbox as a string to search
+            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+
+            //search string for substring to determine which checkbox is selected
+            var isExact = checkboxHTML.indexOf("exact")
+
+            if (isExact == -1) { //randomIsolates checkbox selected
+                //disables jQuery UI tooltip for checkbox
+                $("#randomIsolates_check").tooltip("disable");
+            } else if (isExact > -1) { //exactIsolates checkbox selected
+                //disables jQuery UI tooltip for checkbox
+                $("#exactIsolates_check").tooltip("disable");
+            }
+        } else {
             //disables jQuery UI tooltip for checkbox
-            $("#randomIsolates_check").tooltip("disable");
-        } else if (isExact > -1) { //exactIsolates checkbox selected
-            //disables jQuery UI tooltip for checkbox
-            $("#exactIsolates_check").tooltip("disable");
+            $(".un_checkbox").tooltip("disable");
+
         }
-
     } else { //if the isolate checkboxes are disabled (i.e., trade cities are on map)
-        d3.selectAll(".isolate_checkbox")
+        d3.selectAll("." + item + "_checkbox")
             .style("cursor", "not-allowed")
-        //retrieve innerHTML of the checkbox as a string to search
-        var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-        //search string for substring to determine which checkbox is selected
-        var isExact = checkboxHTML.indexOf("exact")
+        if (item == "isolate"){
+            //retrieve innerHTML of the checkbox as a string to search
+            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
 
-        if (isExact == -1) { //randomIsolates checkbox selected
+            //search string for substring to determine which checkbox is selected
+            var isExact = checkboxHTML.indexOf("exact")
+
+            if (isExact == -1) { //randomIsolates checkbox selected
+                //enables jQuery UI tooltip for checkbox
+                $("#randomIsolates_check").tooltip("enable");
+            } else if (isExact > -1) { //exactIsolates checkbox selected
+                //enables jQuery UI tooltip for checkbox
+                $("#exactIsolates_check").tooltip("enable");
+            }
+        } else {
             //enables jQuery UI tooltip for checkbox
-            $("#randomIsolates_check").tooltip("enable");
-        } else if (isExact > -1) { //exactIsolates checkbox selected
-            //enables jQuery UI tooltip for checkbox
-            $("#exactIsolates_check").tooltip("enable");
+            $(".un_checkbox").tooltip("enable");
         }
     }
 }
