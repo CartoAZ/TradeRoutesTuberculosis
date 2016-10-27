@@ -1397,7 +1397,6 @@ function checkboxChange(item, unGroup){
     //select all checkboxes
     var checked = d3.selectAll("." + item + "_checkbox")[0];
 
-    // checked.forEach(function(d, i){console.log(checked[i].attr("class"));})
     for (i=0; i<checked.length; i++) {
         if (checked[i].checked === true) { //un checkbox checked in legend
           // console.log(checked[i]);
@@ -1421,6 +1420,50 @@ function checkboxChange(item, unGroup){
                 .attr("visibility", "hidden")
         }
     }
+    var vert = 0;
+    var horz = 0;
+    var itemCount = 0; 
+
+
+    if (item == "route") {
+
+        //y coordinate for transform, translate
+        vert = 173;
+
+        for (j=0; j<checked.length; j++){
+            if (checked[j].checked == true){ //if checkbox is checked, add one to counter
+                itemCount += 1
+            }
+        }
+
+        if (itemCount == 4) {
+
+            //retrieves button text to determin action
+            var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+            if (buttonText == "Add All"){//removes all items based on which button is clicked
+                //for button text placement
+                horz = 6;
+
+                //change button text
+                d3.select("#" + item + "ButtonText").text("Clear All")
+                    .attr("transform", "translate("+ horz + "," + vert + ")")
+            }
+        } else if (itemCount == 0) {
+          //retrieves button text to determin action
+          var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+              if (buttonText == "Clear All"){//removes all items based on which button is clicked
+                  //for button text placement
+                  horz = 9;
+
+                  //change button text
+                  d3.select("#" + item + "ButtonText").text("Add All")
+                      .attr("transform", "translate("+ horz + "," + vert + ")")
+              }
+        }
+    }
+
 
     //conditional only for UN Regions -- if all UN Regions in a group are selected, select that group's checkbox
     if (unGroup != "none") {
@@ -1428,43 +1471,25 @@ function checkboxChange(item, unGroup){
         var groupCheckboxes = d3.selectAll("." + unGroup + "_check")[0];
         //counter variable to determine when to check/uncheck UN Group checkbox
         var checkCount = 0;
+
+        if (unGroup == "Europe"){ // for Europe, bump checkcount start to 1 because it only has 4 regions
+            checkCount = 1;
+        } else if(unGroup == "Oceania"){ // for Oceania, bump checkcount start to 3 because it only has 2 regions
+            checkCount = 3;
+        }
+
         // loops through all checkboxes of this UN Group
         for (j=0; j<groupCheckboxes.length; j++){
             if (groupCheckboxes[j].checked == true){ //if checkbox is checked, add one to counter
                 checkCount += 1
             }
-            if  (unGroup == "Africa") {
-                if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
-                    //check the checkbox
-                    d3.select("#Africa_check")[0][0].checked = true;
-                } else {
-                    //uncheck the checkbox
-                    d3.select("#Africa_check")[0][0].checked = false;
-                }
-            } else if (unGroup == "Asia") {
-                if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
-                    //check the checkbox
-                    d3.select("#Asia_check")[0][0].checked = true;
-                } else {
-                    //uncheck the checkbox
-                    d3.select("#Asia_check")[0][0].checked = false;
-                }
-            } else if (unGroup == "Europe") {
-                if (checkCount == 4) { //if counter variable reaches threshold, check UN Group checkbox
-                    //check the checkbox
-                    d3.select("#Europe_check")[0][0].checked = true;
-                } else {
-                    //uncheck the checkbox
-                    d3.select("#Europe_check")[0][0].checked = false;
-                }
-            } else if (unGroup == "Oceania") {
-                if (checkCount == 2) { //if counter variable reaches threshold, check UN Group checkbox
-                    //check the checkbox
-                    d3.select("#Oceania_check")[0][0].checked = true;
-                } else {
-                    //uncheck the checkbox
-                    d3.select("#Oceania_check")[0][0].checked = false;
-                }
+            if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
+                //check the checkbox
+                d3.select("#" + unGroup + "_check")[0][0].checked = true;
+            } else {
+                //uncheck the checkbox
+                d3.select("#" + unGroup + "_check")[0][0].checked = false;
+
             }
         }
     }
@@ -1711,7 +1736,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<checkboxes[0].length; j++) {
+              for (j=0; j<length; j++) {
                   // unchecks each checkbox
                   d[j].checked = false
               }
@@ -1749,7 +1774,7 @@ function updateButton(item, array){
             };
         } else if (item === "route" || item === "un") {
             //updates visibility of item appropriately
-            checkboxChange(item)
+            checkboxChange(item, "none")
         }
     }
 
@@ -1773,7 +1798,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<checkboxes[0].length; j++) {
+              for (j=0; j<length; j++) {
                   // unchecks each checkbox
                   d[j].checked = true
               }
@@ -1892,7 +1917,7 @@ function setCheckedProp(array, className) {
     //loop through array of checkbox elements
     checked.forEach(function(d) { //d is array of all checkbox elements
         // loop through each checkbox element in array
-        for (j=0; j<checkboxes[0].length; j++) {
+        for (j=0; j<length; j++) {
             //if the checkbox is checked, do this
             if (d[j].checked == true) {
                 //gets ID, which contains element to update
