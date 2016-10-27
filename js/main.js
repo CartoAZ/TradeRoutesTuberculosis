@@ -1391,6 +1391,27 @@ function unGroupCheckboxChange(unGroup){
         //updates visibility of all UN Regions in Africa UN Group
         d3.selectAll("." + unGroup).attr("visibility", "hidden");
     };
+
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+    var regionChecked = d3.selectAll(".un_checkbox")[0];
+
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<regionChecked.length; j++){
+        if (regionChecked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (regionChecked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons("un", itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons("un", itemCount);
+    }
+
 };
 
 function checkboxChange(item, unGroup){
@@ -1420,50 +1441,6 @@ function checkboxChange(item, unGroup){
                 .attr("visibility", "hidden")
         }
     }
-    var vert = 0;
-    var horz = 0;
-    var itemCount = 0;
-
-
-    if (item == "route") {
-
-        //y coordinate for transform, translate
-        vert = 173;
-
-        for (j=0; j<checked.length; j++){
-            if (checked[j].checked == true){ //if checkbox is checked, add one to counter
-                itemCount += 1
-            }
-        }
-
-        if (itemCount == 4) {
-
-            //retrieves button text to determin action
-            var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
-
-            if (buttonText == "Add All"){//removes all items based on which button is clicked
-                //for button text placement
-                horz = 6;
-
-                //change button text
-                d3.select("#" + item + "ButtonText").text("Clear All")
-                    .attr("transform", "translate("+ horz + "," + vert + ")")
-            }
-        } else if (itemCount == 0) {
-          //retrieves button text to determin action
-          var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
-
-              if (buttonText == "Clear All"){//removes all items based on which button is clicked
-                  //for button text placement
-                  horz = 9;
-
-                  //change button text
-                  d3.select("#" + item + "ButtonText").text("Add All")
-                      .attr("transform", "translate("+ horz + "," + vert + ")")
-              }
-        }
-    }
-
 
     //conditional only for UN Regions -- if all UN Regions in a group are selected, select that group's checkbox
     if (unGroup != "none") {
@@ -1494,6 +1471,28 @@ function checkboxChange(item, unGroup){
         }
     }
 
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+    //prevent checkButtons function from being called on trade cities because it has no Add/Clear All button
+    if (item == "hub") {
+        itemCount -= 1;
+    }
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<checked.length; j++){
+        if (checked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (checked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons(item, itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons(item, itemCount);
+    }
+
 }
 
 function hubMouseover() {
@@ -1512,6 +1511,46 @@ function hubMouseover() {
 
         //disable jQuery UI Tooltip for the trade hub checkbox
         $(".hub_checkbox").tooltip("disable");
+    }
+}
+
+
+function checkButtons(item, itemCount){
+    if (item == "route") {
+        //y coordinate for transform, translate
+        vert = 173;
+    } else if (item == "un") {
+        //y coordinate for transform, translate
+        vert = 287;
+    } else if (item == "isolate") {
+        //y coordinate for transform, translate
+        vert = 59;
+    }
+
+    if (itemCount > 0){
+        //retrieves button text to determin action
+        var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+        if (buttonText == "Add All"){//removes all items based on which button is clicked
+            //for button text placement
+            horz = 6;
+
+            //change button text
+            d3.select("#" + item + "ButtonText").text("Clear All")
+                .attr("transform", "translate("+ horz + "," + vert + ")")
+        }
+    } else if (itemCount == 0) {
+        //retrieves button text to determin action
+        var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+        if (buttonText == "Clear All"){//removes all items based on which button is clicked
+            //for button text placement
+            horz = 9;
+
+            //change button text
+            d3.select("#" + item + "ButtonText").text("Add All")
+                .attr("transform", "translate("+ horz + "," + vert + ")")
+        }
     }
 }
 
@@ -1656,6 +1695,24 @@ function isoCheckboxChange(){
                 })
         }
     }
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<checked.length; j++){
+        if (checked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (checked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons("isolate", itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons("isolate", itemCount);
+    }
+
     //updates disabled property of trade hub checkbox appropriately
     setCheckbox();
 }
