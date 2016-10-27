@@ -1315,7 +1315,7 @@ function createLegend() {
               //create ID for checkboxes
               var unID = d.value + "_check";
               var unGroup = d.group + "_check"
-              return "<form><input type=checkbox class='un_checkbox " + unGroup + "' id='" + unID + "'</input></form>"
+              return "<form><input type=checkbox class='un_checkbox " + unGroup + "' id='" + unID + "' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>"
           })
           .on("change", function(d){
 
