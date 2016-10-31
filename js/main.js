@@ -969,8 +969,13 @@ function createLegend() {
             return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
         })
         .on("mouseover", function(){
+          //retrieve innerHTML of the checkbox as a string to search
+          var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
 
-          checkboxMouseover("isolate")
+          //search string for substring to determine which checkbox is selected
+          var isExact = checkboxHTML.indexOf("exact")
+
+          checkboxMouseover("isolate", isExact)
         })
         .on("change", isoCheckboxChange);
 
@@ -1165,7 +1170,8 @@ function createLegend() {
               setCheckbox();
           })
           .on("mouseover", function(){
-              checkboxMouseover("un");
+              //second parameter is not needed for UN; using -9999 as NA
+              checkboxMouseover("un", -9999);
           })
 
       var AsiaRegionTitle = legendSvg.append("text")
@@ -1186,7 +1192,8 @@ function createLegend() {
               setCheckbox();
           })
           .on("mouseover", function(){
-              checkboxMouseover("un");
+              //second parameter is not needed for UN; using -9999 as NA
+              checkboxMouseover("un", -9999);
           });
 
       var EurRegionTitle = legendSvg.append("text")
@@ -1207,7 +1214,8 @@ function createLegend() {
               setCheckbox();
           })
           .on("mouseover", function(){
-              checkboxMouseover("un");
+              //second parameter is not needed for UN; using -9999 as NA
+              checkboxMouseover("un", -9999);
           });
 
       var OceaniaRegionTitle = legendSvg.append("text")
@@ -1228,7 +1236,8 @@ function createLegend() {
               setCheckbox();
           })
           .on("mouseover", function(){
-              checkboxMouseover("un");
+              //second parameter is not needed for UN; using -9999 as NA
+              checkboxMouseover("un", -9999);
           });
 
       //creates a group for each rectangle and offsets each by same amount
@@ -1292,7 +1301,8 @@ function createLegend() {
               setCheckbox();
           })
           .on("mouseover", function(){
-              checkboxMouseover("un")
+              //second parameter is not needed for UN; using -9999 as NA
+              checkboxMouseover("un", -9999)
           });
 
       //function that sets default state of legend
@@ -1582,21 +1592,16 @@ function isoButtonMouseover(){
 }
 
 //function holding event listener for mouseover of isolate checkboxes in legend
-function checkboxMouseover(item){
-
+function checkboxMouseover(item, isExact){
     //select both all checkboxes for item
     var checkbox = d3.selectAll("." + item + "_checkbox")[0][0]
     if (checkbox.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
+
         //changes cursor to pointer when checkboxes can be clicked
         d3.selectAll("." + item + "_checkbox")
             .style("cursor", "pointer")
 
         if (item == "isolate"){
-            //retrieve innerHTML of the checkbox as a string to search
-            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-
-            //search string for substring to determine which checkbox is selected
-            var isExact = checkboxHTML.indexOf("exact")
 
             if (isExact == -1) { //randomIsolates checkbox selected
                 //disables jQuery UI tooltip for checkbox
@@ -1614,13 +1619,6 @@ function checkboxMouseover(item){
         d3.selectAll("." + item + "_checkbox")
             .style("cursor", "not-allowed")
         if (item == "isolate"){
-          console.log(d3.select(this));
-
-            //retrieve innerHTML of the checkbox as a string to search
-            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-
-            //search string for substring to determine which checkbox is selected
-            var isExact = checkboxHTML.indexOf("exact")
 
             if (isExact == -1) { //randomIsolates checkbox selected
                 //enables jQuery UI tooltip for checkbox
