@@ -4,118 +4,28 @@
     window.onload = setMap();
     var routeObjArray = [
         {
-          text: 'Silk Road',
-          value: 'silkRoad',
+          text: 'Land - Major',
+          value: 'majorLand',
           checked: 1
         },
         {
-          text: 'Maritime Silk',
-          value: 'maritimeSilk',
+          text: 'Land - Minor',
+          value: 'minorLand',
           checked: 1
         },
         {
-          text: 'Europe',
-          value: 'europe',
+          text: 'Sea - Major',
+          value: 'majorSea',
           checked: 1
         },
         {
-          text: 'East Africa',
-          value: 'eastAfrica',
-          checked: 1
-        },
-        {
-          text: 'West Africa',
-          value: 'westAfrica',
-          checked: 1
-        },
-        {
-          text: 'Mediterranean Maritime',
-          value: 'medMaritime',
-          checked: 1
-        },
-        {
-          text: 'China Imperial',
-          value: 'chinaImperial',
-          checked: 1
-        },
-        {
-          text: 'Northern Minor Silk',
-          value: 'northSilk',
-          checked: 1
-        },
-        {
-          text: 'Southern Minor Silk',
-          value: 'southSilk',
-          checked: 1
-        },
-        {
-          text: 'Pacific Maritime',
-          value: 'pacific',
-          checked: 1
-        },
-        {
-          text: 'Europe Maritime',
-          value: 'europeMaritime',
+          text: 'Sea - Minor',
+          value: 'minorSea',
           checked: 1
         }
     ]
-
-    // var hubObjArray = [
-    //     {
-    //       text: 'Trade Hub'
-    //     }
-    // ]
-
-    var unObjArray = [
-        {
-          text: 'Northern Africa'
-        },
-        {
-          text: 'Western Africa'
-        },
-        {
-          text: 'Middle Africa'
-        },
-        {
-          text: 'Eastern Africa'
-        },
-        {
-          text: 'Southern Africa'
-        },
-        {
-          text: 'Northern Europe'
-        },
-        {
-          text: 'Eastern Europe'
-        },
-        {
-          text: 'Western Europe'
-        },
-        {
-          text: 'Southern Europe'
-        },
-        {
-          text: 'Central Asia'
-        },
-        {
-          text: 'Western Asia'
-        },
-        {
-          text: 'Eastern Asia'
-        },
-        {
-          text: 'Southern Asia'
-        },
-        {
-          text: 'Southeastern Asia'
-        },
-        {
-          text: 'Melanesia'
-        },
-        {
-          text: 'Australia and New Zealand'
-        }
-    ]
+    //empty array to hold UN info for legend
+    var unObjArray = [];
 
     var isolateLegendArray = [
         {
@@ -129,8 +39,8 @@
           fill: "#aaa"
         }
     ];
-    //empty array to hold all isolate names
-    var isolateNameArray = [];
+    // //empty array to hold all isolate names
+    // var isolateNameArray = [];
 
     //empty array to bind to select element
     var isolateObjArray = [];
@@ -158,22 +68,21 @@
 
         q
             .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/UN_Regions.topojson")//load UN regions outline
-            .defer(d3.json, "data/Routes/AllRoutes1018.topojson")//load trade routes polylines
+            .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
+            .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
             .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
             .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
             .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
             .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
-
             .await(callback);
 
-        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData){
+        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
             //place graticule on the map
         		// setGraticule(map, path);
             //translate countries topojson with zoom
             var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
-                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions).features;
+                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features;
 
             var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
 
@@ -192,15 +101,13 @@
 
             //set projection of map
             var projection = d3.geo.mercator()
-                .center([80, 10])
-                .scale(230)
-                // .rotate([0,0]);
+                .center([95, 23])
+                .scale(210)
 
             // Create a path generator
             var path = d3.geo.path()
                 .projection(projection)
                 .pointRadius(2);
-
             //create new svg container for the map
             var map = d3.select("body").append("svg")
                 .attr("class", "map")
@@ -251,7 +158,9 @@
                .data(UNRegionsJson)
                .enter()
              .append("path")
-                .attr("class", "un_regions")
+                .attr("class", function(d){
+                      return "un_regions " + d.properties.UN_Group
+                })
                 .attr("id", function(d){
                     //place region name into variable
                     var region = d.properties.UN_Region
@@ -271,33 +180,17 @@
                 .enter()
               .append("path")
                 .attr("d", path)
-                .attr("class", function(d){
-                  return d.properties.RouteShort
+                .attr("id", function(d){
+                  return d.properties.routeName
                 })
-                // .attr("id", function(d){
-                //   return "c" + d.properties.ID;
-                // })
-                // .style("stroke", function(d){
-                //     return choropleth(d.properties, colorScale);
-                // })
-                // .on("mouseover", function(d){
-                //     highlightLine(d.properties, expressed);
-                // })
-                // .on("mouseout", function(d){
-                //     dehighlightLine(d.properties, colorScale);
-                // });
 
-            //add trade hub cities to map
-            // var tradeHubs = g.append("path")
-            //     .datum(tradeHubJson)
-            //     .attr("class", "tradeHubs")
-            //     .attr("d", path)
             var tradeHubs = g.append("g")
                 .attr("class", "tradeHubs")
                 .selectAll("circle")
               .data(tradeHubJson)
                 .enter()
               .append("circle")
+                .attr("id", "tradeHubs")
                 .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
                 .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
                 .attr("r", 4)
@@ -346,22 +239,55 @@
                 .attr("visibility", "hidden")
 
 
-            //push isolate names into array for use with search widget
-            exactJson.map(function(d){
-                isolateNameArray.push(d.properties.SampleName)
-            })
+            // //push isolate names into array for use with search widget
+            // exactJson.map(function(d){
+            //     isolateNameArray.push(d.properties.SampleName)
+            // })
+            //
+            // //push isolate names into array for use with search widget
+            // randomJson.map(function(d){
+            //     isolateNameArray.push(d.properties.SampleName)
+            // })
 
-            //push isolate names into array for use with search widget
-            randomJson.map(function(d){
-                isolateNameArray.push(d.properties.SampleName)
-            })
-
-            createSearch();
+            // createSearch();
             //function to create a dropdown menu to add/remove isolates by lineage
             createIsoLineageMenu();
 
             //function to create a dropdown menu to add/remove lineage frequencies
             createLinFreqMenu();
+
+            UNRegionsJson.map(function(d, i){
+                var un_region = new Object();
+
+                var region = d.properties.UN_Region
+
+                un_region.text = region
+
+                var regionValue = region.replace(/\s+/g, '')
+                //add region into obj array as a value
+                un_region.value = regionValue
+
+                // pull color from stroke of route
+                var unColor = d3.select("#" + regionValue).style("fill")
+                // create new property in unObjArray for the color; easier to build legend using one array
+                un_region.color = unColor
+
+                un_region.group = d.properties.UN_Group
+
+                unObjArray.push(un_region)
+
+                // console.log(d.properties);
+                // console.log(i);
+
+            })
+
+            unObjArray.sort(function(a,b){
+                if (a.group < b.group)
+                  return -1;
+                if (a.group > b.group)
+                  return 1;
+                return 0;
+            })
 
             createLegend();
 
@@ -370,8 +296,10 @@
                 .on("zoom",function() {
                     g.attr("transform","translate("+
                         d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                    // g.selectAll("circle")
-                    //     .attr("d", path.projection(projection));
+                    g.selectAll("circle")
+                        .attr("d", path.projection(projection))
+                    g.selectAll("rect")
+                        .attr("d", path.projection(projection))
                     g.selectAll("path")
                         .attr("d", path.projection(projection));
 
@@ -481,7 +409,9 @@ function createLinFreqMenu() {
 }
 
 function drawLineageFrequency(expressed) {
+
     if (expressed === "clear") {
+
         //conditional to check if legend exists
         if (d3.select("#freqLegendSvg").empty() == false){
             //removes legend
@@ -491,6 +421,10 @@ function drawLineageFrequency(expressed) {
                 .style("fill", "none")
         }
     } else {
+        //disable each checkbox for UN regions when lineage frequency is drawn
+        d3.selectAll(".un_checkbox")[0].forEach(function(d){
+            d.disabled = true
+        });
 
         //create the color scale
         var colorScale = makeColorScale();
@@ -571,24 +505,35 @@ function drawLineageFrequency(expressed) {
                         return 'translate(' + horz + ',' + vert + ')';
                 });
 
+              var mapWidth = +d3.select(".map").attr("width");
+
               //rect to hold styling
               var freqBackButton = d3.select(".map").append("rect")
                   .attr("id", "freqBack")
                   .attr("height", "15px")
                   .attr("width", "170px")
-                  .attr("transform", "translate(670,10)")
+                  .attr("transform", function(){
+                      var horz = mapWidth - 195
+                      return "translate(" + horz + ",10)"
+                  })
               //text of button
               var freqButtonText = d3.select(".map").append("text")
                   .attr("class", "buttonText")
                   .attr("id", "freqButtonText")
-                  .attr("transform", "translate(690,20)")
+                  .attr("transform",  function(){
+                      var horz = mapWidth - 175
+                      return "translate(" + horz + ",20)"
+                  })
                   .text("Remove Lineage Frequency")
               //clickable rect
               var freqSelectButton = d3.select(".map").append("rect")
                   .attr("id", "freqSelect")
                   .attr("height", "15px")
                   .attr("width", "170px")
-                  .attr("transform", "translate(670,10)")
+                  .attr("transform", function(){
+                      var horz = mapWidth - 195
+                      return "translate(" + horz + ",10)"
+                  })
                   .on("click", function(){
                       //remove legend from map
                       d3.select("#freqLegendSvg").remove();
@@ -603,29 +548,18 @@ function drawLineageFrequency(expressed) {
                           .style("fill", "none")
                       //update text on dropdown menu
                       d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
+
+                      //enables each checkbox for UN regions when lineage frequency is removed
+                      d3.selectAll(".un_checkbox")[0].forEach(function(d){
+                          d.disabled = false
+                      });
+
                   })
                   .on("mouseover", function(){
-                      //extract ID of rectangle is clicked
-                      var buttonID = this.id;
-                      //changes click to back in ID string so we can change fill
-                      var rectID = buttonID.replace("Select", "Back")
-                      //change fill
-                      d3.select("#" + rectID).style({
-                          "stroke": "#aaa",
-                          "stroke-width": "2px",
-                      })
+                      buttonMouseover(this);
                   })
                   .on("mouseout", function(){
-                      //extract ID of whichever rectangle is clicked
-                      var buttonID = this.id;
-                      //changes click to back in ID string so we can change fill
-                      var rectID = buttonID.replace("Select", "Back")
-                      //change fill
-                      d3.select("#" + rectID).style({
-                        "fill": "#eee",
-                        "stroke": "#ddd",
-                        "stroke-width": "1px"
-                      })
+                      buttonMouseout(this);
                   })
 
               //creates rect elements for legened
@@ -655,98 +589,98 @@ function drawLineageFrequency(expressed) {
     }
 }
 
-function createSearch() {
-    //creates search div
-    var searchDiv = d3.select("#menubar").append("div")
-        .attr("class", "ui-widget")
-        .attr("id", "searchDiv")
-        .attr("width", "200px")
-        .attr("height", "80%")
-        .html("<label for='tags'>Isolate Name: </label><input id='tags'>")
-    //populates search with array
-    $("#tags").autocomplete({
-        source: isolateNameArray,
-        messages: {
-            noResults: 'Isolate not found',
-            results: function(){}
-        },
-        select: function(event, ui) {
-
-            var isolate = ui.item.value
-            var selection = "#" + isolate;
-
-            var selectionFill = d3.select(selection).style("fill");
-
-            d3.select(selection)
-                .transition()
-                .duration(200)
-                .style("stroke-width", "5px")
-                .style({"stroke": selectionFill, "stroke-width": "8px"})
-            //conditional to check if legend exists
-            if (d3.select("#sampleBack").empty() == true){
-
-                //rect to hold styling
-                var sampleBackButton = d3.select(".map").append("rect")
-                    .attr("id", "sampleBack")
-                    .attr("height", "15px")
-                    .attr("width", "140px")
-                    .attr("transform", "translate(10,10)")
-                //text of button
-                var sampleButtonText = d3.select(".map").append("text")
-                    .attr("class", "buttonText")
-                    .attr("id", "sampleButtonText")
-                    .attr("transform", "translate(25,21)")
-                    .text("Clear Selected Isolates")
-                //clickable rect
-                var sampleSelectButton = d3.select(".map").append("rect")
-                    .attr("id", "sampleSelect")
-                    .attr("height", "15px")
-                    .attr("width", "140px")
-                    .attr("transform", "translate(10,10)")
-                    .on("click", function(){
-                        d3.select(".exactIsolates").selectAll("rect")
-                            .style({"fill": "#333", "stroke": "none"})
-
-                        d3.select(".randomIsolates").selectAll("rect")
-                            .style({"fill": "#888", "stroke": "none"})
-
-                        //remove button
-                        d3.select("#sampleBack").remove();
-                        //remove button
-                        d3.select("#sampleButtonText").remove();
-                        //remove button
-                        d3.select("#sampleSelect").remove();
-                    })
-                    .on("mouseover", function(){
-                        //extract ID of rectangle is clicked
-                        var buttonID = this.id;
-                        //changes click to back in ID string so we can change fill
-                        var rectID = buttonID.replace("Select", "Back")
-                        //change fill
-                        d3.select("#" + rectID).style({
-                            "stroke": "#aaa",
-                            "stroke-width": "2px",
-                        })
-                    })
-                    .on("mouseout", function(){
-                        //extract ID of whichever rectangle is clicked
-                        var buttonID = this.id;
-                        //changes click to back in ID string so we can change fill
-                        var rectID = buttonID.replace("Select", "Back")
-                        //change fill
-                        d3.select("#" + rectID).style({
-                          "fill": "#eee",
-                          "stroke": "#ddd",
-                          "stroke-width": "1px"
-                        })
-                    })
-            }
-        }
-    });
-
-
-
-}
+// function createSearch() {
+//     //creates search div
+//     var searchDiv = d3.select("#menubar").append("div")
+//         .attr("class", "ui-widget")
+//         .attr("id", "searchDiv")
+//         .attr("width", "200px")
+//         .attr("height", "80%")
+//         .html("<label for='tags'>Isolate Name: </label><input id='tags'>")
+//     //populates search with array
+//     $("#tags").autocomplete({
+//         source: isolateNameArray,
+//         messages: {
+//             noResults: 'Isolate not found',
+//             results: function(){}
+//         },
+//         select: function(event, ui) {
+//
+//             var isolate = ui.item.value
+//             var selection = "#" + isolate;
+//
+//             var selectionFill = d3.select(selection).style("fill");
+//
+//             d3.select(selection)
+//                 .transition()
+//                 .duration(200)
+//                 .style("stroke-width", "5px")
+//                 .style({"stroke": selectionFill, "stroke-width": "8px"})
+//             //conditional to check if legend exists
+//             if (d3.select("#sampleBack").empty() == true){
+//
+//                 //rect to hold styling
+//                 var sampleBackButton = d3.select(".map").append("rect")
+//                     .attr("id", "sampleBack")
+//                     .attr("height", "15px")
+//                     .attr("width", "140px")
+//                     .attr("transform", "translate(10,10)")
+//                 //text of button
+//                 var sampleButtonText = d3.select(".map").append("text")
+//                     .attr("class", "buttonText")
+//                     .attr("id", "sampleButtonText")
+//                     .attr("transform", "translate(25,21)")
+//                     .text("Clear Selected Isolates")
+//                 //clickable rect
+//                 var sampleSelectButton = d3.select(".map").append("rect")
+//                     .attr("id", "sampleSelect")
+//                     .attr("height", "15px")
+//                     .attr("width", "140px")
+//                     .attr("transform", "translate(10,10)")
+//                     .on("click", function(){
+//                         d3.select(".exactIsolates").selectAll("rect")
+//                             .style({"fill": "#333", "stroke": "none"})
+//
+//                         d3.select(".randomIsolates").selectAll("rect")
+//                             .style({"fill": "#888", "stroke": "none"})
+//
+//                         //remove button
+//                         d3.select("#sampleBack").remove();
+//                         //remove button
+//                         d3.select("#sampleButtonText").remove();
+//                         //remove button
+//                         d3.select("#sampleSelect").remove();
+//                     })
+//                     .on("mouseover", function(){
+//                         //extract ID of rectangle is clicked
+//                         var buttonID = this.id;
+//                         //changes click to back in ID string so we can change fill
+//                         var rectID = buttonID.replace("Select", "Back")
+//                         //change fill
+//                         d3.select("#" + rectID).style({
+//                             "stroke": "#aaa",
+//                             "stroke-width": "2px",
+//                         })
+//                     })
+//                     .on("mouseout", function(){
+//                         //extract ID of whichever rectangle is clicked
+//                         var buttonID = this.id;
+//                         //changes click to back in ID string so we can change fill
+//                         var rectID = buttonID.replace("Select", "Back")
+//                         //change fill
+//                         d3.select("#" + rectID).style({
+//                           "fill": "#eee",
+//                           "stroke": "#ddd",
+//                           "stroke-width": "1px"
+//                         })
+//                     })
+//             }
+//         }
+//     });
+//
+//
+//
+// }
 
 function createIsoLineageMenu() {
 
@@ -946,280 +880,184 @@ function createIsoLineageMenu() {
 }
 
 function createLegend() {
-
+    //div to hold SVG for legend
     var legendContainer = d3.select("body").append("div")
         .attr("id", "legendContainer")
-
+    //SVG inside div container
     var legendSvg = legendContainer.append("svg")
         .attr("id", "legendSvg")
 
+    //set variables to define spacing/size for displaying items withing <g> elements
+    var rectHeight = 1,
+        rectWidth = 20,
+        legendSpacing = 0.75;
+    //color classes array for retrieving color of trade routes
+    var colorClasses = [];
 
-      //set variables to define spacing/size
-      var rectHeight = 1,
-          rectWidth = 20,
-          legendSpacing = 0.75;
-      //color classes array
-      var colorClasses = [];
+    // for loop retrieving stroke color of each route for the legend
+    for (i=0; i<routeObjArray.length; i++) {
+        //current route in loop
+        var route = routeObjArray[i].value
+        //pull color from stroke of route
+        var color = d3.select("#" + route).style("stroke")
+        //add color to colorclasses array
+        colorClasses.push(color)
+        // create new property in routeObjArray for the color; easier to build legend using one array
+        routeObjArray[i].color = color
+    }
 
-      // for loop retrieving stroke color of each route for the legend
-      for (i=0; i<routeObjArray.length; i++) {
-          //current route in loop
-          var route = routeObjArray[i].value
-          //pull color from stroke of route
-          var color = d3.select("." + route).style("stroke")
-          //add color to colorclasses array
-          colorClasses.push(color)
-          // create new property in routeObjArray for the color; easier to build legend using one array
-          routeObjArray[i].color = color
-      }
+    // // for loop to push value into UN Obj array
+    // for (i=0; i<unObjArray.length; i++) {
+    //     //current region in loop
+    //     var region = unObjArray[i].text
+    //     //remove all spaces
+    //     region = region.replace(/\s+/g, '')
+    //     //add region into obj array as a value
+    //     unObjArray[i].value = region
+    // }
 
-      // for loop to push value into UN Obj array
-      for (i=0; i<unObjArray.length; i++) {
-          //current region in loop
-          var region = unObjArray[i].text
-          //remove all spaces
-          region = region.replace(/\s+/g, '')
-          //add region into obj array as a value
-          unObjArray[i].value = region
-      }
+    // // for loop retrieving fill color of each UN Region for the legend
+    // for (i=0; i<unObjArray.length; i++) {
+    //     //current region in loop
+    //     var region = unObjArray[i].value
+    //     //pull color from stroke of route
+    //     var color = d3.select("#" + region).style("fill")
+    //     // create new property in unObjArray for the color; easier to build legend using one array
+    //     unObjArray[i].color = color
+    // }
 
-      // for loop retrieving fill color of each UN Region for the legend
-      for (i=0; i<unObjArray.length; i++) {
-          //current region in loop
-          var region = unObjArray[i].value
-          //pull color from stroke of route
-          var color = d3.select("#" + region).style("fill")
-          // create new property in routeObjArray for the color; easier to build legend using one array
-          unObjArray[i].color = color
-      }
+    //sets legend title
+    var legendTitle = legendSvg.append("text")
+        .attr("class", "legendTitle")
+        .attr("transform", "translate(75,30)")
+        .text("Legend")
+
+    //sets legend subtitle
+    var legendIsolateTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendIsolateTitle")
+          .attr("transform", "translate(81,60)")
+          .text("Isolates")
+          .style("text-align", "center")
+
+    //rect to hold styling
+    var isoBackButton = legendSvg.append("rect")
+        .attr("id", "isolateBack")
+        .attr("height", "15px")
+        .attr("width", "50px")
+        .attr("transform", "translate(4,47)")
+    //text of button
+    var isoButtonText = legendSvg.append("text")
+        .attr("class", "buttonText")
+        .attr("id", "isolateButtonText")
+        .attr("transform", "translate(10,59)")
+        .text("Add All")
+    //clickable rect
+    var isoSelectButton = legendSvg.append("rect")
+        .attr("id", "isolateSelect")
+        .attr("height", "15px")
+        .attr("width", "50px")
+        .attr("transform", "translate(4,47)")
+        .attr("title", "Cannot display isolates while trade cities are showing on map.")
+        .on("click", function(){
+            if (d3.select(".isolate_checkbox")[0][0].disabled == false){
+                updateButton("isolate", isolateLegendArray);
+                setCheckbox();
+            }
+        })
+        .on("mouseover", isoButtonMouseover)
+        .on("mouseout", function(){
+            buttonMouseout(this);
+        })
+
+    //creates a group for each rectangle and offsets each by same amount
+    var legendIsolate = legendSvg.selectAll('.legendIsolate')
+        .data(isolateLegendArray)
+        .enter()
+      .append("g")
+        .attr("class", "legendIsolate")
+        .attr("transform", function(d, i) {
+            var height = rectWidth + legendSpacing;
+            var offset =  height;
+            var horz = 2 * rectWidth;
+            var vert = i * height - offset + 195;
+            return 'translate(' + horz + ',' + vert + ')';
+        });
+
+    //creates rect elements for legened
+    var legendIsolateRect = legendIsolate.append('rect')
+        .attr("class", "legendIsolateRect")
+        .attr("x", -12)
+        .attr("y", -103)
+        .attr("width", 6)
+        .attr("height", 6)
+        // .attr("transform", "translate(-35,-125)")
+        .style('fill', function(d){ return d.fill })
+
+    //adds text to legend
+    var legendIsolateText = legendIsolate.append('text')
+        .attr("class", "legendText")
+        .attr("transform", "translate(5, -97)")
+        .text(function(d) { return d.text });
+
+    // //checkboxes for each isolate precision
+    var checkboxesIsolate = legendIsolate.append("foreignObject")
+        .attr('width', "20px")
+        .attr('height', "20px")
+        .attr("transform", "translate(-47, -108)")
+      .append("xhtml:body")
+        .html(function(d, i) {
+            //create ID for checkboxes
+            var isolateID = isolateLegendArray[i].value + "_check";
+
+            return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+        })
+        .on("mouseover", function(){
+
+          checkboxMouseover("isolate")
+        })
+        .on("change", isoCheckboxChange);
 
       //sets legend title
-      var legendTitle = legendSvg.append("text")
-          .attr("class", "legendTitle")
-          .attr("transform", "translate(75,30)")
-          .text("Legend")
-
-
-      //sets legend title
-      var legendIsolateTitle = legendSvg.append("text")
-            .attr("class", "legendSubHead")
-            .attr("id", "legendIsolateTitle")
-            .attr("transform", "translate(85,60)")
-            .text("Isolates")
-            .style("text-align", "center")
-
-      //rect to hold styling
-      var isoBackButton = legendSvg.append("rect")
-          .attr("id", "isolateBack")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,47)")
-      //text of button
-      var isoButtonText = legendSvg.append("text")
-          .attr("class", "buttonText")
-          .attr("id", "isolateButtonText")
-          .attr("transform", "translate(10,59)")
-          .text("Add All")
-      //clickable rect
-      var isoSelectButton = legendSvg.append("rect")
-          .attr("id", "isolateSelect")
-          .attr("height", "15px")
-          .attr("width", "50px")
-          .attr("transform", "translate(4,47)")
-          .attr("title", "Cannot display isolates while trade cities are showing on map.")
-          .on("click", function(){
-              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
-                  updateButton("isolate", isolateLegendArray);
-                  setCheckbox();
-              }
-          })
-          .on("mouseover", function(){
-              if (d3.select(".isolate_checkbox")[0][0].disabled == false){
-                  //extract ID of rectangle is clicked
-                  var buttonID = this.id;
-                  //changes click to back in ID string so we can change fill
-                  var rectID = buttonID.replace("Select", "Back")
-                  //change fill
-                  d3.select("#" + rectID).style({
-                      "stroke": "#aaa",
-                      "stroke-width": "2px",
-                  })
-
-                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                  $("#isolateSelect").tooltip("disable");
-
-              } else {
-                  d3.select("#isolateSelect")
-                      .style("cursor", "not-allowed")
-
-                  //display tooltip instructing user they can't have isolates and trade cities on map at same time
-                  $("#isolateSelect").tooltip("enable");
-              }
-          })
-          .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-              })
-          })
-
-      //creates a group for each rectangle and offsets each by same amount
-      var legendIsolate = legendSvg.selectAll('.legendIsolate')
-          .data(isolateLegendArray)
-          .enter()
-        .append("g")
-          .attr("class", "legendIsolate")
-          .attr("transform", function(d, i) {
-              var height = rectWidth + legendSpacing;
-              var offset =  height;
-              var horz = 2 * rectWidth;
-              var vert = i * height - offset + 195;
-              return 'translate(' + horz + ',' + vert + ')';
-          });
+      var legendHubTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendHubTitle")
+          .attr("transform", "translate(63,128)")
+          .text("Trade Cities")
 
       //creates rect elements for legened
-      var legendIsolateRect = legendIsolate.append('rect')
-          .attr("class", "legendIsolateRect")
-          .attr("x", -12)
-          .attr("y", -103)
-          .attr("width", 6)
-          .attr("height", 6)
-          // .attr("transform", "translate(-35,-125)")
-          .style('fill', function(d){ return d.fill })
+      var legendHubCircle = legendSvg.append('circle')
+          .attr("class", "tradeHubs")
+          .attr("cx", "32")
+          .attr("cy", "140")
+          .attr("r", "5")
 
       //adds text to legend
-      var legendIsolateText = legendIsolate.append('text')
+      var legendHubText = legendSvg.append('text')
           .attr("class", "legendText")
-          .attr("transform", "translate(5, -97)")
-          .text(function(d) { return d.text });
+          .attr("transform", "translate(44,143)")
+          .text("Major Trade City");
 
-      // //checkboxes for each isolate precision
-      var checkboxesIsolate = legendIsolate.append("foreignObject")
+      //checkboxes for each route
+      var checkboxesHub = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, -108)")
+          .attr("transform", "translate(-7, 129)")
         .append("xhtml:body")
-          .html(function(d, i) {
-              //create ID for checkboxes
-              var isolateID = isolateLegendArray[i].value + "_check";
-
-              return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
-          })
-          .on("mouseover", function(d){
-              var isolateCheckboxes = d3.selectAll(".isolate_checkbox")[0][0]
-
-              if (isolateCheckboxes.disabled == false){
-                  //changes cursor to pointer when checkboxes can be clicked
-                  d3.selectAll(".isolate_checkbox")
-                      .style("cursor", "pointer")
-                  //retrieve innerHTML of the checkbox as a string to search
-                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-                  //search string for substring to determine which checkbox is selected
-                  var isExact = checkboxHTML.indexOf("exact")
-
-                  if (isExact == -1) { //randomIsolates checkbox selected
-                      //disables jQuery UI tooltip for checkbox
-                      $("#randomIsolates_check").tooltip("disable");
-                  } else if (isExact > -1) { //exactIsolates checkbox selected
-                      //disables jQuery UI tooltip for checkbox
-                      $("#exactIsolates_check").tooltip("disable");
-                  }
-
-              } else {
-                  d3.selectAll(".isolate_checkbox")
-                      .style("cursor", "not-allowed")
-
-                  var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
-
-                  var isExact = checkboxHTML.indexOf("exact")
-
-                  if (isExact == -1) {
-                      //enables jQuery UI tooltip for checkbox
-                      $("#randomIsolates_check").tooltip("enable");
-                  } else if (isExact > -1) {
-                      //enables jQuery UI tooltip for checkbox
-                      $("#exactIsolates_check").tooltip("enable");
-
-                  }
-              }
-
-          })
+          .html("<form><input type=checkbox class='hub_checkbox' id='tradeHubs_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .on("mouseover", hubMouseover)
           .on("change", function(){
-              //select both checkboxes
-              var checked = d3.selectAll(".isolate_checkbox")[0];
-
-              for (i=0; i<checked.length; i++) {
-                  if (checked[i].checked === true) { //isolate checkbox checked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-
-                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-                        .attr("visibility", "visibile")
-                        .attr("class", function(d){
-                            //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
-                            //update class from unchecked to checked
-                            return "lin_" + lineage + " notFiltered checked"
-                        })
-
-                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
-                    d3.select("." + getClass).selectAll("rect").filter(".filtered")
-                        .attr("class", function(d){
-                            //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
-                            //update class from unchecked to checked
-                            return "lin_" + lineage + " filtered checked"
-                        })
-
-                  } else { //if unchecked in legend
-                      //gets ID, which contains element to update
-                      var getID = checked[i].id;
-                      //trim "_check" from end of ID string
-                      var getClass = getID.slice(0, -6);
-                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
-                          .attr("visibility", "hidden")
-                          .attr("class", function(d){
-                              //retrieve lineage of current isolate for class
-                              var lineage = d.properties.lineage_of
-                              //update class from unchecked to checked
-                              return "lin_" + lineage + " notFiltered unchecked"
-                          })
-                      //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
-                      d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
-                          .attr("class", function(d){
-                              //retrieve lineage of current isolate for class
-                              var lineage = d.properties.lineage_of
-                              //update class from unchecked to checked
-                              return "lin_" + lineage + " filtered unchecked"
-                          })
-                  }
-              }
-              //updates disabled property of trade hub checkbox appropriately
+              //event listener function for clicking checkbox
+              checkboxChange("hub", "none")
+              //updates disabled property of isolate checkboxes appropriately
               setCheckbox();
           });
-
-      //initializes jQuery UI tooltip for Add All button
-      $("#isolateSelect").tooltip();
-      //initializes jQuery UI tooltip for checkbox
-      $("#exactIsolates_check").tooltip();
-      //initializes jQuery UI tooltip for checkbox
-      $("#randomIsolates_check").tooltip();
 
       //sets legend title
       var legendRouteTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendRouteTitle")
-          .attr("transform", "translate(65,130)")
+          .attr("transform", "translate(60,174)")
           .text("Trade Routes")
 
       //rect to hold styling
@@ -1227,46 +1065,29 @@ function createLegend() {
           .attr("id", "routeBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,117)")
+          .attr("transform", "translate(4,161)")
       //text of button
       var routeButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "routeButtonText")
-          .attr("transform", "translate(6,129)")
+          .attr("transform", "translate(6,173)")
           .text("Clear All")
       //clickable rect
       var routeSelectButton = legendSvg.append("rect")
           .attr("id", "routeSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,117)")
+          .attr("transform", "translate(4,161)")
           .on("click", function(){
               updateButton("route", routeObjArray);
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              buttonMouseover(this)
           })
           .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-
-              })
+              buttonMouseout(this);
           })
+
 
       //creates a group for each rectangle and offsets each by same amount
       var legendRoute = legendSvg.selectAll('.legendRoute')
@@ -1278,11 +1099,11 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 265;
+              var vert = i * height - offset + 235;
               return 'translate(' + horz + ',' + vert + ')';
         });
 
-      //creates rect elements for legened
+      // //creates rect elements for legened
       var legendRouteRect = legendRoute.append('rect')
           .attr("class", "legendRouteRect")
           .attr("id", function(d){ return "legend_" + d.value })
@@ -1302,25 +1123,22 @@ function createLegend() {
       var checkboxesRoute = legendRoute.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, -12)")
+          .attr("transform", "translate(-47, -11)")
         .append("xhtml:body")
           .html(function(d, i) {
               //create ID for checkboxes
               var routeID = routeObjArray[i].value + "_check";
               return "<form><input type=checkbox class='route_checkbox' id='" + routeID + "'</input></form>"
           })
-          .on("change", function(d){
-              //function updates "checked" property for every route
-              routeObjArray = setCheckedProp(routeObjArray, "route");
-              //updates visibility of route based on if it is checked or not
-              updateVisibility(routeObjArray);
+          .on("change", function(){
+              checkboxChange("route", "none")
           });
 
       //sets legend title
       var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendUNTitle")
-          .attr("transform", "translate(60,388)")
+          .attr("transform", "translate(60,288)")
           .text("UN Regions")
 
       //rect to hold styling
@@ -1328,46 +1146,134 @@ function createLegend() {
           .attr("id", "unBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,375)")
+          .attr("transform", "translate(4,275)")
       //text of button
       var unButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "unButtonText")
-          .attr("transform", "translate(9,387)")
+          .attr("transform", "translate(9,287)")
           .text("Add All")
       //clickable rect
       var unSelectButton = legendSvg.append("rect")
           .attr("id", "unSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,375)")
+          .attr("transform", "translate(4,275)")
+          .attr("title", 'Cannot display UN Regions while Lineage Frequency overlays are on the map.')
           .on("click", function(){
-              updateButton("un", unObjArray);
+              if (d3.select(".un_checkbox")[0][0].disabled == false){
+
+                  updateButton("un", unObjArray);
+                  //updates disabled property of trade hub checkbox appropriately
+                  setCheckbox();
+              }
           })
           .on("mouseover", function(){
-              //extract ID of rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                  "stroke": "#aaa",
-                  "stroke-width": "2px",
-              })
+              if (d3.select(".un_checkbox")[0][0].disabled == false){
+
+                //changes cursor because check boxes are disabled
+                d3.select(this).style("cursor", "pointer")
+
+                //remove tooltip instructing user they can't have lineage frequency and Un overlays on map at same time
+                $("#unSelect").tooltip("disable");
+
+                buttonMouseover(this);
+              } else {
+                  //changes cursor because check boxes are disabled
+                  d3.select(this).style("cursor", "not-allowed")
+
+                  //display tooltip instructing user they can't have lineage frequency and Un overlays on map at same time
+                  $("#unSelect").tooltip("enable");
+
+              }
           })
           .on("mouseout", function(){
-              //extract ID of whichever rectangle is clicked
-              var buttonID = this.id;
-              //changes click to back in ID string so we can change fill
-              var rectID = buttonID.replace("Select", "Back")
-              //change fill
-              d3.select("#" + rectID).style({
-                "fill": "#eee",
-                "stroke": "#ddd",
-                "stroke-width": "1px"
-
-              })
+              buttonMouseout(this);
           })
+
+      var AfrRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(24, 314)")
+          .text("Africa")
+
+      //checkboxes for UN Group
+      var checkboxAfrUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 299)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Africa");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
+          })
+
+      var AsiaRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(24, 438.5)")
+          .text("Asia")
+
+      //checkboxes for UN Group
+      var checkboxAsiaUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 423.5)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Asia");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
+          });
+
+      var EurRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(24, 563)")
+          .text("Europe")
+
+      //checkboxes for UN Group
+      var checkboxEurUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 548)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Europe");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
+          });
+
+      var OceaniaRegionTitle = legendSvg.append("text")
+          .attr("class", "unRegionTitle")
+          .attr("transform", "translate(24, 666.75)")
+          .text("Oceania")
+
+      //checkboxes for UN Group
+      var checkboxOceaniaUn = legendSvg.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-7, 651.75)")
+        .append("xhtml:body")
+          .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
+          .on("change", function(){
+              unGroupCheckboxChange("Oceania");
+              //updates disabled property of trade hub checkbox appropriately
+              setCheckbox();
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un");
+          });
 
       //creates a group for each rectangle and offsets each by same amount
       var legendUN = legendSvg.selectAll('.legendUN')
@@ -1376,11 +1282,26 @@ function createLegend() {
         .append("g")
           .attr("class", "legendUN")
           .attr("transform", function(d, i) {
+
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 235;
+
+              //conditionals to leave a space after each Continent
+              if (d.group == "Africa"){
+                  var vert = i * height - offset + 82.75;
+
+              } else if (d.group == "Asia") {
+                  var vert = (i+1) * height - offset + 82.75;
+              } else if (d.group == "Europe") {
+                  var vert = (i+2) * height - offset + 82.75;
+              } else if (d.group == "Oceania") {
+                  var vert = (i+3) * height - offset + 82.75;
+              }
+
               return 'translate(' + horz + ',' + vert + ')';
+
+
         });
 
       //creates rect elements for legened
@@ -1397,139 +1318,441 @@ function createLegend() {
           .attr("transform", "translate(5, 288.5)")
           .text(function(d) { return d.text });
 
-      //checkboxes for each route
+      //checkboxes for each UN Region
       var checkboxesUN = legendUN.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
           .attr("transform", "translate(-47, 274)")
         .append("xhtml:body")
-          .html(function(d, i) {
+          .html(function(d) {
               //create ID for checkboxes
-              var unID = unObjArray[i].value + "_check";
-              return "<form><input type=checkbox class='un_checkbox' id='" + unID + "'</input></form>"
+              var unID = d.value + "_check";
+              var unGroup = d.group + "_check"
+              return "<form><input type=checkbox class='un_checkbox " + unGroup + "' id='" + unID + "' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>"
           })
           .on("change", function(d){
-
-              //select both checkboxes
-              var checked = d3.selectAll(".un_checkbox")[0];
-
-              for (i=0; i<checked.length; i++) {
-                  if (checked[i].checked === true) { //un checkbox checked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-
-                    //update visibility of selected un region
-                    d3.select("#" + getClass)
-                        .attr("visibility", "visibile")
-
-                  } else { //if unchecked in legend
-                      //gets ID, which contains element to update
-                      var getID = checked[i].id;
-                      //trim "_check" from end of ID string
-                      var getClass = getID.slice(0, -6);
-                      //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-                      d3.select("#" + getClass)
-                          .attr("visibility", "hidden")
-                  }
-              }
-              //
-              // //function updates "checked" property for every route
-              // unObjArray = setCheckedProp(unObjArray, "un");
-              // //updates visibility of route based on if it is checked or not
-              // updateVisibility(unObjArray);
-          });
-
-
-      //sets legend title
-      var legendHubTitle = legendSvg.append("text")
-          .attr("class", "legendSubHead")
-          .attr("id", "legendHubTitle")
-          .attr("transform", "translate(60,745)")
-          .text("Trade Cities")
-
-      //creates rect elements for legened
-      var legendHubCircle = legendSvg.append('circle')
-          .attr("class", "tradeHubs")
-          .attr("cx", "29")
-          .attr("cy", "760")
-          .attr("r", "5")
-
-      //adds text to legend
-      var legendHubText = legendSvg.append('text')
-          .attr("class", "legendText")
-          .attr("transform", "translate(44,763)")
-          .text("Major Trade City");
-
-      //checkboxes for each route
-      var checkboxesHub = legendSvg.append("foreignObject")
-          .attr('width', "20px")
-          .attr('height', "20px")
-          .attr("transform", "translate(-7, 749)")
-        .append("xhtml:body")
-          .html("<form><input type=checkbox class='hub_checkbox' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
-          .on("mouseover", function(){
-              //checks if trade hub checkbox is disabled
-              if (d3.select(".hub_checkbox")[0][0].disabled == true){
-                  //make the cursor a not allowed symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "not-allowed")
-
-                  //enable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("enable");
-              } else { //if checkbox is enabled
-                  //make cursor the pointer symbol
-                  d3.select(".hub_checkbox")
-                      .style("cursor", "pointer")
-
-                  //disable jQuery UI Tooltip for the trade hub checkbox
-                  $(".hub_checkbox").tooltip("disable");
-              }
-          })
-          .on("change", function(d){
-
-              //select both checkboxes
-              var checked = d3.selectAll(".hub_checkbox")[0];
-
-              if (checked[0].checked === true) { //un checkbox checked in legend
-
-                  //update visibility of tradehubs
-                  d3.select(".tradeHubs")
-                      .attr("visibility", "visibile")
-
-              } else { //if unchecked in legend
-
-                //update visibility of tradehubs
-                  d3.select(".tradeHubs")
-                      .attr("visibility", "hidden")
-              }
-              //updates disabled property of isolate checkboxes appropriately
+              checkboxChange("un", d.group)
+              //updates disabled property of trade hub checkbox appropriately
               setCheckbox();
+          })
+          .on("mouseover", function(){
+              checkboxMouseover("un")
           });
 
-        //initializes jQuery UI tooltip for checkbox
-        $(".hub_checkbox").tooltip();
-        //disables tooltip because the checkbox is checked and we only need message when it is not
-        $(".hub_checkbox").tooltip("disable");
+      //function that sets default state of legend
+      initializeLegend();
+};
 
-      //checks all routes by default
-      for (i=0; i<routeObjArray.length; i++) {
-          var route = routeObjArray[i].value;
-          d3.select("#" + route + "_check")[0][0].checked = true;
-      }
+// calls code that sets default state of legend; keeping it separate from code for structure of legend
+function initializeLegend() {
+    //initializes jQuery UI tooltip for Add All button
+    $("#isolateSelect").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $("#exactIsolates_check").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $("#randomIsolates_check").tooltip();
+    //initializes jQuery UI tooltip for checkbox
+    $(".hub_checkbox").tooltip();
+    //disables tooltip because the checkbox is checked and we only need message when it is not
+    $(".hub_checkbox").tooltip("disable");
+    //initializes jQuery UI tooltip for checkbox
+    $(".un_checkbox").tooltip();
+    //disables tooltip because the checkbox is checked and we only need message when it is not
+    $(".un_checkbox").tooltip("disable");
+    //initializes jQuery UI tooltip for Add All button
+    $("#unSelect").tooltip();
+    //disables jQuery UI tooltip for Add All button
+    $("#unSelect").tooltip("disable");
 
-      //checks all isolates by default
-      for (i=0; i<isolateLegendArray.length; i++) {
-          var isolate = isolateLegendArray[i].value;
-          d3.select("#" + isolate + "_check")[0][0].disabled = true;
-      }
 
-      //checks trade hubs by default
-      d3.select(".hub_checkbox")[0][0].checked = true;
+    //checks all routes by default
+    for (i=0; i<routeObjArray.length; i++) {
+        var route = routeObjArray[i].value;
+        d3.select("#" + route + "_check")[0][0].checked = true;
+    }
+
+    //checks all isolates by default
+    for (i=0; i<isolateLegendArray.length; i++) {
+        var isolate = isolateLegendArray[i].value;
+        d3.select("#" + isolate + "_check")[0][0].disabled = true;
+    }
+
+    //checks trade hubs by default
+    d3.select(".hub_checkbox")[0][0].checked = true;
+
+}
+
+//function to update checkboxes of UN Group as well as depict UN Regions on map
+function unGroupCheckboxChange(unGroup){
+    //selects current checkbox and stores whether or not it is checked
+    var checked = d3.select("#" + unGroup + "_check")[0][0].checked
+
+    if (checked == true){  //if unchecking UN Group checkbox...
+        var checkboxes = d3.selectAll("." + unGroup + "_check")
+        //updates checkboxes
+        checkboxes.forEach(function(d, i){
+            // loop through each checkbox element in array
+            for (j=0; j<checkboxes[0].length; j++) {
+
+                // checks each checkbox
+                d[j].checked = true
+            }
+        })
+        //updates visibility of all UN Regions in Africa UN Group
+        d3.selectAll("." + unGroup).attr("visibility", "visible");
+
+    } else if (checked == false){ //if unchecking UN Group checkbox...
+        var checkboxes = d3.selectAll("." + unGroup + "_check")
+        //updates checkboxes
+        checkboxes.forEach(function(d, i){
+        // loop through each checkbox element in array
+            for (j=0; j<checkboxes[0].length; j++) {
+
+                // unchecks each checkbox
+                d[j].checked = false
+            };
+        });
+        //updates visibility of all UN Regions in Africa UN Group
+        d3.selectAll("." + unGroup).attr("visibility", "hidden");
+    };
+
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+    var regionChecked = d3.selectAll(".un_checkbox")[0];
+
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<regionChecked.length; j++){
+        if (regionChecked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (regionChecked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons("un", itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons("un", itemCount);
+    }
 
 };
 
+function checkboxChange(item, unGroup){
+    //select all checkboxes
+    var checked = d3.selectAll("." + item + "_checkbox")[0];
+
+    for (i=0; i<checked.length; i++) {
+        if (checked[i].checked === true) { //un checkbox checked in legend
+          // console.log(checked[i]);
+          //gets ID, which contains element to update
+          var getID = checked[i].id;
+          // console.log(checked[i]);
+          //trim "_check" from end of ID string
+          var getClass = getID.slice(0, -6);
+          // console.log(getClass);
+          //update visibility of selected un region
+          d3.selectAll("#" + getClass)
+              .attr("visibility", "visibile")
+
+        } else { //if unchecked in legend
+            //gets ID, which contains element to update
+            var getID = checked[i].id;
+            //trim "_check" from end of ID string
+            var getClass = getID.slice(0, -6);
+            //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+            d3.selectAll("#" + getClass)
+                .attr("visibility", "hidden")
+        }
+    }
+
+    //conditional only for UN Regions -- if all UN Regions in a group are selected, select that group's checkbox
+    if (unGroup != "none") {
+        //select all Africa checkboxes
+        var groupCheckboxes = d3.selectAll("." + unGroup + "_check")[0];
+        //counter variable to determine when to check/uncheck UN Group checkbox
+        var checkCount = 0;
+
+        if (unGroup == "Europe"){ // for Europe, bump checkcount start to 1 because it only has 4 regions
+            checkCount = 1;
+        } else if(unGroup == "Oceania"){ // for Oceania, bump checkcount start to 3 because it only has 2 regions
+            checkCount = 3;
+        }
+
+        // loops through all checkboxes of this UN Group
+        for (j=0; j<groupCheckboxes.length; j++){
+            if (groupCheckboxes[j].checked == true){ //if checkbox is checked, add one to counter
+                checkCount += 1
+            }
+            if (checkCount == 5) { //if counter variable reaches threshold, check UN Group checkbox
+                //check the checkbox
+                d3.select("#" + unGroup + "_check")[0][0].checked = true;
+            } else {
+                //uncheck the checkbox
+                d3.select("#" + unGroup + "_check")[0][0].checked = false;
+
+            }
+        }
+    }
+
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+    //prevent checkButtons function from being called on trade cities because it has no Add/Clear All button
+    if (item == "hub") {
+        itemCount -= 1;
+    }
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<checked.length; j++){
+        if (checked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (checked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons(item, itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons(item, itemCount);
+    }
+
+}
+
+function hubMouseover() {
+    //checks if trade hub checkbox is disabled
+    if (d3.select(".hub_checkbox")[0][0].disabled == true){
+        //make the cursor a not allowed symbol
+        d3.select(".hub_checkbox")
+            .style("cursor", "not-allowed")
+
+        //enable jQuery UI Tooltip for the trade hub checkbox
+        $(".hub_checkbox").tooltip("enable");
+    } else { //if checkbox is enabled
+        //make cursor the pointer symbol
+        d3.select(".hub_checkbox")
+            .style("cursor", "pointer")
+
+        //disable jQuery UI Tooltip for the trade hub checkbox
+        $(".hub_checkbox").tooltip("disable");
+    }
+}
+
+
+function checkButtons(item, itemCount){
+    if (item == "route") {
+        //y coordinate for transform, translate
+        vert = 173;
+    } else if (item == "un") {
+        //y coordinate for transform, translate
+        vert = 287;
+    } else if (item == "isolate") {
+        //y coordinate for transform, translate
+        vert = 59;
+    }
+
+    if (itemCount > 0){
+        //retrieves button text to determin action
+        var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+        if (buttonText == "Add All"){//removes all items based on which button is clicked
+            //for button text placement
+            horz = 6;
+
+            //change button text
+            d3.select("#" + item + "ButtonText").text("Clear All")
+                .attr("transform", "translate("+ horz + "," + vert + ")")
+        }
+    } else if (itemCount == 0) {
+        //retrieves button text to determin action
+        var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
+
+        if (buttonText == "Clear All"){//removes all items based on which button is clicked
+            //for button text placement
+            horz = 9;
+
+            //change button text
+            d3.select("#" + item + "ButtonText").text("Add All")
+                .attr("transform", "translate("+ horz + "," + vert + ")")
+        }
+    }
+}
+
+//holds event function for mouseout of all/clear all buttons
+function buttonMouseout(button) {
+    //extract ID of whichever rectangle is clicked
+    var buttonID = button.id;
+    //changes click to back in ID string so we can change fill
+    var rectID = buttonID.replace("Select", "Back")
+    //change fill
+    d3.select("#" + rectID).style({
+      "fill": "#eee",
+      "stroke": "#ddd",
+      "stroke-width": "1px"
+    })
+}
+
+//holds event function for mouseover of add all/clear all button
+function buttonMouseover(button) {
+    //extract ID of rectangle is clicked
+    var buttonID = button.id;
+    //changes click to back in ID string so we can change fill
+    var rectID = buttonID.replace("Select", "Back")
+    //change fill
+    d3.select("#" + rectID).style({
+        "stroke": "#aaa",
+        "stroke-width": "2px",
+    })
+}
+
+//function to hold event listener for mouseover of Add/Clear ALl button for isolates in legend
+function isoButtonMouseover(){
+    if (d3.select(".isolate_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
+
+        //display tooltip instructing user they can't have isolates and trade cities on map at same time
+        $("#isolateSelect").tooltip("disable");
+
+        //call mouseover event listener
+        buttonMouseover(this);
+
+    } else { //if isolate checkboxes are disabled (i.e., cities showing on the map
+        //update cursor
+        d3.select("#isolateSelect")
+            .style("cursor", "not-allowed")
+
+        //display tooltip instructing user they can't have isolates and trade cities on map at same time
+        $("#isolateSelect").tooltip("enable");
+    }
+}
+
+//function holding event listener for mouseover of isolate checkboxes in legend
+function checkboxMouseover(item){
+
+    //select both all checkboxes for item
+    var checkbox = d3.selectAll("." + item + "_checkbox")[0][0]
+    if (checkbox.disabled == false){ //if the isolate checkboxes are NOT disabled (i.e., trade cities are not on map)
+        //changes cursor to pointer when checkboxes can be clicked
+        d3.selectAll("." + item + "_checkbox")
+            .style("cursor", "pointer")
+
+        if (item == "isolate"){
+            //retrieve innerHTML of the checkbox as a string to search
+            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+
+            //search string for substring to determine which checkbox is selected
+            var isExact = checkboxHTML.indexOf("exact")
+
+            if (isExact == -1) { //randomIsolates checkbox selected
+                //disables jQuery UI tooltip for checkbox
+                $("#randomIsolates_check").tooltip("disable");
+            } else if (isExact > -1) { //exactIsolates checkbox selected
+                //disables jQuery UI tooltip for checkbox
+                $("#exactIsolates_check").tooltip("disable");
+            }
+        } else {
+            //disables jQuery UI tooltip for checkbox
+            $(".un_checkbox").tooltip("disable");
+
+        }
+    } else { //if the isolate checkboxes are disabled (i.e., trade cities are on map)
+        d3.selectAll("." + item + "_checkbox")
+            .style("cursor", "not-allowed")
+        if (item == "isolate"){
+            //retrieve innerHTML of the checkbox as a string to search
+            var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+
+            //search string for substring to determine which checkbox is selected
+            var isExact = checkboxHTML.indexOf("exact")
+
+            if (isExact == -1) { //randomIsolates checkbox selected
+                //enables jQuery UI tooltip for checkbox
+                $("#randomIsolates_check").tooltip("enable");
+            } else if (isExact > -1) { //exactIsolates checkbox selected
+                //enables jQuery UI tooltip for checkbox
+                $("#exactIsolates_check").tooltip("enable");
+            }
+        } else {
+            //enables jQuery UI tooltip for checkbox
+            $(".un_checkbox").tooltip("enable");
+        }
+    }
+}
+
+function isoCheckboxChange(){
+    //select both checkboxes
+    var checked = d3.selectAll(".isolate_checkbox")[0];
+
+    for (i=0; i<checked.length; i++) {
+        if (checked[i].checked === true) { //isolate checkbox checked in legend
+          //gets ID, which contains element to update
+          var getID = checked[i].id;
+          //trim "_check" from end of ID string
+          var getClass = getID.slice(0, -6);
+
+          //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+          d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
+              .attr("visibility", "visibile")
+              .attr("class", function(d){
+                  //retrieve lineage of current isolate for class
+                  var lineage = d.properties.lineage_of
+                  //update class from unchecked to checked
+                  return "lin_" + lineage + " notFiltered checked"
+              })
+
+          //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+          d3.select("." + getClass).selectAll("rect").filter(".filtered")
+              .attr("class", function(d){
+                  //retrieve lineage of current isolate for class
+                  var lineage = d.properties.lineage_of
+                  //update class from unchecked to checked
+                  return "lin_" + lineage + " filtered checked"
+              })
+
+        } else { //if unchecked in legend
+            //gets ID, which contains element to update
+            var getID = checked[i].id;
+            //trim "_check" from end of ID string
+            var getClass = getID.slice(0, -6);
+            //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+            d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
+                .attr("visibility", "hidden")
+                .attr("class", function(d){
+                    //retrieve lineage of current isolate for class
+                    var lineage = d.properties.lineage_of
+                    //update class from unchecked to checked
+                    return "lin_" + lineage + " notFiltered unchecked"
+                })
+            //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+            d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
+                .attr("class", function(d){
+                    //retrieve lineage of current isolate for class
+                    var lineage = d.properties.lineage_of
+                    //update class from unchecked to checked
+                    return "lin_" + lineage + " filtered unchecked"
+                })
+        }
+    }
+    //counter variable to determine if Add/Clear All button texts need to be updated
+    var itemCount = 0;
+
+    //loops through all checkboxes of certain type and counts how many are checked
+    for (j=0; j<checked.length; j++){
+        if (checked[j].checked == true){ //if checkbox is checked, add one to counter
+            itemCount += 1
+        }
+    }
+    //if all of the checkboxes of a certain item are checked, call checkButtons function
+    if (checked.length == itemCount){
+        //updates text of button if necessary
+        checkButtons("isolate", itemCount);
+    } else if (itemCount == 0) {//if none of the checkboxes of a certain item are checked, call checkButtons function
+        //updates text of button if necessary
+        checkButtons("isolate", itemCount);
+    }
+
+    //updates disabled property of trade hub checkbox appropriately
+    setCheckbox();
+}
 //update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
 function setCheckbox(){
     //selects trade hub checkbox
@@ -1541,6 +1764,9 @@ function setCheckbox(){
     //selects random isolates checkbox
     var randomCheck = d3.select("#randomIsolates_check")[0][0]
 
+    //selects un checkboxes
+    var unCheck = d3.selectAll(".un_checkbox")[0]
+
     //retrieves whether trade hub checkbox is checked or not (stored as true/false)
     var checkedHub = hubCheck.checked
 
@@ -1549,6 +1775,16 @@ function setCheckbox(){
 
     //retrieves whether random isolates is checked or not (stored as true/false)
     var checkedRandom = randomCheck.checked
+
+    //creates variable with default of false because following statement changes to true if any checkbox is checked
+    var checkedUn = false;
+
+    //retrieves whether any UN checkbox is checked or not (stored as true/false)
+    unCheck.forEach(function(d){
+        if (d.checked == true) {
+            checkedUn = true
+        }
+    })
 
     if (checkedHub == true) { //if trade hubs checkbox is checked...
         //set both isolate checkboxes to be disabled
@@ -1578,6 +1814,13 @@ function setCheckbox(){
 
     }
 
+    if (checkedUn == true) {
+        //disables lineage frequency overlays if any un checkbox is checked
+        $("#linSelect").selectmenu("disable")
+    } else {
+        //enables lineage frequency overlays if any un checkbox is checked
+        $("#linSelect").selectmenu("enable")
+    }
 }
 
 //updates button text in legend
@@ -1593,9 +1836,9 @@ function updateButton(item, array){
 
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
-            vert += 70;
+            vert += 114;
         } else if (item === "un") {
-            vert += 328;
+            vert += 228;
         }
 
         //change button text and text position
@@ -1607,7 +1850,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = false
               }
@@ -1643,26 +1886,9 @@ function updateButton(item, array){
                         })
                 };
             };
-        } else if (item === "route") {
-          //updates checked property of each object
-          routeObjArray = setCheckedProp(array, item);
-          //updates visibility based on array
-          updateVisibility(routeObjArray)
-        } else if (item === "un") {
-            //select both checkboxes
-            var checked = d3.selectAll(".un_checkbox")[0];
-
-            for (i=0; i<checked.length; i++) {
-                if (checked[i].checked === false) { //if unchecked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-                    //update ID and visibility for UN regions
-                    d3.select("#" + getClass)
-                        .attr("visibility", "hidden")
-                }
-            }
+        } else if (item === "route" || item === "un") {
+            //updates visibility of item appropriately
+            checkboxChange(item, "none")
         }
     }
 
@@ -1673,9 +1899,9 @@ function updateButton(item, array){
 
         if (item === "route") {
             //moves label to appropriate place
-            vert += 70;
+            vert += 114;
         } else if (item === "un") {
-            vert += 328;
+            vert += 228;
         }
 
         //change button text
@@ -1686,7 +1912,7 @@ function updateButton(item, array){
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
-              for (j=0; j<length; j++) {
+              for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
                   d[j].checked = true
               }
@@ -1722,26 +1948,9 @@ function updateButton(item, array){
                         })
                 }
             };
-        } else if (item === "route") {
-            //updates checked property of each object
-            routeObjArray = setCheckedProp(array, item);
-            //updates visibility based on array
-            updateVisibility(routeObjArray)
-        } else if (item === "un") {
-            //select both checkboxes
-            var checked = d3.selectAll(".un_checkbox")[0];
-
-            for (i=0; i<checked.length; i++) {
-                if (checked[i].checked === true) { //if checked in legend
-                    //gets ID, which contains element to update
-                    var getID = checked[i].id;
-                    //trim "_check" from end of ID string
-                    var getClass = getID.slice(0, -6);
-                    //update ID and visibility for UN regions
-                    d3.select("#" + getClass)
-                        .attr("visibility", "visible")
-                }
-            }
+        } else if (item === "route" || item === "un") {
+            //updates visibility of item appropriately
+            checkboxChange(item);
         }
     };
 };
