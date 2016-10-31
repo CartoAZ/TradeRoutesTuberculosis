@@ -1,317 +1,297 @@
-// (function(){
+//execute script when window is loaded
+window.onload = setMap();
+//array to use for routes in Legend
+var routeObjArray = [
+    {
+      text: 'Land - Major',
+      value: 'majorLand'
+    },
+    {
+      text: 'Land - Minor',
+      value: 'minorLand'
+    },
+    {
+      text: 'Sea - Major',
+      value: 'majorSea'
+    },
+    {
+      text: 'Sea - Minor',
+      value: 'minorSea'
+    }
+];
+//empty array to hold UN info for legend
+var unObjArray = [];
+//array to use for isolates in legend
+var isolateLegendArray = [
+    {
+      text: "Exact Location Known",
+      value: "exactIsolates",
+      fill: "#333"
+    },
+    {
+      text: "Only Country of Origin Known",
+      value: "randomIsolates",
+      fill: "#aaa"
+    }
+];
+// //empty array to hold all isolate names
+// var isolateNameArray = [];
 
-    //execute script when window is loaded
-    window.onload = setMap();
-    var routeObjArray = [
-        {
-          text: 'Land - Major',
-          value: 'majorLand',
-          checked: 1
-        },
-        {
-          text: 'Land - Minor',
-          value: 'minorLand',
-          checked: 1
-        },
-        {
-          text: 'Sea - Major',
-          value: 'majorSea',
-          checked: 1
-        },
-        {
-          text: 'Sea - Minor',
-          value: 'minorSea',
-          checked: 1
-        }
-    ]
-    //empty array to hold UN info for legend
-    var unObjArray = [];
+//empty array to bind to select element
+var isolateObjArray = [];
+//for loop to populate isolateObjArray
+for (i=1; i<8; i++) {
+    // set variables to be added as values in object
+    var linText = "Lineage " + i,
+        linValue = "lin_" + i;
+    //create object for each of 7 lineages
+    var linObj = {
+                    text: linText,
+                    value: linValue,
+                  }
+    //push object to array
+    isolateObjArray.push(linObj)
+};
 
-    var isolateLegendArray = [
-        {
-          text: "Exact Location Known",
-          value: "exactIsolates",
-          fill: "#333"
-        },
-        {
-          text: "Only Country of Origin Known",
-          value: "randomIsolates",
-          fill: "#aaa"
-        }
-    ];
-    // //empty array to hold all isolate names
-    // var isolateNameArray = [];
+var menubar = d3.select("body").append("div")
+    .attr("id", "menubar");
 
-    //empty array to bind to select element
-    var isolateObjArray = [];
-    //for loop to populate isolateObjArray
-    for (i=1; i<8; i++) {
-        // set variables to be added as values in object
-        var linText = "Lineage " + i,
-            linValue = "lin_" + i;
-        //create object for each of 7 lineages
-        var linObj = {
-                        text: linText,
-                        value: linValue,
-                      }
-        //push object to array
-        isolateObjArray.push(linObj)
-    };
+function setMap(){
 
-    var menubar = d3.select("body").append("div")
-        .attr("id", "menubar")
+    //set variable to access queue.js to parallelize asynchronous data loading
+    var q = d3_queue.queue();
 
-    function setMap(){
+    //retrieve data
+    q
+        .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
+        .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
+        .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
+        .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
+        .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
+        .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
+        .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
+        .await(callback);
 
-        //set variable to access queue.js to parallelize asynchronous data loading
-        var q = d3_queue.queue();
+    function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
-        q
-            .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
-            .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
-            .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
-            .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
-            .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
-            .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-            .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
-            .await(callback);
+        //converts topologies to arrays of features
+        var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
+            UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
+            tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
+            exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
+            randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features,
+            tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
+            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features;
 
-        function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
+        //set default height and width of map
+        var mapWidth = window.innerWidth * 0.75,
+      		  mapHeight = 500;
 
-            //place graticule on the map
-        		// setGraticule(map, path);
-            //translate countries topojson with zoom
-            var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
-                UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features;
+        //set projection of map
+        var projection = d3.geo.mercator()
+            .center([95, 23])
+            .scale(210);
 
-            var tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features
+        // Create a path generator
+        var path = d3.geo.path()
+            .projection(projection)
+            .pointRadius(2);
 
-            var exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features
+        //create new svg container for the map
+        var map = d3.select("body").append("svg")
+            .attr("class", "map")
+            .attr("width", mapWidth)
+            .attr("height", mapHeight);
 
-            var randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features
+        //create group element to hold everything on map for zooming/panning purposes
+        var g = map.append("g");
 
-            //convert topojsons into geojson objects; coastLine is an array full of objects
-            var tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features;
+        //add countries to map
+    		var countries = g.selectAll(".countries")
+    			 .data(countryJson)
+           .enter()
+         .append("path")
+            .attr("class", "countries")
+            .attr("d", path);
 
-            var linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features
+        //add second set of countries for lineage frequencies to map
+        var lineageFrequencies = g.selectAll(".lineageFrequencies")
+           .data(linFreqJson)
+           .enter()
+         .append("path")
+            .attr("class", "lineageFrequencies")
+            .attr("id", function(d){
+                return d.properties.shortName
+            })
+            .style({"fill": "none", "stroke": "none"})
+            .attr("d", path)
+            .on("mouseover", function(d){
+                highlightCountry(d.properties);
+            })
+            .on("mouseout", function(d){
+                dehighlightCountry(d.properties);
+            })
+            .on("mousemove", function(d){
+                moveLabel(d.properties)
+            });
 
-            //set default height and width of map
-            var mapWidth = window.innerWidth * 0.75,
-          		  mapHeight = 500;
-
-            //set projection of map
-            var projection = d3.geo.mercator()
-                .center([95, 23])
-                .scale(210)
-
-            // Create a path generator
-            var path = d3.geo.path()
-                .projection(projection)
-                .pointRadius(2);
-            //create new svg container for the map
-            var map = d3.select("body").append("svg")
-                .attr("class", "map")
-                .attr("width", mapWidth)
-                .attr("height", mapHeight)
-
-            //create group element to hold everything on map for zooming/panning purposes
-            var g = map.append("g");
-
-            var colorScale = makeColorScale();
-
-            //add countries to map
-        		var countries = g.selectAll(".countries")
-        			 .data(countryJson)
-               .enter()
-             .append("path")
-                .attr("class", "countries")
-                // .attr("id", function(d){
-                //     return d.properties.Country
-                // })
-                .attr("d", path)
-
-            //add second set of countries for lineage frequencies to map
-            var lineageFrequencies = g.selectAll(".lineageFrequencies")
-               .data(linFreqJson)
-               .enter()
-             .append("path")
-                .attr("class", "lineageFrequencies")
-                .attr("id", function(d){
-
-                    return d.properties.shortName
-                })
-                .style({"fill": "none", "stroke": "none"})
-                .attr("d", path)
-                .on("mouseover", function(d){
-                    highlightCountry(d.properties);
-                })
-                .on("mouseout", function(d){
-                    dehighlightCountry(d.properties);
-                })
-                // .on("mousemove",  moveLabel);
-                .on("mousemove", function(d){
-                    moveLabel(d.properties)
-                });
-
-            //add UN regions to map
-            var un_regions = g.selectAll(".un_regions")
-               .data(UNRegionsJson)
-               .enter()
-             .append("path")
-                .attr("class", function(d){
-                      return "un_regions " + d.properties.UN_Group
-                })
-                .attr("id", function(d){
-                    //place region name into variable
-                    var region = d.properties.UN_Region
-                    //remove all spaces
-                    region = region.replace(/\s+/g, '')
-
-                    return region
-                })
-                .attr("d", path)
-                .attr("visibility", "hidden")
-
-            //draw trade routes
-            var tradeRoutes = g.append("g")
-                .attr("class", "tradeRoutes")
-              .selectAll("path")
-                .data(tradeRouteJson)
-                .enter()
-              .append("path")
-                .attr("d", path)
-                .attr("id", function(d){
-                  return d.properties.routeName
-                })
-
-            var tradeHubs = g.append("g")
-                .attr("class", "tradeHubs")
-                .selectAll("circle")
-              .data(tradeHubJson)
-                .enter()
-              .append("circle")
-                .attr("id", "tradeHubs")
-                .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
-                .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("r", 4)
-
-
-            //add exact isolates to map
-            var exactIsolates = g.append("g")
-                .attr("class", "exactIsolates")
-                .selectAll("rect")
-              .data(exactJson)
-                .enter()
-              .append("rect")
-                .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
-                .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 5)
-                .attr("height", 5)
-                .attr("class", function(d){
-                    var lineage = d.properties.lineage_of;
-
-                    return "lin_" + lineage + " notFiltered unchecked";
-                })
-                .attr("id", function(d){
-                    return d.properties.SampleName;
-                })
-                .attr("visibility", "hidden")
-
-            //add random isolates to map
-            var randomIsolates = g.append("g")
-                .attr("class", "randomIsolates")
-                .selectAll("path")
-              .data(randomJson)
-                .enter()
-              .append("rect")
-                .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
-                .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
-                .attr("width", 5)
-                .attr("height", 5)
-                .attr("class", function(d){
-                    var lineage = d.properties.lineage_of;
-
-                    return "lin_" + lineage + " notFiltered unchecked";
-                })
-                .attr("id", function(d){
-                    return d.properties.SampleName;
-                })
-                .attr("visibility", "hidden")
-
-
-            // //push isolate names into array for use with search widget
-            // exactJson.map(function(d){
-            //     isolateNameArray.push(d.properties.SampleName)
-            // })
-            //
-            // //push isolate names into array for use with search widget
-            // randomJson.map(function(d){
-            //     isolateNameArray.push(d.properties.SampleName)
-            // })
-
-            // createSearch();
-            //function to create a dropdown menu to add/remove isolates by lineage
-            createIsoLineageMenu();
-
-            //function to create a dropdown menu to add/remove lineage frequencies
-            createLinFreqMenu();
-
-            UNRegionsJson.map(function(d, i){
-                var un_region = new Object();
-
+        //add UN regions to map
+        var un_regions = g.selectAll(".un_regions")
+           .data(UNRegionsJson)
+           .enter()
+         .append("path")
+            .attr("class", function(d){
+                  return "un_regions " + d.properties.UN_Group
+            })
+            .attr("id", function(d){
+                //place region name into variable
                 var region = d.properties.UN_Region
+                //remove all spaces
+                region = region.replace(/\s+/g, '')
 
-                un_region.text = region
-
-                var regionValue = region.replace(/\s+/g, '')
-                //add region into obj array as a value
-                un_region.value = regionValue
-
-                // pull color from stroke of route
-                var unColor = d3.select("#" + regionValue).style("fill")
-                // create new property in unObjArray for the color; easier to build legend using one array
-                un_region.color = unColor
-
-                un_region.group = d.properties.UN_Group
-
-                unObjArray.push(un_region)
-
-                // console.log(d.properties);
-                // console.log(i);
-
+                return region
             })
+            .attr("d", path)
+            .attr("visibility", "hidden");
 
-            unObjArray.sort(function(a,b){
-                if (a.group < b.group)
-                  return -1;
-                if (a.group > b.group)
-                  return 1;
-                return 0;
+        //draw trade routes
+        var tradeRoutes = g.append("g")
+            .attr("class", "tradeRoutes")
+          .selectAll("path")
+            .data(tradeRouteJson)
+            .enter()
+          .append("path")
+            .attr("d", path)
+            .attr("id", function(d){
+              return d.properties.routeName
+            });
+
+        //draw trade hubs
+        var tradeHubs = g.append("g")
+            .attr("class", "tradeHubs")
+            .selectAll("circle")
+          .data(tradeHubJson)
+            .enter()
+          .append("circle")
+            .attr("id", "tradeHubs")
+            .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
+            .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
+            .attr("r", 4);
+
+
+        //add exact isolates to map; hidden by default
+        var exactIsolates = g.append("g")
+            .attr("class", "exactIsolates")
+            .selectAll("rect")
+          .data(exactJson)
+            .enter()
+          .append("rect")
+            .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
+            .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
+            .attr("width", 5)
+            .attr("height", 5)
+            .attr("class", function(d){
+                var lineage = d.properties.lineage_of;
+
+                return "lin_" + lineage + " notFiltered unchecked";
             })
+            .attr("id", function(d){
+                return d.properties.SampleName;
+            })
+            .attr("visibility", "hidden");
 
-            createLegend();
+        //add random isolates to map; hidden by default
+        var randomIsolates = g.append("g")
+            .attr("class", "randomIsolates")
+            .selectAll("path")
+          .data(randomJson)
+            .enter()
+          .append("rect")
+            .attr("x", function(d){return projection(d.geometry.coordinates)[0]})
+            .attr("y", function(d){return projection(d.geometry.coordinates)[1]})
+            .attr("width", 5)
+            .attr("height", 5)
+            .attr("class", function(d){
+                var lineage = d.properties.lineage_of;
 
-            // zoom and pan
-            var zoom = d3.behavior.zoom()
-                .on("zoom",function() {
-                    g.attr("transform","translate("+
-                        d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                    g.selectAll("circle")
-                        .attr("d", path.projection(projection))
-                    g.selectAll("rect")
-                        .attr("d", path.projection(projection))
-                    g.selectAll("path")
-                        .attr("d", path.projection(projection));
+                return "lin_" + lineage + " notFiltered unchecked";
+            })
+            .attr("id", function(d){
+                return d.properties.SampleName;
+            })
+            .attr("visibility", "hidden");
 
-              });
 
-            map.call(zoom)
+        // //push isolate names into array for use with search widget
+        // exactJson.map(function(d){
+        //     isolateNameArray.push(d.properties.SampleName)
+        // })
+        //
+        // //push isolate names into array for use with search widget
+        // randomJson.map(function(d){
+        //     isolateNameArray.push(d.properties.SampleName)
+        // })
 
-            // //add enumeration units to the map
-            // setEnumerationUnits(whoRegionsJson, map, path);
-        };
+        // createSearch();
+        //function to create a dropdown menu to add/remove isolates by lineage
+        createIsoLineageMenu();
 
+        //function to create a dropdown menu to add/remove lineage frequencies
+        createLinFreqMenu();
+
+        //populate unObjArray with an object for each UN Region
+        UNRegionsJson.map(function(d, i){
+            //object generator
+            var un_region = new Object();
+            //retrieves fregion from JSON
+            var region = d.properties.UN_Region
+            // add region to object as "text"
+            un_region.text = region
+            //remove all whitespace from region
+            var regionValue = region.replace(/\s+/g, '')
+            //add region into obj as value
+            un_region.value = regionValue
+            // pull fill from UN Region on map
+            var unColor = d3.select("#" + regionValue).style("fill")
+            // create new property in unObjArray for the color; easier to build legend using one array
+            un_region.color = unColor
+            //add UN group from JSON to obj as "group"
+            un_region.group = d.properties.UN_Group
+            //push newly created object into array
+            unObjArray.push(un_region)
+        });
+
+        //sort the array alphabetically by group (i.e., sort the objects so they are positioned according to their group)
+        unObjArray.sort(function(a,b){
+            if (a.group < b.group){
+              return -1;
+            }
+            if (a.group > b.group) {
+              return 1;
+            }
+            return 0;
+        });
+
+        //creates legend for map
+        createLegend();
+
+        // zoom and pan behavior
+        var zoom = d3.behavior.zoom()
+            .on("zoom",function() {
+                g.attr("transform","translate("+
+                    d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+                g.selectAll("circle")
+                    .attr("d", path.projection(projection))
+                g.selectAll("rect")
+                    .attr("d", path.projection(projection))
+                g.selectAll("path")
+                    .attr("d", path.projection(projection));
+
+          });
+        //call zoom behavior
+        map.call(zoom);
     };
+};
 
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
