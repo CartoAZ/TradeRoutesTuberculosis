@@ -293,9 +293,10 @@ function setMap(){
     };
 };
 
+//creates color scale for choropleth function
 function makeColorScale(){
     //array of hex colors to be used for choropleth range
-    var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026']
+    var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026'];
 
     //create color scale generator; quantize divides domain by length of range
     var colorScale = d3.scale.threshold()
@@ -319,6 +320,7 @@ function choropleth(props, colorScale, expressed){
   	};
 };
 
+// function to create menu for lineage frequency dropdown select widget
 function createLinFreqMenu() {
 
   //array of objects for option values in dropdown
@@ -357,14 +359,14 @@ function createLinFreqMenu() {
           text: 'Lineage 4 - Spoligo',
           value: 'per14L4Spo'
         }
-    ]
+    ];
 
     //creates the selection menu
     var linSelect = d3.select("#menubar").append("select")
         .attr("id", "linSelect")
-        .attr("name", "linSelect")
+        .attr("name", "linSelect");
 
-    //create options for trade routes
+    //create option elements for lineage frequency dropdown
     var linOptions = linSelect.selectAll(".linOptions")
         .data(linObjArray)
         .enter()
@@ -373,21 +375,24 @@ function createLinFreqMenu() {
         .attr("value", function(d){ return d.value })
         .attr("id", function(d){ return d.value })
         .text(function(d){ return d.text });
+
     //set attributes specific to default option
     d3.select("#defaultLineageOption")
         .attr("disabled", "true")
-        .attr("selected", "true")
+        .attr("selected", "true");
+
     //initialize select menu
     $("#linSelect").selectmenu({
         change: function(event, ui) {
-
+            //retrieve the lineage selected in the dropdown
             var lineage = ui.item.value;
-
-            drawLineageFrequency(lineage)
+            //call function to draw choropleth map of selected lineage frequency
+            drawLineageFrequency(lineage);
         }
-    })
-}
+    });
+};
 
+// make choropleth map for selected lineage frequency
 function drawLineageFrequency(expressed) {
 
     if (expressed === "clear") {
@@ -409,46 +414,40 @@ function drawLineageFrequency(expressed) {
         //create the color scale
         var colorScale = makeColorScale();
 
+        //style transition for choropleth map based on the current lineage selected
         var lineage = d3.selectAll(".lineageFrequencies")
             .transition()
             .duration(800)
             .style("fill", function(d){
                 return choropleth(d.properties, colorScale, expressed)
             })
-            .style({"stroke": "#ccc", "stroke-width": "1px"})
-        //retrieve width of map
-        var width = d3.select(".map").attr("width");
-        var height = d3.select(".map").attr("height");
+            .style({"stroke": "#ccc", "stroke-width": "1px"});
+
+        //retrieve width/height of map
+        var width = +d3.select(".map").attr("width");
+        var height = +d3.select(".map").attr("height");
 
         //conditional to prevent creation of multiple divs
         if(d3.select("#freqLegendSvg").empty() == true){
-
-            // var freqLegendContainer = d3.select(".map").append("div")
-            //     .attr("id", "freqLegendContainer")
-            //     .attr("width", width)
-            //     .attr("height", height / 7)
-            //
-
+            //create SVG container for legend
             var freqLegendSvg = d3.select(".map").append("svg")
-                .attr("id", "freqLegendSvg")
+                .attr("id", "freqLegendSvg");
 
             //set variables to define spacing/size
             var rectHeight = 20,
                 rectWidth = 40;
 
-                  // legendSpacing = 4;
-
               //color classes array
-              var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', '#eee']
+              var colorClasses = ['#fff','#ffffcc','#ffeda0','#fed976','#fecb43','#feab3b','#fe9c19','#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', 'none', '#eee'];
 
               //color values array
-              var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data']
+              var colorValues = ['0', '0.1', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100','No Data'];
               //conditional to determine whether legend title should be spoligo or genomic
               if (expressed.indexOf("Gen") != -1) {
                   var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
               } else {
                   var legendTitleText = "Lineage Frequency by Country (Pct.) - Spoligo"
-              }
+              };
 
               //sets legend title
               var freqLegendTitle = freqLegendSvg.append("text")
@@ -459,10 +458,9 @@ function drawLineageFrequency(expressed) {
                       horz = horz + 20;
                       var vert = height - 55;
 
-
                       return "translate(" + horz + "," + vert + ")";
                   })
-                  .text(legendTitleText)
+                  .text(legendTitleText);
 
               //creates a group for each rectangle and offsets each by same amount
               var freqLegend = freqLegendSvg.selectAll('.freqLegend')
@@ -471,13 +469,6 @@ function drawLineageFrequency(expressed) {
                 .append("g")
                   .attr("class", "freqLegend")
                   .attr("transform", function(d, i) {
-                      // if (i === 0) {
-                      //     var rectWidth = 5;
-                      // } else {
-                      //     //set variables to define spacing/size
-                      //     var rectHeight = 20,
-                      //         rectWidth = 40;
-                      // }
                         var offset =  rectWidth * colorClasses.length / 2;
                         var vert = height - 30;
                         var horz = i * rectWidth - offset + width / 2;
@@ -485,33 +476,33 @@ function drawLineageFrequency(expressed) {
                         return 'translate(' + horz + ',' + vert + ')';
                 });
 
-              var mapWidth = +d3.select(".map").attr("width");
-
               //rect to hold styling
               var freqBackButton = d3.select(".map").append("rect")
                   .attr("id", "freqBack")
                   .attr("height", "15px")
                   .attr("width", "170px")
                   .attr("transform", function(){
-                      var horz = mapWidth - 195
+                      var horz = width - 195
                       return "translate(" + horz + ",10)"
-                  })
+                  });
+
               //text of button
               var freqButtonText = d3.select(".map").append("text")
                   .attr("class", "buttonText")
                   .attr("id", "freqButtonText")
                   .attr("transform",  function(){
-                      var horz = mapWidth - 175
+                      var horz = width - 175
                       return "translate(" + horz + ",20)"
                   })
-                  .text("Remove Lineage Frequency")
+                  .text("Remove Lineage Frequency");
+
               //clickable rect
               var freqSelectButton = d3.select(".map").append("rect")
                   .attr("id", "freqSelect")
                   .attr("height", "15px")
                   .attr("width", "170px")
                   .attr("transform", function(){
-                      var horz = mapWidth - 195
+                      var horz = width - 195
                       return "translate(" + horz + ",10)"
                   })
                   .on("click", function(){
@@ -533,14 +524,13 @@ function drawLineageFrequency(expressed) {
                       d3.selectAll(".un_checkbox")[0].forEach(function(d){
                           d.disabled = false
                       });
-
                   })
                   .on("mouseover", function(){
                       buttonMouseover(this);
                   })
                   .on("mouseout", function(){
                       buttonMouseout(this);
-                  })
+                  });
 
               //creates rect elements for legened
               var freqLegendRect = freqLegend.append('rect')
@@ -556,6 +546,7 @@ function drawLineageFrequency(expressed) {
                   .attr("class", "freqLegendText")
                   .attr("transform", "translate(-7, 0) ")
                   .text(function(d, i) { return colorValues[i] });
+
         } else { //if the legend has already been created, this conditional updates the text of the legend title appropriately
             if (expressed.indexOf("Gen") != -1) {
                 var legendTitleText = "Lineage Frequency by Country (Pct.) - Genomic"
@@ -565,9 +556,9 @@ function drawLineageFrequency(expressed) {
             //update legend text appropriately
             d3.select(".freqLegendTitle")
                 .text(legendTitleText)
-        }
-    }
-}
+        };
+    };
+};
 
 // function createSearch() {
 //     //creates search div
@@ -662,15 +653,16 @@ function drawLineageFrequency(expressed) {
 //
 // }
 
+//creates menu for multiselect widget to filter isolates by lineage
 function createIsoLineageMenu() {
 
     //creates the selection menu
     var isoSelect = d3.select("#menubar").append("select")
         .attr("id", "isoSelect")
         .attr("name", "isoSelect")
-        .attr("multiple", "multiple")
+        .attr("multiple", "multiple");
 
-    //create options for trade routes
+    //create option elements for isolates
     var isoOptions = isoSelect.selectAll(".isoOptions")
         .data(isolateObjArray)
         .enter()
@@ -694,14 +686,15 @@ function createIsoLineageMenu() {
 
         //checks which lineage is checked
         if (ui.checked === true) {
-          // d3.select("." + getClass).selectAll("path").filter(".notFiltered")
+
           //update visibility and class for isolates of current lineage for selected precisions in legend
           //change class from filtered to notFiltered
+          //isolates will only be visible if they have classes of ".notFiltered" AND ".checked"
           d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
               .attr("visibility", "visible")
               .attr("class", function() {
                   return lineage + " notFiltered checked"
-              })
+              });
 
           //update visibility and class for isolates of current lineage for selected precisions in legend
           //change class from filtered to notFiltered
@@ -709,34 +702,22 @@ function createIsoLineageMenu() {
               .attr("visibility", "visible")
               .attr("class", function() {
                   return lineage + " notFiltered checked"
-              })
-
-
-            // //update visibility and class for isolates of current lineage for selected precisions in legend
-            // d3.selectAll("#checked").filter("." + lineage)
-            //     .attr("visibility", "visible")
-            //     .attr("class", function() {
-            //         return lineage + " notFiltered"
-            //     })
+              });
 
           //update class for isolates of current lineage for unselected precision in legend
           //change class from filtered to notFiltered
           d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
               .attr("class", function() {
                   return lineage + " notFiltered unchecked"
-              })
+              });
 
           //update class for isolates of current lineage for unselected precision in legend
           //change class from filtered to notFiltered
           d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
               .attr("class", function() {
                   return lineage + " notFiltered unchecked"
-              })
-            // //update class for isolates of current lineage for unselected precision in legend
-            // d3.selectAll("#unchecked").filter("." + lineage)
-            //     .attr("class", function() {
-            //         return lineage + " notFiltered"
-            //     })
+              });
+
 
           //select the isolate checkboxes from legend to determine which isolates should be filtered
           var checked = d3.selectAll(".isolate_checkbox");
@@ -747,7 +728,7 @@ function createIsoLineageMenu() {
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
-                })
+                });
 
             //update visibility and class for isolates of current lineage for selected precisions in legend
             //change class from notFiltered to filtered
@@ -755,19 +736,14 @@ function createIsoLineageMenu() {
                 .attr("visibility", "hidden")
                 .attr("class", function() {
                     return lineage + " filtered checked"
-                })
+                });
 
-            // d3.selectAll("#checked").filter("." + lineage)
-            //     .attr("visibility", "hidden")
-            //     .attr("class", function() {
-            //         return lineage + " filtered"
-            //     })
             //update class for isolates of current lineage for unselected precision in legend
             //change class from notFiltered to filtered
             d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
-                })
+                });
 
             //update class for isolates of current lineage for unselected precision in legend
             //change class from notFiltered to filtered
@@ -1638,6 +1614,8 @@ function checkboxMouseover(item){
         d3.selectAll("." + item + "_checkbox")
             .style("cursor", "not-allowed")
         if (item == "isolate"){
+          console.log(d3.select(this));
+
             //retrieve innerHTML of the checkbox as a string to search
             var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
 
