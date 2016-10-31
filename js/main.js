@@ -24,63 +24,8 @@
           checked: 1
         }
     ]
-
-    // var hubObjArray = [
-    //     {
-    //       text: 'Trade Hub'
-    //     }
-    // ]
-
-    var unObjArray = [
-        // {
-        //   text: 'Northern Africa'
-        // },
-        // {
-        //   text: 'Western Africa'
-        // },
-        // {
-        //   text: 'Middle Africa'
-        // },
-        // {
-        //   text: 'Eastern Africa'
-        // },
-        // {
-        //   text: 'Southern Africa'
-        // },
-        // {
-        //   text: 'Northern Europe'
-        // },
-        // {
-        //   text: 'Eastern Europe'
-        // },
-        // {
-        //   text: 'Western Europe'
-        // },
-        // {
-        //   text: 'Southern Europe'
-        // },
-        // {
-        //   text: 'Central Asia'
-        // },
-        // {
-        //   text: 'Western Asia'
-        // },
-        // {
-        //   text: 'Eastern Asia'
-        // },
-        // {
-        //   text: 'Southern Asia'
-        // },
-        // {
-        //   text: 'Southeastern Asia'
-        // },
-        // {
-        //   text: 'Melanesia'
-        // },
-        // {
-        //   text: 'Australia and New Zealand'
-        // }
-    ]
+    //empty array to hold UN info for legend
+    var unObjArray = [];
 
     var isolateLegendArray = [
         {
@@ -560,24 +505,35 @@ function drawLineageFrequency(expressed) {
                         return 'translate(' + horz + ',' + vert + ')';
                 });
 
+              var mapWidth = +d3.select(".map").attr("width");
+
               //rect to hold styling
               var freqBackButton = d3.select(".map").append("rect")
                   .attr("id", "freqBack")
                   .attr("height", "15px")
                   .attr("width", "170px")
-                  .attr("transform", "translate(670,10)")
+                  .attr("transform", function(){
+                      var horz = mapWidth - 195
+                      return "translate(" + horz + ",10)"
+                  })
               //text of button
               var freqButtonText = d3.select(".map").append("text")
                   .attr("class", "buttonText")
                   .attr("id", "freqButtonText")
-                  .attr("transform", "translate(690,20)")
+                  .attr("transform",  function(){
+                      var horz = mapWidth - 175
+                      return "translate(" + horz + ",20)"
+                  })
                   .text("Remove Lineage Frequency")
               //clickable rect
               var freqSelectButton = d3.select(".map").append("rect")
                   .attr("id", "freqSelect")
                   .attr("height", "15px")
                   .attr("width", "170px")
-                  .attr("transform", "translate(670,10)")
+                  .attr("transform", function(){
+                      var horz = mapWidth - 195
+                      return "translate(" + horz + ",10)"
+                  })
                   .on("click", function(){
                       //remove legend from map
                       d3.select("#freqLegendSvg").remove();
