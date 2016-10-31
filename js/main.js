@@ -751,12 +751,7 @@ function createIsoLineageMenu() {
                 .attr("class", function() {
                     return lineage + " filtered unchecked"
                 })
-            // //update class for isolates of current lineage for unselected precision in legend
-            // d3.selectAll("#unchecked").filter("." + lineage)
-            //     .attr("class", function() {
-            //         return lineage + " filtered"
-            //     })
-        }
+        };
     })
     .on("multiselectcheckall", function(event, ui) { //adds all isolates to map
         for (i=1; i<8; i++) {
@@ -792,8 +787,7 @@ function createIsoLineageMenu() {
                 .attr("class", function() {
                     return lineage + " notFiltered unchecked"
                 })
-
-        }
+        };
     })
     .on("multiselectuncheckall", function(event, ui) { //removes all routes from map
         for (i=1; i<8; i++) {
@@ -831,9 +825,9 @@ function createIsoLineageMenu() {
                     return lineage + " filtered unchecked"
                 })
 
-        }
-    })
-}
+        };
+    });
+};
 
 function createLegend() {
     //div to hold SVG for legend
