@@ -234,6 +234,11 @@ ul {
     font-size: 12px;
     fill: #555;
 }
+
+#legendIsolateTitle {
+		text-align: center;
+}
+
 .legendSubHead {
 		text-align: center;
 }
