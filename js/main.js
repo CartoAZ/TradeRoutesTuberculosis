@@ -22,7 +22,7 @@ var routeObjArray = [
 //empty array to hold UN info for legend
 var unObjArray = [];
 //array to use for isolates in legend
-var isolateLegendArray = [
+var isoPrecisionLegendArray = [
     {
       text: "Exact Location Known",
       value: "exactIsolates",
@@ -38,8 +38,8 @@ var isolateLegendArray = [
 // var isolateNameArray = [];
 
 //empty array to bind to select element
-var isolateObjArray = [];
-//for loop to populate isolateObjArray
+var isoLineageLegendArray = [];
+//for loop to populate isoLineageLegendArray
 for (i=1; i<8; i++) {
     // set variables to be added as values in object
     var linText = "Lineage " + i,
@@ -50,7 +50,7 @@ for (i=1; i<8; i++) {
                     value: linValue,
                   }
     //push object to array
-    isolateObjArray.push(linObj)
+    isoLineageLegendArray.push(linObj)
 };
 
 var menubar = d3.select("body").append("div")
@@ -234,7 +234,7 @@ function setMap(){
 
         // createSearch();
         //function to create a dropdown menu to add/remove isolates by lineage
-        createIsoLineageMenu();
+        // createIsoLineageMenu();
 
         //function to create a dropdown menu to add/remove lineage frequencies
         createLinFreqMenu();
@@ -655,7 +655,6 @@ function drawLineageFrequency(expressed) {
 
 //creates menu for multiselect widget to filter isolates by lineage
 function createIsoLineageMenu() {
-
     //creates the selection menu
     var isoSelect = d3.select("#menubar").append("select")
         .attr("id", "isoSelect")
@@ -664,7 +663,7 @@ function createIsoLineageMenu() {
 
     //create option elements for isolates
     var isoOptions = isoSelect.selectAll(".isoOptions")
-        .data(isolateObjArray)
+        .data(isoLineageLegendArray)
         .enter()
       .append("option")
         .attr("class", "isoOptions")
@@ -861,36 +860,75 @@ function createLegend() {
         .attr("transform", "translate(75,30)")
         .text("Legend");
 
+    //selects value of transform for previous element in legend and splits on the ,
+    var prevTransform = d3.select(".legendTitle").attr("transform").split(",")
+    //selects Y value of transform and removes final ")" from string so it can be converted to a number
+    var prevY = +prevTransform[1].slice(0,-1)
+
     //sets legend subtitle
     var legendIsolateTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendIsolateTitle")
-          .attr("transform", "translate(81,60)")
+          .attr("transform", function(){
+              //place this element 30px below previous one
+              var y = prevY + 30;
+              return "translate(81," + y + ")"
+          })
           .text("Isolates");
+
+    //selects value of transform for previous element in legend and splits on the ,
+    var prevTransform = d3.select("#legendIsolateTitle").attr("transform").split(",")
+    //selects Y value of transform and removes final ")" from string so it can be converted to a number
+    var prevY = +prevTransform[1].slice(0,-1)
+
+    //sets group title
+    var isoPrecisionTitle = legendSvg.append("text")
+          .attr("class", "legendGroupTitle")
+          .attr("id", "isoPrecisionTitle")
+          .attr("transform",  function(){
+              //place this element 19px below previous one
+              var y = prevY + 19;
+              return "translate(20," + y + ")"
+          })
+          .text("Precision of Origin")
 
     //rect to hold styling of button
     var isoBackButton = legendSvg.append("rect")
         .attr("id", "isolateBack")
         .attr("height", "15px")
         .attr("width", "50px")
-        .attr("transform", "translate(4,47)");
+        .attr("transform", function(){
+            //place this element 13px above previous one
+            var y = prevY - 13;
+            return "translate(4," + y + ")"
+        });
+
     //text of button
     var isoButtonText = legendSvg.append("text")
         .attr("class", "buttonText")
         .attr("id", "isolateButtonText")
-        .attr("transform", "translate(10,59)")
+        .attr("transform", function(){
+            //place this element 1px above previous one
+            var y = prevY - 1;
+            return "translate(10," + y + ")"
+        })
         .text("Add All");
     //clickable rect of button
     var isoSelectButton = legendSvg.append("rect")
         .attr("id", "isolateSelect")
         .attr("height", "15px")
         .attr("width", "50px")
-        .attr("transform", "translate(4,47)")
+        .attr("transform", function(){
+            //selects value of transform for corresponding back buttton
+            var prevTransform = d3.select("#isolateBack").attr("transform");
+
+            return prevTransform;
+        })
         .attr("title", "Cannot display isolates while trade cities are showing on map.")
         .on("click", function(){
             if (d3.select(".isolate_checkbox")[0][0].disabled == false){ // if isolate checkboxes are enabled...
                 //will update button text if necessary
-                updateButton("isolate", isolateLegendArray);
+                updateButton("isolate", isoPrecisionLegendArray);
                 //function to disable/enable appropriate checkboxes based on viewing restrictions
                 setCheckbox();
             }
@@ -901,22 +939,22 @@ function createLegend() {
         });
 
     //creates a group for each isolate and offsets each by same amount
-    var legendIsolate = legendSvg.selectAll('.legendIsolate')
-        .data(isolateLegendArray)
+    var legendIsolatePrecision = legendSvg.selectAll('.legendIsolatePrecision')
+        .data(isoPrecisionLegendArray)
         .enter()
       .append("g")
-        .attr("class", "legendIsolate")
+        .attr("class", "legendIsolatePrecision")
         .attr("transform", function(d, i) {
             var height = rectWidth + legendSpacing;
             var offset =  height;
             var horz = 2 * rectWidth;
-            var vert = i * height - offset + 195;
+            var vert = i * height - offset + 212;
             return 'translate(' + horz + ',' + vert + ')';
         });
 
     //creates rect elements for legend
-    var legendIsolateRect = legendIsolate.append('rect')
-        .attr("class", "legendIsolateRect")
+    var legendIsolateRect = legendIsolatePrecision.append('rect')
+        .attr("class", "legendIsolatePrecisionRect")
         .attr("x", -12)
         .attr("y", -103)
         .attr("width", 6)
@@ -924,20 +962,20 @@ function createLegend() {
         .style('fill', function(d){ return d.fill });
 
     //adds text to legend
-    var legendIsolateText = legendIsolate.append('text')
+    var legendIsolateText = legendIsolatePrecision.append('text')
         .attr("class", "legendText")
         .attr("transform", "translate(5, -97)")
         .text(function(d) { return d.text });
 
     // //checkboxes for each isolate precision
-    var checkboxesIsolate = legendIsolate.append("foreignObject")
+    var checkboxesIsolate = legendIsolatePrecision.append("foreignObject")
         .attr('width', "20px")
         .attr('height', "20px")
-        .attr("transform", "translate(-47, -108)")
+        .attr("transform", "translate(-47, -111)")
       .append("xhtml:body")
         .html(function(d, i) {
             //create ID string for checkboxes
-            var isolateID = isolateLegendArray[i].value + "_check";
+            var isolateID = isoPrecisionLegendArray[i].value + "_check";
 
             return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
         })
@@ -954,31 +992,132 @@ function createLegend() {
         })
         .on("change", isoCheckboxChange);
 
+        //selects value of transform for previous element in legend and splits on the ,
+        var prevTransform = d3.select("#legendIsolateTitle").attr("transform").split(",")
+        //selects Y value of transform and removes final ")" from string so it can be converted to a number
+        var prevY = +prevTransform[1].slice(0,-1)
+
+        //sets group title
+        var isoLineageTitle = legendSvg.append("text")
+              .attr("class", "legendGroupTitle")
+              .attr("id", "isoLineageTitle")
+              .attr("transform", function(){
+                  //place this element 77px below previous one
+                  var y = prevY + 77;
+
+                  return "translate(20, " + y + ")"
+              })
+              .text("Lineages");
+
+        //selects value of transform for previous element in legend and splits on the ,
+        var prevTransform = d3.select(".legendIsolatePrecision:last-of-type").attr("transform").split(",")
+        //selects Y value of transform and removes final ")" from string so it can be converted to a number
+        var prevY = +prevTransform[1].slice(0,-1);
+
+        //creates a group for each isolate and offsets each by same amount
+        var legendIsolateLineage = legendSvg.selectAll('.legendIsolateLineage')
+            .data(isoLineageLegendArray)
+            .enter()
+          .append("g")
+            .attr("class", "legendIsolateLineage")
+            .attr("transform", function(d, i) {
+                var height = rectWidth + legendSpacing;
+                var offset =  height;
+                var horz = 2 * rectWidth;
+                var y = prevY + 58
+                var vert = i * height - offset + y;
+                return 'translate(' + horz + ',' + vert + ')';
+            });
+        //
+        // //creates rect elements for legend
+        // var legendIsolateRect = legendIsolate.append('rect')
+        //     .attr("class", "legendIsolateRect")
+        //     .attr("x", -12)
+        //     .attr("y", -103)
+        //     .attr("width", 6)
+        //     .attr("height", 6)
+        //     .style('fill', function(d){ return d.fill });
+        //
+        //adds text to legend
+        var legendIsolateText = legendIsolateLineage.append('text')
+            .attr("class", "legendText")
+            .attr("transform", "translate(-12, -97)")
+            .text(function(d) { return d.text });
+
+        // //checkboxes for each isolate precision
+        var checkboxesIsolate = legendIsolateLineage.append("foreignObject")
+            .attr('width', "20px")
+            .attr('height', "20px")
+            .attr("transform", "translate(-47, -111)")
+          .append("xhtml:body")
+            .html(function(d, i) {
+                //create ID string for checkboxes
+                var isolateID = isoLineageLegendArray[i].value + "_check";
+
+                return "<form><input type=checkbox class='isolate_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+            })
+            .on("mouseover", function(){
+              // //retrieve innerHTML of the checkbox as a string to search
+              // var checkboxHTML = d3.select(this.childNodes)[0][0][0].innerHTML;
+              //
+              // //search string for substring to determine which checkbox is selected
+              // //will return -1 if "random" and a number 0 or greater if "exact"
+              // var isExact = checkboxHTML.indexOf("exact")
+              //
+              // //event listener to determine mouseover functionality for this checkbox
+              // checkboxMouseover("isolate", isExact)
+            })
+            .on("change", isoCheckboxChange);
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
+
       //sets legend subtitle for trade cities
       var legendHubTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendHubTitle")
-          .attr("transform", "translate(63,128)")
+          .attr("transform", function(){
+              //place this element 245px below previous one
+              var y = prevY + 245;
+              return "translate(63," + y + ")"
+          })
           .text("Trade Cities");
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
 
       //creates circle elements for legend
       var legendHubCircle = legendSvg.append('circle')
           .attr("class", "tradeHubs")
           .attr("cx", "32")
-          .attr("cy", "140")
+          .attr("cy", function(){
+              return prevY + 12;
+          })
           .attr("r", "5");
 
       //adds text to legend
       var legendHubText = legendSvg.append('text')
           .attr("class", "legendText")
-          .attr("transform", "translate(44,143)")
+          .attr("transform", function(){
+              //place this element 15px below previous one
+              var y = prevY + 15;
+              return "translate(44," + y + ")"
+          })
           .text("Major Trade City");
 
       //checkbox for trade cities
       var checkboxesHub = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-7, 129)")
+          .attr("transform", function(){
+              //place this element 1px below previous one
+              var y = prevY + 1;
+              return "translate(-7," + y + ")"
+          })
         .append("xhtml:body")
           .html("<form><input type=checkbox class='hub_checkbox' id='tradeHubs_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
           .on("mouseover", hubMouseover)
@@ -993,27 +1132,51 @@ function createLegend() {
       var legendRouteTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendRouteTitle")
-          .attr("transform", "translate(60,174)")
+          .attr("transform", function(){
+              //place this element 43px below previous one
+              var y = prevY + 43;
+
+              return "translate(60," + y + ")"
+          })
           .text("Trade Routes");
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
 
       //rect to hold styling
       var routeBackButton = legendSvg.append("rect")
           .attr("id", "routeBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,161)");
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
+
+
       //text of button
       var routeButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "routeButtonText")
-          .attr("transform", "translate(6,173)")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 1;
+              return "translate(6," + y + ")"
+          })
           .text("Clear All");
-      //clickable rect
+
+      // clickable rect
       var routeSelectButton = legendSvg.append("rect")
           .attr("id", "routeSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,161)")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
           .on("click", function(){
               //updates button text and disabled property of checkoxes
               updateButton("route", routeObjArray);
@@ -1025,6 +1188,11 @@ function createLegend() {
               buttonMouseout(this);
           });
 
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendIsolateLineage:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
       //creates a group for each rectangle and offsets each by same amount
       var legendRoute = legendSvg.selectAll('.legendRoute')
           .data(routeObjArray)
@@ -1035,9 +1203,10 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var vert = i * height - offset + 235;
+              var y = prevY + 32.25
+              var vert = i * height - offset + y;
               return 'translate(' + horz + ',' + vert + ')';
-        });
+          });
 
       //creates rect elements for legend
       var legendRouteRect = legendRoute.append('rect')
@@ -1072,25 +1241,47 @@ function createLegend() {
               checkboxChange("route", "none")
           });
 
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select("#legendRouteTitle").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
       //sets legend subtitle
       var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendUNTitle")
-          .attr("transform", "translate(60,288)")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY + 105;
+              return "translate(60," + y + ")"
+          })
           .text("UN Regions");
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
 
       //rect to hold styling
       var UNBackButton = legendSvg.append("rect")
           .attr("id", "unBack")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,275)");
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
 
       //text of button
       var unButtonText = legendSvg.append("text")
           .attr("class", "buttonText")
           .attr("id", "unButtonText")
-          .attr("transform", "translate(9,287)")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 1;
+              return "translate(10," + y + ")"
+          })
           .text("Add All");
 
       //clickable rect
@@ -1098,7 +1289,11 @@ function createLegend() {
           .attr("id", "unSelect")
           .attr("height", "15px")
           .attr("width", "50px")
-          .attr("transform", "translate(4,275)")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
           .attr("title", 'Cannot display UN Regions while Lineage Frequency overlays are on the map.')
           .on("click", function(){
               if (d3.select(".un_checkbox")[0][0].disabled == false){ //if un checkboxes are enabled...
@@ -1133,15 +1328,24 @@ function createLegend() {
 
       //create UN Region title
       var AfrRegionTitle = legendSvg.append("text")
-          .attr("class", "unRegionTitle")
-          .attr("transform", "translate(24, 314)")
+          .attr("id", "unRegionTitle")
+          .attr("class", "legendGroupTitle")
+          .attr("transform", function(){
+              //place this element 22px below previous one
+              var y = prevY + 22;
+              return "translate(20," + y + ")"
+          })
           .text("Africa");
-
+          console.log(prevY);
       //checkboxes for UN Region
       var checkboxAfrUn = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-7, 299)")
+          .attr("transform", function(){
+              //place this element 7px below previous one
+              var y = prevY + 6;
+              return "translate(-7," + y + ")"
+          })
         .append("xhtml:body")
           .html("<form><input type=checkbox class='un_checkbox' id='Africa_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
@@ -1157,15 +1361,24 @@ function createLegend() {
 
       //create UN Region title
       var AsiaRegionTitle = legendSvg.append("text")
-          .attr("class", "unRegionTitle")
-          .attr("transform", "translate(24, 438.5)")
+          .attr("id", "unRegionTitle")
+          .attr("class", "legendGroupTitle")
+          .attr("transform", function(){
+              //place this element 147px below previous one
+              var y = prevY + 147;
+              return "translate(20," + y + ")"
+          })
           .text("Asia");
 
       //checkboxes for UN Group
       var checkboxAsiaUn = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-7, 423.5)")
+          .attr("transform", function(){
+              //place this element 7px below previous one
+              var y = prevY + 131.5;
+              return "translate(-7," + y + ")"
+          })
         .append("xhtml:body")
           .html("<form><input type=checkbox class='un_checkbox' id='Asia_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
@@ -1181,15 +1394,24 @@ function createLegend() {
 
       //create UN Region title
       var EurRegionTitle = legendSvg.append("text")
-          .attr("class", "unRegionTitle")
-          .attr("transform", "translate(24, 563)")
+          .attr("class", "legendGroupTitle")
+          .attr("id", "unRegionTitle")
+          .attr("transform", function(){
+              //place this element 147px below previous one
+              var y = prevY + 270;
+              return "translate(20," + y + ")"
+          })
           .text("Europe");
 
       //checkboxes for UN Group
       var checkboxEurUn = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-7, 548)")
+          .attr("transform", function(){
+              //place this element 7px below previous one
+              var y = prevY + 254;
+              return "translate(-7," + y + ")"
+          })
         .append("xhtml:body")
           .html("<form><input type=checkbox class='un_checkbox' id='Europe_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
@@ -1205,15 +1427,24 @@ function createLegend() {
 
       //create UN Region title
       var OceaniaRegionTitle = legendSvg.append("text")
-          .attr("class", "unRegionTitle")
-          .attr("transform", "translate(24, 666.75)")
+          .attr("class", "legendGroupTitle")
+          .attr("id", "unRegionTitle")
+          .attr("transform", function(){
+              //place this element 147px below previous one
+              var y = prevY + 375;
+              return "translate(20," + y + ")"
+          })
           .text("Oceania");
 
       //checkboxes for UN Group
       var checkboxOceaniaUn = legendSvg.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-7, 651.75)")
+          .attr("transform", function(){
+              //place this element 7px below previous one
+              var y = prevY + 359;
+              return "translate(-7," + y + ")"
+          })
         .append("xhtml:body")
           .html("<form><input type=checkbox class='un_checkbox' id='Oceania_check' title='Cannot display UN Regions while Lineage Frequency overlays are on the map.'</input></form>")
           .on("change", function(){
@@ -1238,20 +1469,20 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-
+              var y = 245;
               //conditionals to leave a space after each Continent
               if (d.group == "Africa"){
-                  var vert = i * height - offset + 82.75;
+                  var vert = i * height - offset + y;
               } else if (d.group == "Asia") {
-                  var vert = (i+1) * height - offset + 82.75;
+                  var vert = (i+1) * height - offset + y;
               } else if (d.group == "Europe") {
-                  var vert = (i+2) * height - offset + 82.75;
+                  var vert = (i+2) * height - offset + y;
               } else if (d.group == "Oceania") {
-                  var vert = (i+3) * height - offset + 82.75;
+                  var vert = (i+3) * height - offset + y;
               };
 
               return 'translate(' + horz + ',' + vert + ')';
-        });
+          });
 
       //creates rect elements for legend
       var legendUNRect = legendUN.append('rect')
@@ -1324,8 +1555,8 @@ function initializeLegend() {
     }
 
     //checks all isolates by default
-    for (i=0; i<isolateLegendArray.length; i++) {
-        var isolate = isolateLegendArray[i].value;
+    for (i=0; i<isoPrecisionLegendArray.length; i++) {
+        var isolate = isoPrecisionLegendArray[i].value;
         d3.select("#" + isolate + "_check")[0][0].disabled = true;
     }
 

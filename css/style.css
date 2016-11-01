@@ -59,7 +59,6 @@ body {
 		stroke: #ef1f07;
 }
 
-
 /*trade hubs*/
 
 .tradeHubs {
@@ -198,7 +197,7 @@ ul {
 }
 
 #legendContainer {
-    height: 300px;
+    height: 80%;
 		width: 20%;
     border:2px solid #000;
     overflow-y: scroll;
@@ -211,7 +210,7 @@ ul {
 }
 
 #legendSvg {
-	height: 720px;
+	height: 920px;
 	width: 100%
 }
 
@@ -242,7 +241,7 @@ ul {
 .legendSubHead {
 		text-align: center;
 }
-.unRegionTitle {
+.legendGroupTitle {
 		font-size: 0.8em;
 }
 
