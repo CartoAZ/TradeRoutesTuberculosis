@@ -1693,25 +1693,25 @@ function isoCheckboxChange(){
 //update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
 function setCheckbox(){
     //selects trade hub checkbox
-    var hubCheck = d3.select(".hub_checkbox")[0][0]
+    var hubCheck = d3.select(".hub_checkbox")[0][0];
 
     //selects exact isolates checkbox
-    var exactCheck = d3.select("#exactIsolates_check")[0][0]
+    var exactCheck = d3.select("#exactIsolates_check")[0][0];
 
     //selects random isolates checkbox
-    var randomCheck = d3.select("#randomIsolates_check")[0][0]
+    var randomCheck = d3.select("#randomIsolates_check")[0][0];
 
     //selects un checkboxes
-    var unCheck = d3.selectAll(".un_checkbox")[0]
+    var unCheck = d3.selectAll(".un_checkbox")[0];
 
     //retrieves whether trade hub checkbox is checked or not (stored as true/false)
-    var checkedHub = hubCheck.checked
+    var checkedHub = hubCheck.checked;
 
     //retrieves whether exact isolates is checked or not (stored as true/false)
-    var checkedExact = exactCheck.checked
+    var checkedExact = exactCheck.checked;
 
     //retrieves whether random isolates is checked or not (stored as true/false)
-    var checkedRandom = randomCheck.checked
+    var checkedRandom = randomCheck.checked;
 
     //creates variable with default of false because following statement changes to true if any checkbox is checked
     var checkedUn = false;
@@ -1719,48 +1719,46 @@ function setCheckbox(){
     //retrieves whether any UN checkbox is checked or not (stored as true/false)
     unCheck.forEach(function(d){
         if (d.checked == true) {
-            checkedUn = true
-        }
-    })
+            checkedUn = true;
+        };
+    });
 
     if (checkedHub == true) { //if trade hubs checkbox is checked...
         //set both isolate checkboxes to be disabled
-        exactCheck.disabled = true
-        randomCheck.disabled = true
+        exactCheck.disabled = true;
+        randomCheck.disabled = true;
     } else if (checkedHub == false) { //if trade hubs checkbox is NOT checked...
         //set both isolate checkboxes to be enabled
-        exactCheck.disabled = false
-        randomCheck.disabled = false
+        exactCheck.disabled = false;
+        randomCheck.disabled = false;
         //enable lineage multiselect
-        $("#isoSelect").multiselect("enable")
+        $("#isoSelect").multiselect("enable");
 
         //update cursor property for "add all"/"clear all" button to be pointer again
         d3.select("#isolateSelect")
-            .style("cursor", "pointer")
-    }
+            .style("cursor", "pointer");
+    };
 
     if (checkedExact == true || checkedRandom == true) { //if either isolate checkbox is checked...
         //set trade hub checkbox to disabled
-        hubCheck.disabled = true
+        hubCheck.disabled = true;
     } else if (checkedExact == false && checkedRandom == false) { //if both isolate checkboxes are NOT checked...
         //set trade hub checkbox to enabled
-        hubCheck.disabled = false
+        hubCheck.disabled = false;
 
         //disable lineage multiselect
-        $("#isoSelect").multiselect("disable")
-
+        $("#isoSelect").multiselect("disable");
     }
-
     if (checkedUn == true) {
         //disables lineage frequency overlays if any un checkbox is checked
-        $("#linSelect").selectmenu("disable")
+        $("#linSelect").selectmenu("disable");
     } else {
         //enables lineage frequency overlays if any un checkbox is checked
-        $("#linSelect").selectmenu("enable")
-    }
-}
+        $("#linSelect").selectmenu("enable");
+    };
+};
 
-//updates button text in legend
+//updates text for Add/Clear All in legend
 function updateButton(item, array){
     //calculate length of array
     var length = array.length;
@@ -1780,8 +1778,9 @@ function updateButton(item, array){
 
         //change button text and text position
         d3.select("#" + item + "ButtonText").text("Add All")
-            .attr("transform", "translate("+ horz + "," + vert + ")")
+            .attr("transform", "translate("+ horz + "," + vert + ")");
 
+        // select all appropriate checkboxes
         var checkboxes = d3.selectAll("." + item + "_checkbox");
 
         //updates checkboxes
@@ -1789,14 +1788,14 @@ function updateButton(item, array){
               // loop through each checkbox element in array
               for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
-                  d[j].checked = false
-              }
-        })
-        //update values in proper array
+                  d[j].checked = false;
+              };
+        });
+        //update visibility and class of isolates
         if (item === "isolate") {
             //select both checkboxes
             var checked = d3.selectAll(".isolate_checkbox")[0];
-
+            //loop through both checkboxes
             for (i=0; i<checked.length; i++) {
                 if (checked[i].checked === false) { //isolate checkbox not checked in legend
 
@@ -1804,30 +1803,30 @@ function updateButton(item, array){
                     var getID = checked[i].id;
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
-                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
+                    //update class and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
                     d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "hidden")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
+                            var lineage = d.properties.lineage_of;
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " notFiltered unchecked"
-                        })
-                    //update ID for isolates of unselected lineages in dropdown when isolate precision is unchecked
+                            return "lin_" + lineage + " notFiltered unchecked";
+                        });
+                    //update class for isolates of unselected lineages in dropdown when isolate precision is unchecked
                     d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
+                            var lineage = d.properties.lineage_of;
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " filtered unchecked"
-                        })
+                            return "lin_" + lineage + " filtered unchecked";
+                        });
                 };
             };
         } else if (item === "route" || item === "un") {
             //updates visibility of item appropriately
-            checkboxChange(item, "none")
-        }
-    }
+            checkboxChange(item, "none");
+        };
+    };
 
     if (buttonText == "Add All") {//adds all items based on which button is clicked
 
@@ -1839,26 +1838,27 @@ function updateButton(item, array){
             vert += 114;
         } else if (item === "un") {
             vert += 228;
-        }
+        };
 
         //change button text
         d3.select("#" + item + "ButtonText").text("Clear All")
-            .attr("transform", "translate("+ horz + "," + vert + ")")
+            .attr("transform", "translate("+ horz + "," + vert + ")");
 
+        //select all appropriate checkboxes
         var checkboxes = d3.selectAll("." + item + "_checkbox");
         //updates checkboxes
         checkboxes.forEach(function(d){
               // loop through each checkbox element in array
               for (j=0; j<checkboxes[0].length; j++) {
                   // unchecks each checkbox
-                  d[j].checked = true
-              }
+                  d[j].checked = true;
+              };
         });
         //update values in proper array
         if (item === "isolate") {
             //select both checkboxes
             var checked = d3.selectAll(".isolate_checkbox")[0];
-
+            //loop through checked
             for (i=0; i<checked.length; i++) {
                 if (checked[i].checked === true) { //isolate checkbox checked in legend
                     //gets ID, which contains element to update
@@ -1866,152 +1866,32 @@ function updateButton(item, array){
                     //trim "_check" from end of ID string
                     var getClass = getID.slice(0, -6);
 
-                    //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
+                    //update class and visibility for isolates of selected lineages in dropdown when isolate precision is checked
                     d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
                         .attr("visibility", "visibile")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
+                            var lineage = d.properties.lineage_of;
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " notFiltered checked"
-                        })
-                    //update ID for isolates of unselected lineages in dropdown when isolate precision is checked
+                            return "lin_" + lineage + " notFiltered checked";
+                        });
+                    //update class for isolates of unselected lineages in dropdown when isolate precision is checked
                     d3.select("." + getClass).selectAll("rect").filter(".filtered")
                         .attr("class", function(d){
                             //retrieve lineage of current isolate for class
-                            var lineage = d.properties.lineage_of
+                            var lineage = d.properties.lineage_of;
                             //update class from unchecked to checked
-                            return "lin_" + lineage + " filtered checked"
-                        })
-                }
+                            return "lin_" + lineage + " filtered checked";
+                        });
+                };
             };
         } else if (item === "route" || item === "un") {
             //updates visibility of item appropriately
             checkboxChange(item);
-        }
+        };
     };
 };
 
-
-//updates visibility of routes based on whether or not route is checked in legend
-function updateVisibility(array) {
-    for (i=0; i<array.length; i++) {
-
-        if (array.length === 5) { //who_regions have individual IDs
-            //store ID
-            var item = d3.selectAll("#" + array[i].value)
-        } else { //routes have classes
-            //store class
-            var item = d3.selectAll("." + array[i].value)
-        }
-
-        //checks if route is selected
-        if (array[i].checked === 1){
-            item.attr("visibility", "visible")
-        } else {
-            item.attr("visibility", "hidden")
-        }
-    }
-}
-// function setEnumerationUnits(franceRegions, map, path){
-//
-//   	//add France regions to map
-//   	var regions = map.selectAll(".regions")
-//   		.data(franceRegions)
-//   		.enter()
-//   		.append("path")
-//   		.attr("class", function(d){
-//   			return "regions " + d.properties.adm1_code;
-//   		})
-//   		.attr("d", path)
-//   		.style("fill", function(d){
-//   			return choropleth(d.properties, colorScale);
-//   		})
-//   		.on("mouseover", function(d){
-//   			highlight(d.properties);
-//   		})
-//   		.on("mouseout", function(d){
-//   			dehighlight(d.properties);
-//   		})
-//   		.on("mousemove", moveLabel);
-//
-//   	//add style descriptor to each path
-//   	var desc = regions.append("desc")
-//   		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
-// };
-// function setGraticule(map, path){
-// 	//create graticule generator
-// 	var graticule = d3.geo.graticule()
-// 		.step([5, 5]); //place graticule lines every 5 degrees of longitude and latitude
-//
-// 	//create graticule background
-// 	var gratBackground = map.append("path")
-// 		.datum(graticule.outline()) //bind graticule background
-// 		.attr("class", "gratBackground") //assign class for styling
-// 		.attr("d", path) //project graticule
-//
-// 	//create graticule lines
-// 	var gratLines = map.selectAll(".gratLines") //select graticule elements that will be created
-// 		.data(graticule.lines()) //bind graticule lines to each element to be created
-// 	  	.enter() //create an element for each datum
-// 		.append("path") //append each element to the svg as a path element
-// 		.attr("class", "gratLines") //assign class for styling
-// 		.attr("d", path); //project graticule lines
-// };
-
-// });
-function setCheckedProp(array, className) {
-    //calculate length of array
-    var length = array.length;
-    //select all of the appropriate checkboxes
-    var checked = d3.selectAll("." + className + "_checkbox");
-    //loop through array of checkbox elements
-    checked.forEach(function(d) { //d is array of all checkbox elements
-        // loop through each checkbox element in array
-        for (j=0; j<length; j++) {
-            //if the checkbox is checked, do this
-            if (d[j].checked == true) {
-                //gets ID, which contains element to update
-                var getID = d[j].id;
-                //trim "_check" from end of ID string
-                var att = getID.slice(0, -6);
-                // loop through array of objects and sets checked property to 1
-                for (i=0; i<array.length; i++){
-                    if (array[i].value == att) {
-                        array[i].checked = 1;
-                    };
-                };
-            } else { //if the checkbox isn't checked, do this
-                var getID = d[j].id;
-                //trim "_check" from end of ID string
-                var att = getID.slice(0, -6);
-                // loop through array of objects and sets checked property to 0
-                for (i=0; i<array.length; i++){
-                    if (array[i].value == att) {
-                        array[i].checked = 0;
-                    };
-                };
-            };
-        };
-    });
-
-    return array;
-}
-
-//creates array containing names of attributes currently checked
-function checkedAttributes(){
-    //create array to hold attributes that are checked
-    checkedAtts = [];
-    //loop through each attribute object and add all that are checked to checkedAtts array
-    routeObjArray.forEach(function(d){
-        //if attribute is checked, push it's "Attribute" property to array
-        if (d.checked == 1){
-            checkedAtts.push(d.value);
-        };
-    });
-
-    return checkedAtts;
-};
 //function to retrieve lineage frequency property for currently selected lineage
 function findLineageProperty(props) {
     //retrieve current selection from lineage frequency dropdown menu
@@ -2022,32 +1902,32 @@ function findLineageProperty(props) {
     var lineageType = "";
     //check if current lineage is 1
     if (currentLineage.indexOf ("1") != -1){
-        lineageNumber = "1"
+        lineageNumber = "1";
     } else if (currentLineage.indexOf ("2") != -1){ //check if current lineage is 2
-        lineageNumber = "2"
+        lineageNumber = "2";
     } else if (currentLineage.indexOf ("3") != -1){ //check if current lineage is 3
-        lineageNumber = "3"
+        lineageNumber = "3";
     } else if (currentLineage.indexOf ("4") != -1){ //check if current lineage is 4
-        lineageNumber = "4"
-    }
-    //check if current lineage is spoligo
-    if (currentLineage.indexOf("spoligo") != -1) {
-        lineageType = "Spo"
-    } else {
-        lineageType = "Gen"
-    }
+        lineageNumber = "4";
+    };
+
+    if (currentLineage.indexOf("spoligo") != -1) { //check if current lineage is spoligo
+        lineageType = "Spo";
+    } else { //check if current lineage is Genomic
+        lineageType = "Gen";
+    };
     //define variable as string to check in properties of current countryJson
     //if property is -999 we want to disable mouseover
-    var lineageProperty = "per14L" + lineageNumber + lineageType
+    var lineageProperty = "per14L" + lineageNumber + lineageType;
 
-    return lineageProperty
-}
+    return lineageProperty;
+};
 
 //function to highlight enumeration units and bars
 function highlightCountry(props){
 
     //retrieve current lineage property name
-    var lineageProperty = findLineageProperty(props)
+    var lineageProperty = findLineageProperty(props);
     //check if current lineage is defined (i.e., >= 0) and highlight accordingly
     //don't want to highlight countries that don't have any data
     if (props[lineageProperty] > -1){
@@ -2058,8 +1938,9 @@ function highlightCountry(props){
               "stroke-width": "2",
         		});
 
+        //creates dynamic popup label
       	setLabel(props);
-    }
+    };
 };
 
 //function to create dynamic label
@@ -2068,15 +1949,19 @@ function setLabel(props){
     var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
     //conditional to display appropriate percent spoligo or otherwise
     if (currentLineage.indexOf("spoligo") != -1) {
+        //lineage 1
         var percent1 = +props.per14L1Spo;
         percent1 = percent1.toFixed(2) + "%";
 
+        //lineage 2
         var percent2 = +props.per14L2Spo;
         percent2 = percent2.toFixed(2) + "%";
 
+        //lineage 3
         var percent3 = +props.per14L3Spo;
         percent3 = percent3.toFixed(2) + "%";
 
+        //lineage 4
         var percent4 = +props.per14L4Spo;
         percent4 = percent4.toFixed(2) + "%";
 
@@ -2093,7 +1978,7 @@ function setLabel(props){
         var percent4 = +props.per14L4Gen;
         percent4 = percent4.toFixed(2) + "%";
 
-    }
+    };
     //puts the labels into an array so we can feed into d3 code block as "data"
     var labelArray = [percent1, percent2, percent3, percent4];
 
@@ -2102,34 +1987,37 @@ function setLabel(props){
 
   	//create info label div
   	var infolabel = d3.select("body")
-  		.append("div")
-  		.attr({
-  			"class": "infolabel",
-  			"id": props.name + "_label"
-  		})
-  		.html(labelAttribute);
+    		.append("div")
+    		.attr({
+      			"class": "infolabel",
+      			"id": props.name + "_label"
+    		})
+    		.html(labelAttribute);
 
+    //div to hold lineage frequency percentages popup
   	var linFreqPct = infolabel.append("div")
-  		.attr("class", "linFreqPct")
-  		.html(function(){
-          var pctList = "<div class='pctList'>"
-          for (i=0; i<labelArray.length; i++){
-              var lineage = i + 1
-              pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
-          }
-          pctList += "</div>"
+    		.attr("class", "linFreqPct")
+    		.html(function(){
+            var pctList = "<div class='pctList'>"
+            for (i=0; i<labelArray.length; i++){
+                var lineage = i + 1
+                pctList = pctList + "<p class='lineage_" + lineage + "'><b>Lineage " + lineage + ":</b> " + labelArray[i] + "</p>"
+            };
+            //closing tag
+            pctList += "</div>";
 
-          return pctList;
-      });
+            return pctList;
+        });
 
-    d3.select(".pctList").style({"color": "white", "font-weight": "normal"})
+    //style popup
+    d3.select(".pctList").style({"color": "white", "font-weight": "normal"});
 
     //splits the current lineage by space so that I can highlight the proper lineage
     var linSplit = currentLineage.split(" ");
     //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
-    var linClass = linSplit[0]
+    var linClass = linSplit[0];
     //select current lineage in popup to highlight it
-    d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"})
+    d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"});
 };
 
 //function to reset the element style on mouseout
@@ -2139,7 +2027,7 @@ function dehighlightCountry(props){
         // "stroke": "none"
           "stroke": "#CCC",
           "stroke-width": "1px"
-      })
+      });
 
 	//remove info label
 	d3.select(".infolabel")
@@ -2149,22 +2037,22 @@ function dehighlightCountry(props){
 //function to move info label with mouse
 function moveLabel(props){
   //retrieve current lineage property name
-  var lineageProperty = findLineageProperty(props)
+  var lineageProperty = findLineageProperty(props);
   //check if current lineage is defined (i.e., >= 0)
   //don't want to call code to move label if it doesn't exist
   if (props[lineageProperty] > -1){
 
     	//get width of label
     	var labelWidth = d3.select(".infolabel")
-    		.node()
-    		.getBoundingClientRect()
-    		.width;
+      		.node()
+      		.getBoundingClientRect()
+      		.width;
 
     	//use coordinates of mousemove event to set label coordinates
     	var x1 = d3.event.clientX + 10,
-    		y1 = d3.event.clientY - 75,
-    		x2 = d3.event.clientX - labelWidth - 10,
-    		y2 = d3.event.clientY + 25;
+      		y1 = d3.event.clientY - 75,
+      		x2 = d3.event.clientX - labelWidth - 10,
+      		y2 = d3.event.clientY + 25;
 
     	//horizontal label coordinate, testing for overflow
     	var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1;
@@ -2172,9 +2060,9 @@ function moveLabel(props){
     	var y = d3.event.clientY < 75 ? y2 : y1;
 
     	d3.select(".infolabel")
-    		.style({
-    			"left": x + "px",
-    			"top": y + "px"
-    		});
-    }
+      		.style({
+      			"left": x + "px",
+      			"top": y + "px"
+      		});
+    };
 };
