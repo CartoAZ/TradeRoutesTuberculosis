@@ -1614,24 +1614,27 @@ function initializeLegend() {
 
 //function to update checkboxes of UN Group as well as depict UN Regions on map
 function groupCheckboxChange(group, item){
-
+  console.log(group);
     //selects current checkbox and stores whether or not it is checked
     var checked = d3.select("#" + item + "_check")[0][0].checked;
 
     if (checked == true){  //if unchecking UN Group checkbox...
 
-            var checkboxes = d3.selectAll("." + item + "_checkbox");
-            //updates checkboxes
-            checkboxes.forEach(function(d, i){
-                // loop through each checkbox element in array
-                for (j=0; j<checkboxes[0].length; j++) {
-                    // checks each checkbox
-                    d[j].checked = true;
-                };
-            });
+        var checkboxes = d3.selectAll("." + item + "_checkbox");
+        //updates checkboxes
+        checkboxes.forEach(function(d, i){
+            // loop through each checkbox element in array
+            for (j=0; j<checkboxes[0].length; j++) {
+                // checks each checkbox
+                d[j].checked = true;
+            };
+        });
+        if (item == "hub"){
             //updates visibility of all UN Regions in UN Group
             d3.selectAll("." + item).attr("visibility", "visible");
-
+        } else if (group == "isolate"){
+            isoCheckboxChange()
+        }
     } else if (checked == false){ //if unchecking UN Group checkbox...
             var checkboxes = d3.selectAll("." + item + "_checkbox");
             //updates checkboxes
@@ -1727,7 +1730,7 @@ function checkboxChange(item, unGroup){
     if (item == "hub") {
         itemCount -= 9999;
     };
-    console.log(itemCount);
+
     //loops through all checkboxes of certain type and counts how many are checked
     for (j=0; j<checked.length; j++){
         if (checked[j].checked == true){ //if checkbox is checked, add one to counter
@@ -1790,7 +1793,7 @@ function checkButtons(item, itemCount){
                 .attr("transform", "translate("+ horz + "," + vert + ")");
         };
     } else if (itemCount == 0) { //if no items are selected
-        console.log(item);
+
         //retrieves button text to determin action
         var buttonText = d3.select("#" + item + "ButtonText")[0][0].innerHTML;
 
