@@ -279,7 +279,7 @@ function setMap(){
         // createIsoLineageMenu();
 
         //function to create a dropdown menu to add/remove lineage frequencies
-        createLinFreqMenu();
+        // createLinFreqMenu();
 
         //populate unObjArray with an object for each UN Region
         UNRegionsJson.map(function(d, i){
@@ -558,9 +558,12 @@ function drawLineageFrequency(expressed) {
                       //removes fill from countries
                       d3.selectAll(".lineageFrequencies")
                           .style("fill", "none")
-                      //update text on dropdown menu
-                      d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
-
+                      //select all lineage frequency radio buttons
+                      var linFreqRadios = d3.selectAll(".linFreq_radio")[0]
+                      //loop to uncheck all of the linFreq radio buttons
+                      linFreqRadios.forEach(function(d){
+                          d.checked = false;
+                      })
                       //enables each checkbox for UN regions when lineage frequency is removed
                       d3.selectAll(".un_checkbox")[0].forEach(function(d){
                           d.disabled = false
@@ -2530,8 +2533,17 @@ function updateButton(item, array){
 
 //function to retrieve lineage frequency property for currently selected lineage
 function findLineageProperty(props) {
-    //retrieve current selection from lineage frequency dropdown menu
-    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    //selects all linfreq radio buttons
+    var linFreqRadios = d3.selectAll(".linFreq_radio")[0];
+    //empty variable to be defined in loop
+    var currentLineage = "";
+    //loop to set current lineage to the selected radio button
+    linFreqRadios.forEach(function(d, i){
+        if (d.checked == true) {
+            //make text lower case and replace spaces with underscore
+            currentLineage = linObjArray[i].text.toLowerCase().replace(" ", "_");
+        };
+    });
     //define variable as 0 to be updated according to current lineage
     var lineageNumber = "0";
     //define variable as blank to be updated according to current lineage
@@ -2581,16 +2593,18 @@ function highlightCountry(props){
 
 //function to create dynamic label
 function setLabel(props){
+    //selects all linfreq radio buttons
     var linFreqRadios = d3.selectAll(".linFreq_radio")[0];
+    //empty variable to be defined in loop
     var currentLineage = "";
+    //loop to set current lineage to the selected radio button
     linFreqRadios.forEach(function(d, i){
         if (d.checked == true) {
+            //make text lower case and replace spaces with underscore
             currentLineage = linObjArray[i].text.toLowerCase().replace(" ", "_");
         }
     })
 
-    console.log(currentLineage.indexOf("spoligo"));
-    // console.log(props);
     //conditional to display appropriate percent spoligo or otherwise
     if (currentLineage.indexOf("spoligo") != -1) {
         //lineage 1
@@ -2649,7 +2663,6 @@ function setLabel(props){
             };
             //closing tag
             pctList += "</div>";
-            console.log(pctList);
             return pctList;
         });
 
@@ -2660,12 +2673,8 @@ function setLabel(props){
     var linSplit = currentLineage.split(" ");
     //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
     var linClass = linSplit[0];
-    console.log(linClass);
-    console.log(d3.select("p." + linClass));
     //select current lineage in popup to highlight it
-    var linHighlight = d3.select("." + linClass)[0][0]
-    console.log(linHighlight);
-    linHighlight.style({"color": "#a60704", "font-weight": "bold"});
+    var linHighlight = d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"});
 };
 
 //function to reset the element style on mouseout
