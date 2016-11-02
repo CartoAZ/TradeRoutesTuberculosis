@@ -995,7 +995,6 @@ function createLegend() {
         .html(function(d, i) {
             //create ID string for checkboxes
             var isolateID = isoPrecisionLegendArray[i].value + "_check";
-            console.log(isolateID);
             return "<form><input type=checkbox class='isolate_checkbox precision_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
         })
         .on("mouseover", function(){
@@ -1021,7 +1020,6 @@ function createLegend() {
                     beforeCount += 1
                 }
             })
-            // console.log(beforeCount);
             isoCheckboxChange("precision", precision)
         });
 
@@ -1123,79 +1121,6 @@ function createLegend() {
             })
             .on("change", function(d){
                 var lineage = d.value;
-                console.log(lineage);
-                // var checkboxID = "#" + lineage + "_check";
-                // //checks which lineage is checked
-                //
-                // var isChecked = d3.select(checkboxID)[0][0].checked
-                //
-                // if (isChecked == true) {
-                //
-                //   //update visibility and class for isolates of current lineage for selected precisions in legend
-                //   //change class from filtered to notFiltered
-                //   //isolates will only be visible if they have classes of ".notFiltered" AND ".checked"
-                //   d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
-                //       .attr("visibility", "visible")
-                //       .attr("class", function() {
-                //           return lineage + " notFiltered checked"
-                //       });
-                //
-                //   //update visibility and class for isolates of current lineage for selected precisions in legend
-                //   //change class from filtered to notFiltered
-                //   d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
-                //       .attr("visibility", "visible")
-                //       .attr("class", function() {
-                //           return lineage + " notFiltered checked"
-                //       });
-                //
-                //   //update class for isolates of current lineage for unselected precision in legend
-                //   //change class from filtered to notFiltered
-                //   d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
-                //       .attr("class", function() {
-                //           return lineage + " notFiltered unchecked"
-                //       });
-                //
-                //   //update class for isolates of current lineage for unselected precision in legend
-                //   //change class from filtered to notFiltered
-                //   d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
-                //       .attr("class", function() {
-                //           return lineage + " notFiltered unchecked"
-                //       });
-                //
-                //
-                //   // //select the isolate checkboxes from legend to determine which isolates should be filtered
-                //   // var checked = d3.selectAll(".isolate_checkbox");
-                // } else if (isChecked === false){ //lineage is unchecked in dropdown multiselect
-                //     //update visibility and class for isolates of current lineage for selected precisions in legend
-                //     //change class from notFiltered to filtered
-                //     d3.select(".exactIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
-                //         .attr("visibility", "hidden")
-                //         .attr("class", function() {
-                //             return lineage + " filtered checked"
-                //         });
-                //
-                //     //update visibility and class for isolates of current lineage for selected precisions in legend
-                //     //change class from notFiltered to filtered
-                //     d3.select(".randomIsolates").selectAll("rect").filter(".checked").filter("." + lineage)
-                //         .attr("visibility", "hidden")
-                //         .attr("class", function() {
-                //             return lineage + " filtered checked"
-                //         });
-                //
-                //     //update class for isolates of current lineage for unselected precision in legend
-                //     //change class from notFiltered to filtered
-                //     d3.select(".exactIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
-                //         .attr("class", function() {
-                //             return lineage + " filtered unchecked"
-                //         });
-                //
-                //     //update class for isolates of current lineage for unselected precision in legend
-                //     //change class from notFiltered to filtered
-                //     d3.select(".randomIsolates").selectAll("rect").filter(".unchecked").filter("." + lineage)
-                //         .attr("class", function() {
-                //             return lineage + " filtered unchecked"
-                //         })
-                // };
                 isoCheckboxChange("lineage", lineage);
             });
 
@@ -1704,7 +1629,6 @@ function initializeLegend() {
 
 //function to update checkboxes of groups based on group checkboxes
 function groupCheckboxChange(group, item){
-    console.log(group, item);
     //selects current checkbox and stores whether or not it is checked
     var checked = d3.select("#" + item + "_check")[0][0].checked;
 
@@ -1975,32 +1899,65 @@ function checkboxMouseover(item, isExact){
 
 //checkbox change event listener for isolate checkboxes
 function isoCheckboxChange(category, group){
-    console.log("category:", category, "group:", group);
+    // d3.select("#legendContainer").append("div")
+    //     .attr("id", "dialog")
+    //     .attr("title", "Select Another Isolate Checkbox")
+    //   .append("p")
+    //     .text("You must select both an isolate lineage and precision of origin for any isolates to be displayed on map.")
+    //
+    //
+    //     $("#dialog").dialog({
+    //         buttons: [
+    //             {
+    //               text: "Ok",
+    //               click: function(){
+    //                   $(this).dialog("close");
+    //               }
+    //             },
+    //             {
+    //               text: "Don't show again",
+    //               click: function(){
+    //
+    //                   d3.select("#dialog").remove();
+    //               }
+    //             }
+    //         ]
+    //     });
     //select all precision isolate checkboxes
     var checkboxes = d3.selectAll("." + category + "_checkbox")[0];
 
-    // //variables set to false to determine if any checkboxes are checked
-    // var precisionChecked = false,
-    //     lineageChecked = false;
-    //
-    // //loop will set variable to true if any checkbox is checked
-    // precisionCheckboxes.forEach(function(d){
-    //     if (d.checked == true){
-    //         precisionChecked = true;
-    //     }
-    // })
-    //
-    // //loop will set variable to true if any checkbox is checked
-    // lineageCheckboxes.forEach(function(d){
-    //     if (d.checked == true){
-    //         lineageChecked = true;
-    //     }
-    // })
-    //
-    // if (precisionChecked == false && lineageChecked == true) {
-    //
-    // }
+    //variables set to false to determine if any checkboxes are checked
+    var precisionChecked = false,
+        lineageChecked = false;
+    var precisionCount = 0,
+        lineageCount = 0;
 
+    var precisionCheckboxes = d3.selectAll(".precision_checkbox")[0]
+    var lineageCheckboxes = d3.selectAll(".lineage_checkbox")[0]
+
+
+    //loop will set variable to true if any checkbox is checked
+    precisionCheckboxes.forEach(function(d){
+        if (d.checked == true){
+            precisionChecked = true;
+            precisionCount +=1;
+        }
+    })
+
+    //loop will set variable to true if any checkbox is checked
+    lineageCheckboxes.forEach(function(d){
+        if (d.checked == true){
+            lineageChecked = true;
+            lineageCount +=1;
+        }
+    })
+
+    if (precisionChecked == false || lineageChecked == false) { //if neither precision checkbox is checked and any lineage checkbox is checked
+        if (lineageCount != 0 || precisionCount != 0){ //this only shows message when at least one checkbox is checked; prevents displaying alert when no isolate checkboxes are selected
+            alert("You must select both an isolate lineage and precision of origin for any isolates to be displayed on map.")
+        }
+    }
+    //
     var allCheckboxes = d3.selectAll(".isolate_checkbox")[0];
     // var anyChecked = false;
     // //loop will set variable to true if any checkbox is checked
@@ -2065,14 +2022,11 @@ function isoCheckboxChange(category, group){
 
         //variable to grab correct precision of isolates
         var getClass = group + "Isolates";
-        console.log(getClass);
         //select current precision isolate checkbox
         var precisionCheckbox = d3.select("#" + getClass + "_check")[0][0];
 
         // for (i=0; i<checkboxes.length; i++) { //loop through all checkboxes
             if (precisionCheckbox.checked == true) { //isolate checkbox checked in legend
-              // console.log(checkboxes[i]);
-              console.log(getClass);
               //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
               d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
                   .attr("visibility", "visibile")
@@ -2194,7 +2148,6 @@ function isoCheckboxChange(category, group){
         //checks which lineage is checked
 
         var isChecked = d3.select(checkboxID)[0][0].checked
-        console.log(isChecked);
 
         if (isChecked == true) {
             //update visibility and class for isolates of current lineage for selected precisions in legend
@@ -2401,37 +2354,8 @@ function updateButton(item, array){
         });
         //update visibility and class of isolates
         if (item == "isolate") {
-          isoCheckboxChange("precision", "all")
-          isoCheckboxChange("lineage", "all")
-            // //select both checkboxes
-            // var checked = d3.selectAll(".isolate_checkbox")[0];
-            // //loop through both checkboxes
-            // for (i=0; i<checked.length; i++) {
-            //     if (checked[i].checked === false) { //isolate checkbox not checked in legend
-            //
-            //         //gets ID, which contains element to update
-            //         var getID = checked[i].id;
-            //         //trim "_check" from end of ID string
-            //         var getClass = getID.slice(0, -6);
-            //         //update class and visibility for isolates of selected lineages in dropdown when isolate precision is unchecked
-            //         d3.selectAll("." + getClass).selectAll("rect").filter(".notFiltered")
-            //             .attr("visibility", "hidden")
-            //             .attr("class", function(d){
-            //                 //retrieve lineage of current isolate for class
-            //                 var lineage = d.properties.lineage_of;
-            //                 //update class from unchecked to checked
-            //                 return "lin_" + lineage + " notFiltered unchecked";
-            //             });
-            //         //update class for isolates of unselected lineages in dropdown when isolate precision is unchecked
-            //         d3.selectAll("." + getClass).selectAll("rect").filter(".filtered")
-            //             .attr("class", function(d){
-            //                 //retrieve lineage of current isolate for class
-            //                 var lineage = d.properties.lineage_of;
-            //                 //update class from unchecked to checked
-            //                 return "lin_" + lineage + " filtered unchecked";
-            //             });
-            //     };
-            // };
+            isoCheckboxChange("precision", "all");
+            isoCheckboxChange("lineage", "all");
         } else if (item === "route" || item === "un") {
             //updates visibility of item appropriately
             checkboxChange(item, "none");
@@ -2466,35 +2390,6 @@ function updateButton(item, array){
         });
         //update values in proper array
         if (item == "isolate") {
-            // //select both checkboxes
-            // var checked = d3.selectAll(".isolate_checkbox")[0];
-            // //loop through checked
-            // for (i=0; i<checked.length; i++) {
-            //     if (checked[i].checked === true) { //isolate checkbox checked in legend
-            //         //gets ID, which contains element to update
-            //         var getID = checked[i].id;
-            //         //trim "_check" from end of ID string
-            //         var getClass = getID.slice(0, -6);
-            //         console.log(getClass);
-            //         //update class and visibility for isolates of selected lineages in dropdown when isolate precision is checked
-            //         d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-            //             .attr("visibility", "visibile")
-            //             .attr("class", function(d){
-            //                 //retrieve lineage of current isolate for class
-            //                 var lineage = d.properties.lineage_of;
-            //                 //update class from unchecked to checked
-            //                 return "lin_" + lineage + " notFiltered checked";
-            //             });
-            //         //update class for isolates of unselected lineages in dropdown when isolate precision is checked
-            //         d3.select("." + getClass).selectAll("rect").filter(".filtered")
-            //             .attr("class", function(d){
-            //                 //retrieve lineage of current isolate for class
-            //                 var lineage = d.properties.lineage_of;
-            //                 //update class from unchecked to checked
-            //                 return "lin_" + lineage + " filtered checked";
-            //             });
-            //     };
-            // };
             isoCheckboxChange("precision", "all")
             isoCheckboxChange("lineage", "all")
         } else if (item === "route" || item === "un") {
