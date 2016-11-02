@@ -1751,8 +1751,10 @@ function groupCheckboxChange(group, item){
 
 //event listener function for when checkoxes in legend change
 function checkboxChange(item, unGroup){
+    console.log("item:",item,"unGroup:", unGroup);
     //select all checkboxes for appropriate item
     var checked = d3.selectAll("." + item + "_checkbox")[0];
+
     //loops through all of those checkboxes
     for (i=0; i<checked.length; i++) {
         if (checked[i].checked === true) { //un checkbox checked in legend
@@ -1777,7 +1779,8 @@ function checkboxChange(item, unGroup){
     //conditional only for UN Regions -- if all UN Regions in a group are selected, select that group's checkbox
     if (unGroup != "none") {
         //select all Africa checkboxes
-        var groupCheckboxes = d3.selectAll("." + unGroup + "_check")[0];
+        var groupCheckboxes = d3.selectAll("." + unGroup + "_checkbox")[0];
+        console.log(groupCheckboxes);
         //counter variable to determine when to check/uncheck UN Group checkbox
         var checkCount = 0;
 
