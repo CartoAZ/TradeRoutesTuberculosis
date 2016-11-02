@@ -1,5 +1,47 @@
 //execute script when window is loaded
 window.onload = setMap();
+
+//array of objects for option values in dropdown
+  var linObjArray = [
+      {
+        text: 'Lineage 1 - Genomic',
+        value: 'per14L1Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 2 - Genomic',
+        value: 'per14L2Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 3 - Genomic',
+        value: 'per14L3Gen',
+        group: "genomic"
+      },{
+        text: 'Lineage 4 - Genomic',
+        value: 'per14L4Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 1 - Spoligo',
+        value: 'per14L1Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 2 - Spoligo',
+        value: 'per14L2Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 3 - Spoligo',
+        value: 'per14L3Spo',
+        group: "spoligo"
+      },{
+        text: 'Lineage 4 - Spoligo',
+        value: 'per14L4Spo',
+        group: "spoligo"
+      }
+  ];
 //array to use for routes in Legend
 var routeObjArray = [
     {
@@ -308,7 +350,6 @@ function makeColorScale(){
 
 //function to test for data value and return color
 function choropleth(props, colorScale, expressed){
-
   	//make sure attribute value is a number
   	var val = parseFloat(props[expressed]);
 
@@ -323,43 +364,43 @@ function choropleth(props, colorScale, expressed){
 // function to create menu for lineage frequency dropdown select widget
 function createLinFreqMenu() {
 
-  //array of objects for option values in dropdown
-    var linObjArray = [
-        {
-          text: 'Lineage Frequencies',
-          value: 'defaultLineageOption'
-        },
-        {
-          text: 'Lineage 1 - Genomic',
-          value: 'per14L1Gen'
-        },
-        {
-          text: 'Lineage 2 - Genomic',
-          value: 'per14L2Gen'
-        },
-        {
-          text: 'Lineage 3 - Genomic',
-          value: 'per14L3Gen'
-        },{
-          text: 'Lineage 4 - Genomic',
-          value: 'per14L4Gen'
-        },
-        {
-          text: 'Lineage 1 - Spoligo',
-          value: 'per14L1Spo'
-        },
-        {
-          text: 'Lineage 2 - Spoligo',
-          value: 'per14L2Spo'
-        },
-        {
-          text: 'Lineage 3 - Spoligo',
-          value: 'per14L3Spo'
-        },{
-          text: 'Lineage 4 - Spoligo',
-          value: 'per14L4Spo'
-        }
-    ];
+  // //array of objects for option values in dropdown
+  //   var linObjArray = [
+  //       {
+  //         text: 'Lineage Frequencies',
+  //         value: 'defaultLineageOption'
+  //       },
+  //       {
+  //         text: 'Lineage 1 - Genomic',
+  //         value: 'per14L1Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 2 - Genomic',
+  //         value: 'per14L2Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 3 - Genomic',
+  //         value: 'per14L3Gen'
+  //       },{
+  //         text: 'Lineage 4 - Genomic',
+  //         value: 'per14L4Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 1 - Spoligo',
+  //         value: 'per14L1Spo'
+  //       },
+  //       {
+  //         text: 'Lineage 2 - Spoligo',
+  //         value: 'per14L2Spo'
+  //       },
+  //       {
+  //         text: 'Lineage 3 - Spoligo',
+  //         value: 'per14L3Spo'
+  //       },{
+  //         text: 'Lineage 4 - Spoligo',
+  //         value: 'per14L4Spo'
+  //       }
+  //   ];
 
     //creates the selection menu
     var linSelect = d3.select("#menubar").append("select")
@@ -1303,6 +1344,94 @@ function createLegend() {
       var prevY = +prevTransform[1].slice(0,-1);
 
       //sets legend subtitle
+      var legendLinFreqTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendLinFreqTitle")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY + 105;
+              return "translate(35," + y + ")"
+          })
+          .text("Lineage Frequency");
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
+      //create UN Region title
+      var genomicTitle = legendSvg.append("text")
+          .attr("id", "genomicTitle")
+          .attr("class", "legendGroupTitle")
+          .attr("transform", function(){
+              //place this element 22px below previous one
+              var y = prevY + 22;
+              return "translate(20," + y + ")"
+          })
+          .text("Genomic");
+
+      //creates a group for each UN Region and offsets each by same amount
+      var legendLinFreq = legendSvg.selectAll('.legendLinFreq')
+          .data(linObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendLinFreq")
+          .attr("transform", function(d, i) {
+
+              var height = rectWidth + legendSpacing;
+              var offset =  height * routeObjArray.length / 2;
+              var horz = 2 * rectWidth;
+              var y = 245;
+
+              //conditionals to leave a space after each Continent
+              if (d.group == "genomic"){
+                  var vert = i * height - offset + y;
+              } else if (d.group == "spoligo") {
+                  var vert = (i+1) * height - offset + y;
+              }
+
+              return 'translate(' + horz + ',' + vert + ')';
+          });
+
+      //adds text to legend
+      var legendLinFreqText = legendLinFreq.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(5, 288.5)")
+          .text(function(d) { return d.text });
+
+      //checkboxes for each UN Region
+      var radioLinFreq = legendLinFreq.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-47, 274)")
+        .append("xhtml:body")
+          .html(function(d, i) {
+              //create ID stringfor checkboxes
+              var linFreqID = d.value ;
+              // // create class string
+              // var linFreqGroup = d.group + "radio"
+              //set HTML
+              return "<input type='radio' name='linFreq' value='" + linFreqID + "'class='linFreq_radio' id='" + linFreqID + "_radio'>";
+          })
+          .on("change", function(d){
+              var lineage = d.value;
+              console.log(lineage);
+              drawLineageFrequency(lineage);
+              // // event listener function for when check box changes
+              // checkboxChange("un", d.group);
+              // //updates disabled property of trade hub checkbox appropriately
+              // setCheckbox();
+          })
+      //     .on("mouseover", function(){
+      //         //second parameter is not needed for UN; using -9999 as NA
+      //         checkboxMouseover("un", -9999);
+      //     });
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select("#legendLinFreqTitle").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
+      //sets legend subtitle
       var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendUNTitle")
@@ -1525,7 +1654,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = 245;
+              var y = prevY;
               //conditionals to leave a space after each Continent
               if (d.group == "Africa"){
                   var vert = i * height - offset + y;
@@ -2452,8 +2581,16 @@ function highlightCountry(props){
 
 //function to create dynamic label
 function setLabel(props){
-    //gets current lineage from the dropdown menu selection
-    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    var linFreqRadios = d3.selectAll(".linFreq_radio")[0];
+    var currentLineage = "";
+    linFreqRadios.forEach(function(d, i){
+        if (d.checked == true) {
+            currentLineage = linObjArray[i].text.toLowerCase().replace(" ", "_");
+        }
+    })
+
+    console.log(currentLineage.indexOf("spoligo"));
+    // console.log(props);
     //conditional to display appropriate percent spoligo or otherwise
     if (currentLineage.indexOf("spoligo") != -1) {
         //lineage 1
@@ -2512,7 +2649,7 @@ function setLabel(props){
             };
             //closing tag
             pctList += "</div>";
-
+            console.log(pctList);
             return pctList;
         });
 
@@ -2523,8 +2660,12 @@ function setLabel(props){
     var linSplit = currentLineage.split(" ");
     //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
     var linClass = linSplit[0];
+    console.log(linClass);
+    console.log(d3.select("p." + linClass));
     //select current lineage in popup to highlight it
-    d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"});
+    var linHighlight = d3.select("." + linClass)[0][0]
+    console.log(linHighlight);
+    linHighlight.style({"color": "#a60704", "font-weight": "bold"});
 };
 
 //function to reset the element style on mouseout
