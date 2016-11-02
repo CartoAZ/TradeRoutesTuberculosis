@@ -85,7 +85,8 @@ g .tradeRoutes {
 }
 
 .route_checkbox,
-.un_checkbox {
+.un_checkbox,
+.linFreq_radio {
 		cursor: pointer;
 }
 
@@ -210,7 +211,7 @@ ul {
 }
 
 #legendSvg {
-	height: 920px;
+	height: 1420px;
 	width: 100%
 }
 
