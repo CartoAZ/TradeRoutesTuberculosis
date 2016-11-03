@@ -1774,6 +1774,7 @@ function initializeLegend() {
 
 //function to update checkboxes of groups based on group checkboxes
 function groupCheckboxChange(group, item){
+
     //selects current checkbox and stores whether or not it is checked
     var checked = d3.select("#" + item + "_check")[0][0].checked;
 
@@ -1787,7 +1788,7 @@ function groupCheckboxChange(group, item){
                 d[j].checked = true;
             };
         });
-        if (item == "hub"){
+        if (group == "un"){
             //updates visibility of all UN Regions in UN Group
             d3.selectAll("." + item).attr("visibility", "visible");
         } else if (group == "isolate"){
@@ -1803,7 +1804,7 @@ function groupCheckboxChange(group, item){
                 d[j].checked = false;
             };
         });
-        if (item == "hub"){
+        if (group== "un"){
             //updates visibility of all UN Regions in UN Group
             d3.selectAll("." + item).attr("visibility", "hidden");
         } else if (group == "isolate"){
@@ -1938,7 +1939,7 @@ function checkButtons(item, itemCount){
         vert = 173;
     } else if (item == "un") {
         //y coordinate for transform, translate
-        vert = 287;
+        vert = 682;
     } else if (item == "isolate") {
         //y coordinate for transform, translate
         vert = 59;
@@ -2494,7 +2495,7 @@ function updateButton(item, array){
         if (item === "route") {
             vert += 288;
         } else if (item === "un") {
-            vert += 393;
+            vert += 623;
         }
 
         //change button text and text position
@@ -2531,7 +2532,7 @@ function updateButton(item, array){
             //moves label to appropriate place
             vert += 288;
         } else if (item === "un") {
-            vert += 393;
+            vert += 623;
         };
 
         //change button text
