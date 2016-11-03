@@ -105,7 +105,7 @@ function setMap(){
 
     //retrieve data
     q
-        .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
+        .defer(d3.json, "data/Polygons/countries_50m.topojson")//load countries outline spatial data
         .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
         .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
         .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
@@ -117,7 +117,7 @@ function setMap(){
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
         //converts topologies to arrays of features
-        var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
+        var countryJson = topojson.feature(countryData, countryData.objects.countries_50m).features,
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
             tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
