@@ -1,5 +1,47 @@
 //execute script when window is loaded
 window.onload = setMap();
+
+//array of objects for option values in dropdown
+  var linObjArray = [
+      {
+        text: 'Lineage 1',
+        value: 'per14L1Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 2',
+        value: 'per14L2Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 3',
+        value: 'per14L3Gen',
+        group: "genomic"
+      },{
+        text: 'Lineage 4',
+        value: 'per14L4Gen',
+        group: "genomic"
+      },
+      {
+        text: 'Lineage 1',
+        value: 'per14L1Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 2',
+        value: 'per14L2Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 3',
+        value: 'per14L3Spo',
+        group: "spoligo"
+      },{
+        text: 'Lineage 4',
+        value: 'per14L4Spo',
+        group: "spoligo"
+      }
+  ];
 //array to use for routes in Legend
 var routeObjArray = [
     {
@@ -237,7 +279,7 @@ function setMap(){
         // createIsoLineageMenu();
 
         //function to create a dropdown menu to add/remove lineage frequencies
-        createLinFreqMenu();
+        // createLinFreqMenu();
 
         //populate unObjArray with an object for each UN Region
         UNRegionsJson.map(function(d, i){
@@ -308,7 +350,6 @@ function makeColorScale(){
 
 //function to test for data value and return color
 function choropleth(props, colorScale, expressed){
-
   	//make sure attribute value is a number
   	var val = parseFloat(props[expressed]);
 
@@ -323,43 +364,43 @@ function choropleth(props, colorScale, expressed){
 // function to create menu for lineage frequency dropdown select widget
 function createLinFreqMenu() {
 
-  //array of objects for option values in dropdown
-    var linObjArray = [
-        {
-          text: 'Lineage Frequencies',
-          value: 'defaultLineageOption'
-        },
-        {
-          text: 'Lineage 1 - Genomic',
-          value: 'per14L1Gen'
-        },
-        {
-          text: 'Lineage 2 - Genomic',
-          value: 'per14L2Gen'
-        },
-        {
-          text: 'Lineage 3 - Genomic',
-          value: 'per14L3Gen'
-        },{
-          text: 'Lineage 4 - Genomic',
-          value: 'per14L4Gen'
-        },
-        {
-          text: 'Lineage 1 - Spoligo',
-          value: 'per14L1Spo'
-        },
-        {
-          text: 'Lineage 2 - Spoligo',
-          value: 'per14L2Spo'
-        },
-        {
-          text: 'Lineage 3 - Spoligo',
-          value: 'per14L3Spo'
-        },{
-          text: 'Lineage 4 - Spoligo',
-          value: 'per14L4Spo'
-        }
-    ];
+  // //array of objects for option values in dropdown
+  //   var linObjArray = [
+  //       {
+  //         text: 'Lineage Frequencies',
+  //         value: 'defaultLineageOption'
+  //       },
+  //       {
+  //         text: 'Lineage 1 - Genomic',
+  //         value: 'per14L1Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 2 - Genomic',
+  //         value: 'per14L2Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 3 - Genomic',
+  //         value: 'per14L3Gen'
+  //       },{
+  //         text: 'Lineage 4 - Genomic',
+  //         value: 'per14L4Gen'
+  //       },
+  //       {
+  //         text: 'Lineage 1 - Spoligo',
+  //         value: 'per14L1Spo'
+  //       },
+  //       {
+  //         text: 'Lineage 2 - Spoligo',
+  //         value: 'per14L2Spo'
+  //       },
+  //       {
+  //         text: 'Lineage 3 - Spoligo',
+  //         value: 'per14L3Spo'
+  //       },{
+  //         text: 'Lineage 4 - Spoligo',
+  //         value: 'per14L4Spo'
+  //       }
+  //   ];
 
     //creates the selection menu
     var linSelect = d3.select("#menubar").append("select")
@@ -517,9 +558,12 @@ function drawLineageFrequency(expressed) {
                       //removes fill from countries
                       d3.selectAll(".lineageFrequencies")
                           .style("fill", "none")
-                      //update text on dropdown menu
-                      d3.selectAll("span").filter(".ui-selectmenu-text").text("Lineage Frequencies")
-
+                      //select all lineage frequency radio buttons
+                      var linFreqRadios = d3.selectAll(".linFreq_radio")[0]
+                      //loop to uncheck all of the linFreq radio buttons
+                      linFreqRadios.forEach(function(d){
+                          d.checked = false;
+                      })
                       //enables each checkbox for UN regions when lineage frequency is removed
                       d3.selectAll(".un_checkbox")[0].forEach(function(d){
                           d.disabled = false
@@ -1303,12 +1347,117 @@ function createLegend() {
       var prevY = +prevTransform[1].slice(0,-1);
 
       //sets legend subtitle
+      var legendLinFreqTitle = legendSvg.append("text")
+          .attr("class", "legendSubHead")
+          .attr("id", "legendLinFreqTitle")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY + 105;
+              return "translate(35," + y + ")"
+          })
+          .text("Lineage Frequency");
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1)
+      //create UN Region title
+      var genomicTitle = legendSvg.append("text")
+          .attr("id", "genomicTitle")
+          .attr("class", "legendGroupTitle")
+          .attr("transform", function(){
+              //place this element 22px below previous one
+              var y = prevY + 22;
+              return "translate(5," + y + ")"
+          })
+          .text("Genomic");
+
+      //creates a group for each UN Region and offsets each by same amount
+      var legendLinFreq = legendSvg.selectAll('.legendLinFreq')
+          .data(linObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendLinFreq")
+          .attr("transform", function(d, i) {
+
+              var height = rectWidth + legendSpacing;
+              var offset =  height * routeObjArray.length / 2;
+              var horz = 2 * rectWidth;
+              var y = 245;
+
+              //conditionals to leave a space after each Continent
+              if (d.group == "genomic"){
+                  var vert = i * height - offset + y;
+              } else if (d.group == "spoligo") {
+                  var vert = (i+1) * height - offset + y;
+              }
+
+              return 'translate(' + horz + ',' + vert + ')';
+          });
+
+      //adds text to legend
+      var legendLinFreqText = legendLinFreq.append('text')
+          .attr("class", "legendText")
+          .attr("transform", "translate(-15, 288.5)")
+          .text(function(d) { return d.text });
+
+      //checkboxes for each UN Region
+      var radioLinFreq = legendLinFreq.append("foreignObject")
+          .attr('width', "20px")
+          .attr('height', "20px")
+          .attr("transform", "translate(-47, 274)")
+        .append("xhtml:body")
+          .html(function(d, i) {
+              //create ID stringfor checkboxes
+              var linFreqID = d.value ;
+              //set HTML
+              return "<input type='radio' name='linFreq' value='" + linFreqID + "'class='linFreq_radio' id='" + linFreqID + "_radio' title='Cannot select Lineage Frequency overlays while UN Regions are displayed on map.'>";
+          })
+          .on("change", function(d){
+              var lineage = d.value;
+              drawLineageFrequency(lineage);
+          })
+          .on("mouseover", function(){
+              if (this.childNodes[0].disabled == true){// radio is disabled
+                  d3.selectAll(".linFreq_radio")
+                      .style("cursor", "not-allowed");
+
+                  //enables jQuery UI tooltip for radio
+                  $(".linFreq_radio").tooltip("enable");
+              } else {// radio is enabled
+                  d3.selectAll(".linFreq_radio")
+                      .style("cursor", "pointer");
+
+                  //enables jQuery UI tooltip for radio
+                  $(".linFreq_radio").tooltip("disable");
+              }
+              // //second parameter is not needed for UN; using -9999 as NA
+              // checkboxMouseover("linFreq", -9999);
+          });
+
+      //create UN Region title
+      var spoligoTitle = legendSvg.append("text")
+          .attr("id", "spoligoTitle")
+          .attr("class", "legendGroupTitle")
+          .attr("transform", function(){
+              //place this element 22px below previous one
+              var y = prevY + 127;
+              return "translate(5," + y + ")"
+          })
+          .text("Spoligo");
+
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select("#legendLinFreqTitle").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
+      //sets legend subtitle
       var legendUNTitle = legendSvg.append("text")
           .attr("class", "legendSubHead")
           .attr("id", "legendUNTitle")
           .attr("transform",  function(){
               //place this element 13px above previous one
-              var y = prevY + 105;
+              var y = prevY + 230;
               return "translate(60," + y + ")"
           })
           .text("UN Regions");
@@ -1525,7 +1674,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = 245;
+              var y = prevY - 208;
               //conditionals to leave a space after each Continent
               if (d.group == "Africa"){
                   var vert = i * height - offset + y;
@@ -1587,14 +1736,6 @@ function createLegend() {
 function initializeLegend() {
     //initializes jQuery UI tooltip for Add All button
     $("#isolateSelect").tooltip();
-    // //initializes jQuery UI tooltip for checkbox
-    // $("#exactIsolates_check").tooltip();
-    // //initializes jQuery UI tooltip for checkbox
-    // $("#randomIsolates_check").tooltip();
-    // //initializes jQuery UI tooltip for checkbox
-    // $("#precision_check").tooltip();
-    // //initializes jQuery UI tooltip for checkbox
-    // $("#lineage_check").tooltip();
     $(".isolate_checkbox").tooltip();
     //initializes jQuery UI tooltip for checkbox
     $(".hub_checkbox").tooltip();
@@ -1608,6 +1749,10 @@ function initializeLegend() {
     $("#unSelect").tooltip();
     //disables jQuery UI tooltip for Add All button
     $("#unSelect").tooltip("disable");
+    //initializes jQuery UI tooltip
+    $(".linFreq_radio").tooltip();
+    //disables tooltip
+    $(".linFreq_radio").tooltip("disable");
 
     //checks all routes by default
     for (i=0; i<routeObjArray.length; i++) {
@@ -2264,6 +2409,8 @@ function setCheckbox(){
     var isolateCheck = d3.selectAll(".isolate_checkbox")[0];
     //selects un checkboxes
     var unCheck = d3.selectAll(".un_checkbox")[0];
+    //selects linFreq readio buttons
+    var linFreqRadio = d3.selectAll(".linFreq_radio")[0]
 
     //retrieves whether trade hub checkbox is checked or not (stored as true/false)
     var checkedHub = hubCheck.checked;
@@ -2285,6 +2432,15 @@ function setCheckbox(){
             checkedUn = true;
         };
     });
+
+    // //creates variable with default of false because following statement changes to true if any checkbox is checked
+    // var checkedLinFreq = false;
+    // //retrieves whether any linFreq radio is checked or not (stored as true/false)
+    // linFreqRadio.forEach(function(d){
+    //     if (d.checked == true) {
+    //         checkedlinFreq = true;
+    //     };
+    // });
 
     if (checkedHub == true) { //if trade hubs checkbox is checked...
         //set all isolate checkboxes to be disabled
@@ -2312,10 +2468,14 @@ function setCheckbox(){
     }
     if (checkedUn == true) {
         //disables lineage frequency overlays if any un checkbox is checked
-        $("#linSelect").selectmenu("disable");
+        linFreqRadio.forEach(function(d){
+            d.disabled = true;
+        })
     } else {
         //enables lineage frequency overlays if any un checkbox is checked
-        $("#linSelect").selectmenu("enable");
+        linFreqRadio.forEach(function(d){
+            d.disabled = false;
+        })
     };
 };
 
@@ -2401,8 +2561,18 @@ function updateButton(item, array){
 
 //function to retrieve lineage frequency property for currently selected lineage
 function findLineageProperty(props) {
-    //retrieve current selection from lineage frequency dropdown menu
-    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    //selects all linfreq radio buttons
+    var linFreqRadios = d3.selectAll(".linFreq_radio")[0];
+    //empty variable to be defined in loop
+    var currentLineage = "";
+    //loop to set current lineage to the selected radio button
+    linFreqRadios.forEach(function(d, i){
+        if (d.checked == true) {
+            //retrieve data from checked radio
+            currentLineage = linObjArray[i].text;
+            currentTyping = linObjArray[i].group
+        };
+    });
     //define variable as 0 to be updated according to current lineage
     var lineageNumber = "0";
     //define variable as blank to be updated according to current lineage
@@ -2418,7 +2588,7 @@ function findLineageProperty(props) {
         lineageNumber = "4";
     };
 
-    if (currentLineage.indexOf("spoligo") != -1) { //check if current lineage is spoligo
+    if (currentTyping == "spoligo") { //check if current lineage is spoligo
         lineageType = "Spo";
     } else { //check if current lineage is Genomic
         lineageType = "Gen";
@@ -2452,10 +2622,22 @@ function highlightCountry(props){
 
 //function to create dynamic label
 function setLabel(props){
-    //gets current lineage from the dropdown menu selection
-    var currentLineage = d3.select(".ui-selectmenu-text").text().toLowerCase().replace(" ", "_");
+    //selects all linfreq radio buttons
+    var linFreqRadios = d3.selectAll(".linFreq_radio")[0];
+    //empty variable to be defined in loop
+    var currentLineage = "",
+        currentTyping = "";
+    //loop to set current lineage to the selected radio button
+    linFreqRadios.forEach(function(d, i){
+        if (d.checked == true) {
+            //retrieve data from checked radio
+            currentLineage = linObjArray[i].text.toLowerCase().replace(" ", "_")
+            currentTyping = linObjArray[i].group;
+        }
+    })
+
     //conditional to display appropriate percent spoligo or otherwise
-    if (currentLineage.indexOf("spoligo") != -1) {
+    if (currentTyping == "spoligo") {
         //lineage 1
         var percent1 = +props.per14L1Spo;
         percent1 = percent1.toFixed(2) + "%";
@@ -2512,19 +2694,19 @@ function setLabel(props){
             };
             //closing tag
             pctList += "</div>";
-
             return pctList;
         });
 
     //style popup
     d3.select(".pctList").style({"color": "white", "font-weight": "normal"});
-
-    //splits the current lineage by space so that I can highlight the proper lineage
-    var linSplit = currentLineage.split(" ");
-    //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
-    var linClass = linSplit[0];
+    // console.log(currentLineage);
+    // //splits the current lineage by space so that I can highlight the proper lineage
+    // var linSplit = currentLineage.split(" ");
+    // //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
+    // var linClass = linSplit[0];
+    // console.log(linClass);
     //select current lineage in popup to highlight it
-    d3.select("." + linClass).style({"color": "#a60704", "font-weight": "bold"});
+    var linHighlight = d3.select("." + currentLineage).style({"color": "#a60704", "font-weight": "bold"});
 };
 
 //function to reset the element style on mouseout
