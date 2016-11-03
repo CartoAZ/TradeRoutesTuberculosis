@@ -105,25 +105,25 @@ function setMap(){
 
     //retrieve data
     q
-        .defer(d3.json, "data/Polygons/Countries_50m.topojson")//load countries outline spatial data
+        .defer(d3.json, "data/Polygons/countries_50m.topojson")//load countries outline spatial data
         .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
         .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
         .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
         .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
         .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-        .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
+        .defer(d3.json, "data/Polygons/LinFreq_50m_1103.topojson")//load lineage frequencies
         .await(callback);
 
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
         //converts topologies to arrays of features
-        var countryJson = topojson.feature(countryData, countryData.objects.Countries_50m).features,
+        var countryJson = topojson.feature(countryData, countryData.objects.countries_50m).features,
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
             tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
             randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features,
             tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
-            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features;
+            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_50m_1103).features;
 
         //set default height and width of map
         var mapWidth = window.innerWidth * 0.75,
@@ -1774,6 +1774,7 @@ function initializeLegend() {
 
 //function to update checkboxes of groups based on group checkboxes
 function groupCheckboxChange(group, item){
+
     //selects current checkbox and stores whether or not it is checked
     var checked = d3.select("#" + item + "_check")[0][0].checked;
 
@@ -1787,7 +1788,7 @@ function groupCheckboxChange(group, item){
                 d[j].checked = true;
             };
         });
-        if (item == "hub"){
+        if (group == "un"){
             //updates visibility of all UN Regions in UN Group
             d3.selectAll("." + item).attr("visibility", "visible");
         } else if (group == "isolate"){
@@ -1803,7 +1804,7 @@ function groupCheckboxChange(group, item){
                 d[j].checked = false;
             };
         });
-        if (item == "hub"){
+        if (group== "un"){
             //updates visibility of all UN Regions in UN Group
             d3.selectAll("." + item).attr("visibility", "hidden");
         } else if (group == "isolate"){
@@ -1938,7 +1939,7 @@ function checkButtons(item, itemCount){
         vert = 173;
     } else if (item == "un") {
         //y coordinate for transform, translate
-        vert = 287;
+        vert = 682;
     } else if (item == "isolate") {
         //y coordinate for transform, translate
         vert = 59;
@@ -2494,7 +2495,7 @@ function updateButton(item, array){
         if (item === "route") {
             vert += 288;
         } else if (item === "un") {
-            vert += 393;
+            vert += 623;
         }
 
         //change button text and text position
@@ -2531,7 +2532,7 @@ function updateButton(item, array){
             //moves label to appropriate place
             vert += 288;
         } else if (item === "un") {
-            vert += 393;
+            vert += 623;
         };
 
         //change button text
