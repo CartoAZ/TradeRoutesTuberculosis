@@ -111,7 +111,7 @@ function setMap(){
         .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
         .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
         .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-        .defer(d3.json, "data/Polygons/LineageFrequencies_100m.topojson")//load lineage frequencies
+        .defer(d3.json, "data/Polygons/LinFreq_50m_1103.topojson")//load lineage frequencies
         .await(callback);
 
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
@@ -123,7 +123,7 @@ function setMap(){
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
             randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features,
             tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
-            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LineageFrequencies_100m).features;
+            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_50m_1103).features;
 
         //set default height and width of map
         var mapWidth = window.innerWidth * 0.75,
