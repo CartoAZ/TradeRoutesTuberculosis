@@ -90,23 +90,23 @@ g .tradeRoutes {
 		cursor: pointer;
 }
 
-#minorLand {
+path#minorLand {
 	stroke: #226b1d;
 	fill: none;
 }
 
-#majorLand {
+path#majorLand {
 	stroke: #226b1d;
 	fill: none;
 	stroke-width: 2px;
 }
 
-#majorSea {
+path#majorSea {
 		stroke: #48a3e0;
 		fill: none;
 		stroke-width: 2px;
 }
-#minorSea {
+path#minorSea {
 		stroke: #48a3e0;
 		fill: none;
 }

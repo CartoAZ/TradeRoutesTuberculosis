@@ -61,6 +61,26 @@ var routeObjArray = [
       value: 'minorSea'
     }
 ];
+
+//create array for trade hubs to use in Legend
+var hubObjArray = [
+    {
+      text: 'Land - Major',
+      value: 'majorLandHub'
+    },
+    {
+      text: 'Land - Minor',
+      value: 'minorLandHub'
+    },
+    {
+      text: 'Sea - Major',
+      value: 'majorSeaHub'
+    },
+    {
+      text: 'Sea - Minor',
+      value: 'minorSeaHub'
+    }
+];
 //empty array to hold UN info for legend
 var unObjArray = [];
 //array to use for isolates in legend
@@ -215,11 +235,21 @@ function setMap(){
           .data(tradeHubJson)
             .enter()
           .append("circle")
-            .attr("id", "tradeHubs")
+            .attr("id",  function(d){
+                //retrieve first classification of trade hub
+                var route1 = d.properties.route1 + "Hub";
+                //retrieve second classification of trade hub
+                var route2 = d.properties.route2;
+                //if only one classification, return route 1
+                if (route2 == ""){
+                    return route1
+                } else { // if two classifications, return both and add "Hub" to second
+                    return route1 + " " + route2 + "Hub"
+                }
+            })
             .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
             .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
             .attr("r", 4);
-
 
         //add exact isolates to map; hidden by default
         var exactIsolates = g.append("g")
@@ -1189,41 +1219,112 @@ function createLegend() {
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
       var prevY = +prevTransform[1].slice(0,-1)
 
-      //creates circle elements for legend
-      var legendHubCircle = legendSvg.append('circle')
-          .attr("class", "tradeHubs")
-          .attr("cx", "32")
-          .attr("cy", function(){
-              return prevY + 12;
+      //rect to hold styling
+      var hubBackButton = legendSvg.append("rect")
+          .attr("id", "hubBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
           })
-          .attr("r", "5");
+
+
+      //text of button
+      var hubButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "hubButtonText")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 1;
+
+              return "translate(6," + y + ")"
+          })
+          .text("Clear All");
+
+      // clickable rect
+      var hubSelectButton = legendSvg.append("rect")
+          .attr("id", "hubSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
+          .on("click", function(){
+              //updates button text and disabled property of checkoxes
+              updateButton("hub", hubObjArray);
+          })
+          .on("mouseover", function(){
+              buttonMouseover(this);
+          })
+          .on("mouseout", function(){
+              buttonMouseout(this);
+          });
+
+
+      //
+
+      // //adds text to legend
+      // var legendHubText = legendSvg.append('text')
+      //     .attr("class", "legendText")
+      //     .attr("transform", function(){
+      //         //place this element 15px below previous one
+      //         var y = prevY + 15;
+      //         return "translate(44," + y + ")"
+      //     })
+      //     .text("Major Trade City");
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendIsolateLineage:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
+      //creates a group for each rectangle and offsets each by same amount
+      var legendHub = legendSvg.selectAll('.legendHub')
+          .data(hubObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendHub")
+          .attr("transform", function(d, i) {
+              var height = rectWidth + legendSpacing;
+              var offset =  height * hubObjArray.length / 2;
+              var horz = rectWidth + 5;
+              var y = prevY - 10
+              var vert = i * height - offset + y;
+              return 'translate(' + horz + ',' + vert + ')';
+          });
+
+      //creates circle elements for legend
+      var legendHubCircle = legendHub.append('circle')
+          .attr("class", "legendHubCircle")
+          .attr("id", function(d){ return "legend_" + d.value + "_hub"})
+          .attr("r", "5")
+          .style("fill", "black");
 
       //adds text to legend
-      var legendHubText = legendSvg.append('text')
+      var legendHubText = legendHub.append('text')
           .attr("class", "legendText")
-          .attr("transform", function(){
-              //place this element 15px below previous one
-              var y = prevY + 15;
-              return "translate(44," + y + ")"
-          })
-          .text("Major Trade City");
+          .attr("transform", "translate(9, 3)")
+          .text(function(d) { return d.text });
 
-      //checkbox for trade cities
-      var checkboxesHub = legendSvg.append("foreignObject")
+      //checkboxes for each route
+      var checkboxesHub = legendHub.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", function(){
-              //place this element 1px below previous one
-              var y = prevY + 1;
-              return "translate(-7," + y + ")"
-          })
+          .attr("transform", "translate(-32, -9)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='hub_checkbox' id='tradeHubs_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
-          .on("mouseover", hubMouseover)
+          .html(function(d, i) {
+              //create ID for checkboxes
+              var hubID = hubObjArray[i].value + "_check";
+
+              return "<form><input type=checkbox class='hub_checkbox' id='" + hubID + "'</input></form>";
+          })
           .on("change", function(){
-              //event listener function for clicking checkbox
+              //event listener when checkbox is clicked; "none" parameter is NA value
               checkboxChange("hub", "none")
-              //updates disabled property of trade cities and isolate checkboxes appropriately
+              // updates disabled property of trade cities and isolate checkboxes appropriately
               setCheckbox();
           });
 
@@ -1238,6 +1339,7 @@ function createLegend() {
               return "translate(60," + y + ")"
           })
           .text("Trade Routes");
+
       //selects value of transform for previous element in legend and splits on the ,
       var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
@@ -1289,7 +1391,7 @@ function createLegend() {
           });
 
       //selects value of transform for previous element in legend and splits on the ,
-      var prevTransform = d3.select(".legendIsolateLineage:last-of-type").attr("transform").split(",")
+      var prevTransform = d3.select(".legendHub:last-of-type").attr("transform").split(",")
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
       var prevY = +prevTransform[1].slice(0,-1);
 
@@ -1303,7 +1405,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = prevY + 32.25
+              var y = prevY + 95
               var vert = i * height - offset + y;
               return 'translate(' + horz + ',' + vert + ')';
           });
@@ -1383,7 +1485,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = 245;
+              var y = 315;
 
               //conditionals to leave a space after each Continent
               if (d.group == "genomic"){
@@ -1767,9 +1869,11 @@ function initializeLegend() {
         d.disabled = true;
     })
 
-    //checks trade hubs by default
-    d3.select(".hub_checkbox")[0][0].checked = true;
-
+    //checks all hubs by default
+    for (i=0; i<hubObjArray.length; i++) {
+        var hub = hubObjArray[i].value;
+        d3.select("#" + hub + "_check")[0][0].checked = true;
+    };
 };
 
 //function to update checkboxes of groups based on group checkboxes
@@ -1841,7 +1945,7 @@ function checkboxChange(item, unGroup){
 
     //loops through all of those checkboxes
     for (i=0; i<checked.length; i++) {
-        if (checked[i].checked === true) { //un checkbox checked in legend
+        if (checked[i].checked === true) { //checkbox checked in legend
           //gets ID, which contains element to update
           var getID = checked[i].id;
           //trim "_check" from end of ID string
