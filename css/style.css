@@ -86,7 +86,8 @@ g .tradeRoutes {
 
 .route_checkbox,
 .un_checkbox,
-.linFreq_radio {
+.linFreq_radio,
+.hub_checkbox {
 		cursor: pointer;
 }
 
