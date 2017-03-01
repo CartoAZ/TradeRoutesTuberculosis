@@ -141,7 +141,7 @@ function setMap(){
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
             tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
-            randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features,
+            randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random_No_Egypt).features,
             tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
             linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_50m_1103).features;
 
