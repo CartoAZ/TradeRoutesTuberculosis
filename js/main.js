@@ -135,7 +135,7 @@ function setMap(){
         .await(callback);
 
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
-        console.log(randomData);
+
         //converts topologies to arrays of features
         var countryJson = topojson.feature(countryData, countryData.objects.countries_50m).features,
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
@@ -1025,7 +1025,7 @@ function createLegend() {
 
             return prevTransform;
         })
-        .attr("title", "Cannot display isolates while trade cities are showing on map.")
+        .attr("title", "Cannot display isolates while trade hubs are showing on map.")
         .on("click", function(){
             if (d3.select(".isolate_checkbox")[0][0].disabled == false){ // if isolate checkboxes are enabled...
                 //will update button text if necessary
@@ -1034,7 +1034,12 @@ function createLegend() {
                 setCheckbox();
             }
         })
-        .on("mouseover", isoButtonMouseover)
+        .on("mouseover", function(){
+            isoButtonMouseover("isolate")
+            if (d3.select(".isolate_checkbox")[0][0].disabled == false){ // if isolate checkboxes are enabled...
+                buttonMouseover(this)
+            }
+        })
         .on("mouseout", function(){
             buttonMouseout(this);
         });
@@ -1077,7 +1082,7 @@ function createLegend() {
         .html(function(d, i) {
             //create ID string for checkboxes
             var isolateID = isoPrecisionLegendArray[i].value + "_check";
-            return "<form><input type=checkbox class='isolate_checkbox precision_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+            return "<form><input type=checkbox class='isolate_checkbox precision_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade hubs are showing on map.'</input></form>"
         })
         .on("mouseover", function(){
           //retrieve innerHTML of the checkbox as a string to search
@@ -1188,7 +1193,7 @@ function createLegend() {
                 //create ID string for checkboxes
                 var isolateID = isoLineageLegendArray[i].value + "_check";
 
-                return "<form><input type=checkbox class='isolate_checkbox lineage_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+                return "<form><input type=checkbox class='isolate_checkbox lineage_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade hubs are showing on map.'</input></form>"
             })
             .on("mouseover", function(){
               //retrieve innerHTML of the checkbox as a string to search
@@ -1261,19 +1266,24 @@ function createLegend() {
               var y = prevY - 13;
               return "translate(4," + y + ")"
           })
+          .attr("title", "Cannot display trade hubs while isolates are showing on map.")
           .on("click", function(){
-              //updates button text and disabled property of checkoxes
-              updateButton("hub", hubObjArray);
-              // updates disabled property of trade cities and isolate checkboxes appropriately
-              setCheckbox();
+              if (d3.select(".hub_checkbox")[0][0].disabled == false){
+                  //updates button text and disabled property of checkoxes
+                  updateButton("hub", hubObjArray);
+                  // updates disabled property of trade cities and isolate checkboxes appropriately
+                  setCheckbox();
+              }
           })
           .on("mouseover", function(){
-              buttonMouseover(this);
+              isoButtonMouseover("hub");
+              if (d3.select(".hub_checkbox")[0][0].disabled == false){
+                  buttonMouseover(this)
+              }
           })
           .on("mouseout", function(){
               buttonMouseout(this);
           });
-
 
       //
 
@@ -1337,7 +1347,7 @@ function createLegend() {
               //create ID for checkboxes
               var hubID = hubObjArray[i].value + "_check";
 
-              return "<form><input type=checkbox class='hub_checkbox' id='" + hubID + "'</input></form>";
+              return "<form><input type=checkbox class='hub_checkbox' id='" + hubID + "' title='Cannot display trade hubs while isolates are showing on map.'</input></form>";
           })
           .on("mouseover", hubMouseover)
           .on("change", function(){
@@ -1858,10 +1868,12 @@ function initializeLegend() {
     //initializes jQuery UI tooltip for Add All button
     $("#isolateSelect").tooltip();
     $(".isolate_checkbox").tooltip();
-    //initializes jQuery UI tooltip for checkbox
+    //initializes jQuery UI tooltip for checkbox and Clear All button
+    $("#hubSelect").tooltip()
     $(".hub_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
     $(".hub_checkbox").tooltip("disable");
+    $("#hubSelect").tooltip("disable");
     //initializes jQuery UI tooltip for checkbox
     $(".un_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
@@ -2125,9 +2137,6 @@ function isoButtonMouseover(item){
 
         //display tooltip instructing user they can't have isolates and trade cities on map at same time
         $("#" + item + "Select").tooltip("disable");
-
-        //call mouseover event listener
-        buttonMouseover(this);
 
     } else { //if isolate checkboxes are disabled (i.e., cities showing on the map
         //update cursor
