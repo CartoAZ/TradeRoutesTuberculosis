@@ -135,7 +135,7 @@ function setMap(){
         .await(callback);
 
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
-
+        console.log(randomData);
         //converts topologies to arrays of features
         var countryJson = topojson.feature(countryData, countryData.objects.countries_50m).features,
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
@@ -1339,6 +1339,7 @@ function createLegend() {
 
               return "<form><input type=checkbox class='hub_checkbox' id='" + hubID + "'</input></form>";
           })
+          .on("mouseover", hubMouseover)
           .on("change", function(){
               //event listener when checkbox is clicked; "none" parameter is NA value
               checkboxChange("hub", "none")
@@ -2035,13 +2036,13 @@ function hubMouseover() {
     //checks if trade hub checkbox is disabled
     if (d3.select(".hub_checkbox")[0][0].disabled == true){
         //make the cursor a not allowed symbol
-        d3.select(".hub_checkbox")
+        d3.selectAll(".hub_checkbox")
             .style("cursor", "not-allowed");
         //enable jQuery UI Tooltip for the trade hub checkbox
         $(".hub_checkbox").tooltip("enable");
     } else { //if checkbox is enabled
         //make cursor the pointer symbol
-        d3.select(".hub_checkbox")
+        d3.selectAll(".hub_checkbox")
             .style("cursor", "pointer");
 
         //disable jQuery UI Tooltip for the trade hub checkbox
@@ -2119,22 +2120,22 @@ function buttonMouseover(button) {
 };
 
 //function to hold event listener for mouseover of Add/Clear ALl button for isolates in legend
-function isoButtonMouseover(){
-    if (d3.select(".isolate_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
+function isoButtonMouseover(item){
+    if (d3.select("."+ item + "_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
 
         //display tooltip instructing user they can't have isolates and trade cities on map at same time
-        $("#isolateSelect").tooltip("disable");
+        $("#" + item + "Select").tooltip("disable");
 
         //call mouseover event listener
         buttonMouseover(this);
 
     } else { //if isolate checkboxes are disabled (i.e., cities showing on the map
         //update cursor
-        d3.select("#isolateSelect")
+        d3.select("#" + item + "Select")
             .style("cursor", "not-allowed");
 
         //display tooltip instructing user they can't have isolates and trade cities on map at same time
-        $("#isolateSelect").tooltip("enable");
+        $("#" + item + "Select").tooltip("enable");
     };
 };
 
