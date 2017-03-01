@@ -61,6 +61,26 @@ var routeObjArray = [
       value: 'minorSea'
     }
 ];
+
+//create array for trade hubs to use in Legend
+var hubObjArray = [
+    {
+      text: 'Land - Major',
+      value: 'majorLandHub'
+    },
+    {
+      text: 'Land - Minor',
+      value: 'minorLandHub'
+    },
+    {
+      text: 'Sea - Major',
+      value: 'majorSeaHub'
+    },
+    {
+      text: 'Sea - Minor',
+      value: 'minorSeaHub'
+    }
+];
 //empty array to hold UN info for legend
 var unObjArray = [];
 //array to use for isolates in legend
@@ -121,7 +141,7 @@ function setMap(){
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
             tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
-            randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random).features,
+            randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random_No_Egypt).features,
             tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
             linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_50m_1103).features;
 
@@ -215,11 +235,29 @@ function setMap(){
           .data(tradeHubJson)
             .enter()
           .append("circle")
-            .attr("id", "tradeHubs")
+            .attr("id",  function(d){
+                //retrieve first classification of trade hub
+                var route1 = d.properties.route1 + "Hub";
+                // //retrieve second classification of trade hub
+                // var route2 = d.properties.route2;
+                // //if only one classification, return route 1
+                // if (route2 == ""){
+                    return route1
+                // } else { // if two classifications, return both and add "Hub" to second
+                //     return route1 + " " + route2 + "Hub"
+                // }
+            })
             .attr("cx", function(d){return projection(d.geometry.coordinates)[0]})
             .attr("cy", function(d){return projection(d.geometry.coordinates)[1]})
-            .attr("r", 4);
+            .attr("r", function(d){
+                var routeClass = d.properties.route1;
 
+                if (routeClass.search("major") < 0){ //searches string for "major"; returns -1 if it is a minor route
+                    return 3 //set radius to 3 for minor
+                } else {
+                    return 4 //set radius to 4 for major
+                }
+            });
 
         //add exact isolates to map; hidden by default
         var exactIsolates = g.append("g")
@@ -942,7 +980,7 @@ function createLegend() {
         .attr('height', "20px")
         .attr("transform", function(){
             //place this element 1px below previous one
-            var y = prevY + 3;
+            var y = prevY - 5;
             return "translate(-7," + y + ")"
         })
       .append("xhtml:body")
@@ -987,7 +1025,7 @@ function createLegend() {
 
             return prevTransform;
         })
-        .attr("title", "Cannot display isolates while trade cities are showing on map.")
+        .attr("title", "Cannot display isolates while trade hubs are showing on map.")
         .on("click", function(){
             if (d3.select(".isolate_checkbox")[0][0].disabled == false){ // if isolate checkboxes are enabled...
                 //will update button text if necessary
@@ -996,7 +1034,12 @@ function createLegend() {
                 setCheckbox();
             }
         })
-        .on("mouseover", isoButtonMouseover)
+        .on("mouseover", function(){
+            isoButtonMouseover("isolate")
+            if (d3.select(".isolate_checkbox")[0][0].disabled == false){ // if isolate checkboxes are enabled...
+                buttonMouseover(this)
+            }
+        })
         .on("mouseout", function(){
             buttonMouseout(this);
         });
@@ -1034,12 +1077,12 @@ function createLegend() {
     var checkboxesIsolate = legendIsolatePrecision.append("foreignObject")
         .attr('width', "20px")
         .attr('height', "20px")
-        .attr("transform", "translate(-47, -111)")
+        .attr("transform", "translate(-47, -119)")
       .append("xhtml:body")
         .html(function(d, i) {
             //create ID string for checkboxes
             var isolateID = isoPrecisionLegendArray[i].value + "_check";
-            return "<form><input type=checkbox class='isolate_checkbox precision_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+            return "<form><input type=checkbox class='isolate_checkbox precision_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade hubs are showing on map.'</input></form>"
         })
         .on("mouseover", function(){
           //retrieve innerHTML of the checkbox as a string to search
@@ -1090,7 +1133,7 @@ function createLegend() {
             .attr('height', "20px")
             .attr("transform", function(){
                 //place this element 1px below previous one
-                var y = prevY + 62;
+                var y = prevY + 54;
                 return "translate(-7," + y + ")"
             })
           .append("xhtml:body")
@@ -1144,13 +1187,13 @@ function createLegend() {
         var checkboxesIsolate = legendIsolateLineage.append("foreignObject")
             .attr('width', "20px")
             .attr('height', "20px")
-            .attr("transform", "translate(-47, -111)")
+            .attr("transform", "translate(-47, -119)")
           .append("xhtml:body")
             .html(function(d, i) {
                 //create ID string for checkboxes
                 var isolateID = isoLineageLegendArray[i].value + "_check";
 
-                return "<form><input type=checkbox class='isolate_checkbox lineage_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade cities are showing on map.'</input></form>"
+                return "<form><input type=checkbox class='isolate_checkbox lineage_checkbox' id='" + isolateID + "' title='Cannot display isolates while trade hubs are showing on map.'</input></form>"
             })
             .on("mouseover", function(){
               //retrieve innerHTML of the checkbox as a string to search
@@ -1189,41 +1232,128 @@ function createLegend() {
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
       var prevY = +prevTransform[1].slice(0,-1)
 
-      //creates circle elements for legend
-      var legendHubCircle = legendSvg.append('circle')
-          .attr("class", "tradeHubs")
-          .attr("cx", "32")
-          .attr("cy", function(){
-              return prevY + 12;
+      //rect to hold styling
+      var hubBackButton = legendSvg.append("rect")
+          .attr("id", "hubBack")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
           })
-          .attr("r", "5");
+
+
+      //text of button
+      var hubButtonText = legendSvg.append("text")
+          .attr("class", "buttonText")
+          .attr("id", "hubButtonText")
+          .attr("transform", function(){
+              //place this element 13px above previous one
+              var y = prevY - 1;
+
+              return "translate(6," + y + ")"
+          })
+          .text("Clear All");
+
+      // clickable rect
+      var hubSelectButton = legendSvg.append("rect")
+          .attr("id", "hubSelect")
+          .attr("height", "15px")
+          .attr("width", "50px")
+          .attr("transform",  function(){
+              //place this element 13px above previous one
+              var y = prevY - 13;
+              return "translate(4," + y + ")"
+          })
+          .attr("title", "Cannot display trade hubs while isolates are showing on map.")
+          .on("click", function(){
+              if (d3.select(".hub_checkbox")[0][0].disabled == false){
+                  //updates button text and disabled property of checkoxes
+                  updateButton("hub", hubObjArray);
+                  // updates disabled property of trade cities and isolate checkboxes appropriately
+                  setCheckbox();
+              }
+          })
+          .on("mouseover", function(){
+              isoButtonMouseover("hub");
+              if (d3.select(".hub_checkbox")[0][0].disabled == false){
+                  buttonMouseover(this)
+              }
+          })
+          .on("mouseout", function(){
+              buttonMouseout(this);
+          });
+
+      //
+
+      // //adds text to legend
+      // var legendHubText = legendSvg.append('text')
+      //     .attr("class", "legendText")
+      //     .attr("transform", function(){
+      //         //place this element 15px below previous one
+      //         var y = prevY + 15;
+      //         return "translate(44," + y + ")"
+      //     })
+      //     .text("Major Trade City");
+      //selects value of transform for previous element in legend and splits on the ,
+      var prevTransform = d3.select(".legendIsolateLineage:last-of-type").attr("transform").split(",")
+      //selects Y value of transform and removes final ")" from string so it can be converted to a number
+      var prevY = +prevTransform[1].slice(0,-1);
+
+      //creates a group for each rectangle and offsets each by same amount
+      var legendHub = legendSvg.selectAll('.legendHub')
+          .data(hubObjArray)
+          .enter()
+        .append("g")
+          .attr("class", "legendHub")
+          .attr("transform", function(d, i) {
+              var height = rectWidth + legendSpacing;
+              var offset =  height * hubObjArray.length / 2;
+              var horz = rectWidth + 5;
+              var y = prevY - 10
+              var vert = i * height - offset + y;
+              return 'translate(' + horz + ',' + vert + ')';
+          });
+
+      //creates circle elements for legend
+      var legendHubCircle = legendHub.append('circle')
+          .attr("class", "legendHubCircle")
+          .attr("id", function(d){ return "legend_" + d.value + "_hub"})
+          .attr("r", function(d){
+              var hubSize = d.value; //retrieves name of hub ID
+
+              if (hubSize.search("major") < 0) { //returns -1 if hubSize doesn't contain major
+                  return 3;
+              } else {
+                  return 4;
+              };
+          })
+          .style("fill", "black");
 
       //adds text to legend
-      var legendHubText = legendSvg.append('text')
+      var legendHubText = legendHub.append('text')
           .attr("class", "legendText")
-          .attr("transform", function(){
-              //place this element 15px below previous one
-              var y = prevY + 15;
-              return "translate(44," + y + ")"
-          })
-          .text("Major Trade City");
+          .attr("transform", "translate(9, 3)")
+          .text(function(d) { return d.text });
 
-      //checkbox for trade cities
-      var checkboxesHub = legendSvg.append("foreignObject")
+      //checkboxes for each route
+      var checkboxesHub = legendHub.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", function(){
-              //place this element 1px below previous one
-              var y = prevY + 1;
-              return "translate(-7," + y + ")"
-          })
+          .attr("transform", "translate(-32, -17)")
         .append("xhtml:body")
-          .html("<form><input type=checkbox class='hub_checkbox' id='tradeHubs_check' title='Cannot display trade cities while isolates are showing on map.'</input></form>")
+          .html(function(d, i) {
+              //create ID for checkboxes
+              var hubID = hubObjArray[i].value + "_check";
+
+              return "<form><input type=checkbox class='hub_checkbox' id='" + hubID + "' title='Cannot display trade hubs while isolates are showing on map.'</input></form>";
+          })
           .on("mouseover", hubMouseover)
           .on("change", function(){
-              //event listener function for clicking checkbox
+              //event listener when checkbox is clicked; "none" parameter is NA value
               checkboxChange("hub", "none")
-              //updates disabled property of trade cities and isolate checkboxes appropriately
+              // updates disabled property of trade cities and isolate checkboxes appropriately
               setCheckbox();
           });
 
@@ -1238,6 +1368,7 @@ function createLegend() {
               return "translate(60," + y + ")"
           })
           .text("Trade Routes");
+
       //selects value of transform for previous element in legend and splits on the ,
       var prevTransform = d3.select(".legendSubHead:last-of-type").attr("transform").split(",")
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
@@ -1289,7 +1420,7 @@ function createLegend() {
           });
 
       //selects value of transform for previous element in legend and splits on the ,
-      var prevTransform = d3.select(".legendIsolateLineage:last-of-type").attr("transform").split(",")
+      var prevTransform = d3.select(".legendHub:last-of-type").attr("transform").split(",")
       //selects Y value of transform and removes final ")" from string so it can be converted to a number
       var prevY = +prevTransform[1].slice(0,-1);
 
@@ -1303,7 +1434,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = prevY + 32.25
+              var y = prevY + 95
               var vert = i * height - offset + y;
               return 'translate(' + horz + ',' + vert + ')';
           });
@@ -1328,7 +1459,7 @@ function createLegend() {
       var checkboxesRoute = legendRoute.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, -11)")
+          .attr("transform", "translate(-47, -19)")
         .append("xhtml:body")
           .html(function(d, i) {
               //create ID for checkboxes
@@ -1383,7 +1514,7 @@ function createLegend() {
               var height = rectWidth + legendSpacing;
               var offset =  height * routeObjArray.length / 2;
               var horz = 2 * rectWidth;
-              var y = 245;
+              var y = 315;
 
               //conditionals to leave a space after each Continent
               if (d.group == "genomic"){
@@ -1405,7 +1536,7 @@ function createLegend() {
       var radioLinFreq = legendLinFreq.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, 274)")
+          .attr("transform", "translate(-47, 266)")
         .append("xhtml:body")
           .html(function(d, i) {
               //create ID stringfor checkboxes
@@ -1548,7 +1679,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", function(){
               //place this element 7px below previous one
-              var y = prevY + 6;
+              var y = prevY - 2;
               return "translate(-7," + y + ")"
           })
         .append("xhtml:body")
@@ -1581,7 +1712,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", function(){
               //place this element 7px below previous one
-              var y = prevY + 131.5;
+              var y = prevY + 123.5;
               return "translate(-7," + y + ")"
           })
         .append("xhtml:body")
@@ -1614,7 +1745,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", function(){
               //place this element 7px below previous one
-              var y = prevY + 254;
+              var y = prevY + 246;
               return "translate(-7," + y + ")"
           })
         .append("xhtml:body")
@@ -1647,7 +1778,7 @@ function createLegend() {
           .attr('height', "20px")
           .attr("transform", function(){
               //place this element 7px below previous one
-              var y = prevY + 359;
+              var y = prevY + 351;
               return "translate(-7," + y + ")"
           })
         .append("xhtml:body")
@@ -1707,7 +1838,7 @@ function createLegend() {
       var checkboxesUN = legendUN.append("foreignObject")
           .attr('width', "20px")
           .attr('height', "20px")
-          .attr("transform", "translate(-47, 274)")
+          .attr("transform", "translate(-47, 266)")
         .append("xhtml:body")
           .html(function(d) {
               //create ID stringfor checkboxes
@@ -1737,10 +1868,12 @@ function initializeLegend() {
     //initializes jQuery UI tooltip for Add All button
     $("#isolateSelect").tooltip();
     $(".isolate_checkbox").tooltip();
-    //initializes jQuery UI tooltip for checkbox
+    //initializes jQuery UI tooltip for checkbox and Clear All button
+    $("#hubSelect").tooltip()
     $(".hub_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
     $(".hub_checkbox").tooltip("disable");
+    $("#hubSelect").tooltip("disable");
     //initializes jQuery UI tooltip for checkbox
     $(".un_checkbox").tooltip();
     //disables tooltip because the checkbox is checked and we only need message when it is not
@@ -1767,9 +1900,11 @@ function initializeLegend() {
         d.disabled = true;
     })
 
-    //checks trade hubs by default
-    d3.select(".hub_checkbox")[0][0].checked = true;
-
+    //checks all hubs by default
+    for (i=0; i<hubObjArray.length; i++) {
+        var hub = hubObjArray[i].value;
+        d3.select("#" + hub + "_check")[0][0].checked = true;
+    };
 };
 
 //function to update checkboxes of groups based on group checkboxes
@@ -1839,16 +1974,15 @@ function checkboxChange(item, unGroup){
     //select all checkboxes for appropriate item
     var checked = d3.selectAll("." + item + "_checkbox")[0];
 
-    //loops through all of those checkboxes
     for (i=0; i<checked.length; i++) {
-        if (checked[i].checked === true) { //un checkbox checked in legend
+        if (checked[i].checked === true) { //checkbox checked in legend
           //gets ID, which contains element to update
           var getID = checked[i].id;
           //trim "_check" from end of ID string
           var getClass = getID.slice(0, -6);
           //update visibility of selected item
           d3.selectAll("#" + getClass)
-              .attr("visibility", "visibile");
+              .attr("visibility", "visible");
         } else { //if unchecked in legend
             //gets ID, which contains element to update
             var getID = checked[i].id;
@@ -1891,10 +2025,6 @@ function checkboxChange(item, unGroup){
 
     //counter variable to determine if Add/Clear All button texts need to be updated
     var itemCount = 0;
-    //prevent checkButtons function from being called on trade cities because it has no Add/Clear All button
-    if (item == "hub") {
-        itemCount -= 9999;
-    };
 
     //loops through all checkboxes of certain type and counts how many are checked
     for (j=0; j<checked.length; j++){
@@ -1918,13 +2048,13 @@ function hubMouseover() {
     //checks if trade hub checkbox is disabled
     if (d3.select(".hub_checkbox")[0][0].disabled == true){
         //make the cursor a not allowed symbol
-        d3.select(".hub_checkbox")
+        d3.selectAll(".hub_checkbox")
             .style("cursor", "not-allowed");
         //enable jQuery UI Tooltip for the trade hub checkbox
         $(".hub_checkbox").tooltip("enable");
     } else { //if checkbox is enabled
         //make cursor the pointer symbol
-        d3.select(".hub_checkbox")
+        d3.selectAll(".hub_checkbox")
             .style("cursor", "pointer");
 
         //disable jQuery UI Tooltip for the trade hub checkbox
@@ -1934,12 +2064,13 @@ function hubMouseover() {
 
 //function to update text on Add/Clear All buttons in legend as necessary
 function checkButtons(item, itemCount){
-    if (item == "route") {
-        //y coordinate for transform, translate
-        vert = 173;
-    } else if (item == "un") {
-        //y coordinate for transform, translate
-        vert = 682;
+
+    if (item === "route") {
+        vert = 415;
+    } else if (item === "un") {
+        vert = 750;
+    } else if (item === "hub") {
+        vert = 304
     } else if (item == "isolate") {
         //y coordinate for transform, translate
         vert = 59;
@@ -2001,22 +2132,19 @@ function buttonMouseover(button) {
 };
 
 //function to hold event listener for mouseover of Add/Clear ALl button for isolates in legend
-function isoButtonMouseover(){
-    if (d3.select(".isolate_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
+function isoButtonMouseover(item){
+    if (d3.select("."+ item + "_checkbox")[0][0].disabled == false){ //if isolate checkboxes are NOT disabled (i.e., not cities showing on the map)
 
         //display tooltip instructing user they can't have isolates and trade cities on map at same time
-        $("#isolateSelect").tooltip("disable");
-
-        //call mouseover event listener
-        buttonMouseover(this);
+        $("#" + item + "Select").tooltip("disable");
 
     } else { //if isolate checkboxes are disabled (i.e., cities showing on the map
         //update cursor
-        d3.select("#isolateSelect")
+        d3.select("#" + item + "Select")
             .style("cursor", "not-allowed");
 
         //display tooltip instructing user they can't have isolates and trade cities on map at same time
-        $("#isolateSelect").tooltip("enable");
+        $("#" + item + "Select").tooltip("enable");
     };
 };
 
@@ -2124,7 +2252,7 @@ function isoCheckboxChange(category, group){
                 if (checkboxes[i].checked == true) { //isolate checkbox checked in legend
                   //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
                   d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-                      .attr("visibility", "visibile")
+                      .attr("visibility", "visible")
                       .attr("class", function(d){
                           //retrieve lineage of current isolate for class
                           var lineage = d.properties.lineage_of;
@@ -2175,7 +2303,7 @@ function isoCheckboxChange(category, group){
             if (precisionCheckbox.checked == true) { //isolate checkbox checked in legend
               //update ID and visibility for isolates of selected lineages in dropdown when isolate precision is checked
               d3.select("." + getClass).selectAll("rect").filter(".notFiltered")
-                  .attr("visibility", "visibile")
+                  .attr("visibility", "visible")
                   .attr("class", function(d){
                       //retrieve lineage of current isolate for class
                       var lineage = d.properties.lineage_of;
@@ -2404,8 +2532,8 @@ function isoCheckboxChange(category, group){
 
 //update disabled property of trade hub and isolate checkboxes so both cannot be displayed on map
 function setCheckbox(){
-    //selects trade hub checkbox
-    var hubCheck = d3.select(".hub_checkbox")[0][0];
+    //selects all trade hub checkbox
+    var hubCheck = d3.selectAll(".hub_checkbox")[0];
     //selects lineage isolates checkboxes
     var isolateCheck = d3.selectAll(".isolate_checkbox")[0];
     //selects un checkboxes
@@ -2413,8 +2541,14 @@ function setCheckbox(){
     //selects linFreq readio buttons
     var linFreqRadio = d3.selectAll(".linFreq_radio")[0]
 
-    //retrieves whether trade hub checkbox is checked or not (stored as true/false)
-    var checkedHub = hubCheck.checked;
+    //creates variable with default of false because following statement changes to true if any checkbox is checked
+    var checkedHub = false;
+    //retrieves whether any lineage isolate checkbox is checked or not (stored as true/false)
+    hubCheck.forEach(function(d){
+        if (d.checked == true) {
+            checkedHub = true;
+        };
+    });
 
     //creates variable with default of false because following statement changes to true if any checkbox is checked
     var checkedIsolate = false;
@@ -2460,13 +2594,20 @@ function setCheckbox(){
     };
 
     if (checkedIsolate == true) { //if any isolate checkbox is checked...
-        //set trade hub checkbox to disabled
-        hubCheck.disabled = true;
+        //set all hub checkboxes to be disabled
+        hubCheck.forEach(function(d){
+            d.disabled = true;
+        })
     } else if (checkedIsolate == false) { //if all isolate checkboxes are NOT checked...
-        //set trade hub checkbox to enabled
-        hubCheck.disabled = false;
+        //set all hub checkboxes to be enabled
+        hubCheck.forEach(function(d){
+            d.disabled = false;
+        })
 
-    }
+        //update cursor property for "add all"/"clear all" button to be pointer again
+        d3.select("#hubSelect")
+            .style("cursor", "pointer");
+    };
     if (checkedUn == true) {
         //disables lineage frequency overlays if any un checkbox is checked
         linFreqRadio.forEach(function(d){
@@ -2493,9 +2634,11 @@ function updateButton(item, array){
 
     if (buttonText == "Clear All"){//removes all items based on which button is clicked
         if (item === "route") {
-            vert += 288;
+            vert += 357;
         } else if (item === "un") {
-            vert += 623;
+            vert += 692;
+        } else if (item === "hub") {
+            vert += 245
         }
 
         //change button text and text position
@@ -2517,7 +2660,7 @@ function updateButton(item, array){
         if (item == "isolate") {
             isoCheckboxChange("precision", "all");
             isoCheckboxChange("lineage", "all");
-        } else if (item === "route" || item === "un") {
+        } else if (item === "route" || item === "un" || item === "hub") {
             //updates visibility of item appropriately
             checkboxChange(item, "none");
         };
@@ -2529,11 +2672,12 @@ function updateButton(item, array){
         horz = 6;
 
         if (item === "route") {
-            //moves label to appropriate place
-            vert += 288;
+            vert += 357;
         } else if (item === "un") {
-            vert += 623;
-        };
+            vert += 692;
+        } else if (item === "hub") {
+            vert += 245
+        }
 
         //change button text
         d3.select("#" + item + "ButtonText").text("Clear All")
