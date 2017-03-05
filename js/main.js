@@ -135,7 +135,7 @@ function setMap(){
 
     //retrieve data
     q
-        .defer(d3.json, "data/Polygons/countries_110m.topojson")//load countries outline spatial data
+        .defer(d3.json, "data/Polygons/Countries_110m.topojson")//load countries outline spatial data
         .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
         .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
         .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
