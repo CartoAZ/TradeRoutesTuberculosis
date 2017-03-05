@@ -24,21 +24,31 @@ window.onload = setMap();
       },
       {
         text: 'Lineage 1',
-        value: 'per14L1Spo',
+        value: 'per16L1Spo',
         group: "spoligo"
       },
       {
         text: 'Lineage 2',
-        value: 'per14L2Spo',
+        value: 'per16L2Spo',
         group: "spoligo"
       },
       {
         text: 'Lineage 3',
-        value: 'per14L3Spo',
+        value: 'per16L3Spo',
         group: "spoligo"
       },{
         text: 'Lineage 4',
-        value: 'per14L4Spo',
+        value: 'per16L4Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 5',
+        value: 'per16L5Spo',
+        group: "spoligo"
+      },
+      {
+        text: 'Lineage 6',
+        value: 'per16L6Spo',
         group: "spoligo"
       }
   ];
@@ -125,25 +135,25 @@ function setMap(){
 
     //retrieve data
     q
-        .defer(d3.json, "data/Polygons/countries_50m.topojson")//load countries outline spatial data
+        .defer(d3.json, "data/Polygons/countries_110m.topojson")//load countries outline spatial data
         .defer(d3.json, "data/Polygons/UN_Regions1026.topojson")//load UN regions outline
         .defer(d3.json, "data/Routes/AllRoutes1025.topojson")//load trade routes polylines
         .defer(d3.json, "data/Points/TradeHubs_1018.topojson")//load trade hubs
         .defer(d3.json, "data/Points/Isolates_Exact.topojson")//load exactIsolates
         .defer(d3.json, "data/Points/Isolates_Random.topojson")//load Random Isolates
-        .defer(d3.json, "data/Polygons/LinFreq_50m_1103.topojson")//load lineage frequencies
+        .defer(d3.json, "data/Polygons/LinFreq_1_6.topojson")//load lineage frequencies
         .await(callback);
 
     function callback(error, countryData, UNRegionsData, tradeRouteData, tradeHubData, exactData, randomData, linFreqData, unScaleData){
 
         //converts topologies to arrays of features
-        var countryJson = topojson.feature(countryData, countryData.objects.countries_50m).features,
+        var countryJson = topojson.feature(countryData, countryData.objects.Countries_110m).features,
             UNRegionsJson = topojson.feature(UNRegionsData, UNRegionsData.objects.UN_Regions1026).features,
             tradeHubJson = topojson.feature(tradeHubData, tradeHubData.objects.TradeHubs_1018).features,
             exactJson = topojson.feature(exactData, exactData.objects.Isolates_Exact).features,
             randomJson = topojson.feature(randomData, randomData.objects.Isolates_Random_No_Egypt).features,
             tradeRouteJson = topojson.feature(tradeRouteData, tradeRouteData.objects.AllRoutes1018).features,
-            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_50m_1103).features;
+            linFreqJson = topojson.feature(linFreqData, linFreqData.objects.LinFreq_1_6).features;
 
         //set default height and width of map
         var mapWidth = window.innerWidth * 0.75,
@@ -152,7 +162,7 @@ function setMap(){
         //set projection of map
         var projection = d3.geo.mercator()
             .center([95, 23])
-            .scale(210);
+            .scale(180);
 
         // Create a path generator
         var path = d3.geo.path()
@@ -397,78 +407,6 @@ function choropleth(props, colorScale, expressed){
   	} else {
     		return "none";
   	};
-};
-
-// function to create menu for lineage frequency dropdown select widget
-function createLinFreqMenu() {
-
-  // //array of objects for option values in dropdown
-  //   var linObjArray = [
-  //       {
-  //         text: 'Lineage Frequencies',
-  //         value: 'defaultLineageOption'
-  //       },
-  //       {
-  //         text: 'Lineage 1 - Genomic',
-  //         value: 'per14L1Gen'
-  //       },
-  //       {
-  //         text: 'Lineage 2 - Genomic',
-  //         value: 'per14L2Gen'
-  //       },
-  //       {
-  //         text: 'Lineage 3 - Genomic',
-  //         value: 'per14L3Gen'
-  //       },{
-  //         text: 'Lineage 4 - Genomic',
-  //         value: 'per14L4Gen'
-  //       },
-  //       {
-  //         text: 'Lineage 1 - Spoligo',
-  //         value: 'per14L1Spo'
-  //       },
-  //       {
-  //         text: 'Lineage 2 - Spoligo',
-  //         value: 'per14L2Spo'
-  //       },
-  //       {
-  //         text: 'Lineage 3 - Spoligo',
-  //         value: 'per14L3Spo'
-  //       },{
-  //         text: 'Lineage 4 - Spoligo',
-  //         value: 'per14L4Spo'
-  //       }
-  //   ];
-
-    //creates the selection menu
-    var linSelect = d3.select("#menubar").append("select")
-        .attr("id", "linSelect")
-        .attr("name", "linSelect");
-
-    //create option elements for lineage frequency dropdown
-    var linOptions = linSelect.selectAll(".linOptions")
-        .data(linObjArray)
-        .enter()
-      .append("option")
-        .attr("class", "linOptions")
-        .attr("value", function(d){ return d.value })
-        .attr("id", function(d){ return d.value })
-        .text(function(d){ return d.text });
-
-    //set attributes specific to default option
-    d3.select("#defaultLineageOption")
-        .attr("disabled", "true")
-        .attr("selected", "true");
-
-    //initialize select menu
-    $("#linSelect").selectmenu({
-        change: function(event, ui) {
-            //retrieve the lineage selected in the dropdown
-            var lineage = ui.item.value;
-            //call function to draw choropleth map of selected lineage frequency
-            drawLineageFrequency(lineage);
-        }
-    });
 };
 
 // make choropleth map for selected lineage frequency
@@ -1562,8 +1500,7 @@ function createLegend() {
                   //enables jQuery UI tooltip for radio
                   $(".linFreq_radio").tooltip("disable");
               }
-              // //second parameter is not needed for UN; using -9999 as NA
-              // checkboxMouseover("linFreq", -9999);
+
           });
 
       //create UN Region title
@@ -1588,7 +1525,7 @@ function createLegend() {
           .attr("id", "legendUNTitle")
           .attr("transform",  function(){
               //place this element 13px above previous one
-              var y = prevY + 230;
+              var y = prevY + 273;
               return "translate(60," + y + ")"
           })
           .text("UN Regions");
@@ -2636,7 +2573,7 @@ function updateButton(item, array){
         if (item === "route") {
             vert += 357;
         } else if (item === "un") {
-            vert += 692;
+            vert += 735;
         } else if (item === "hub") {
             vert += 245
         }
@@ -2674,7 +2611,7 @@ function updateButton(item, array){
         if (item === "route") {
             vert += 357;
         } else if (item === "un") {
-            vert += 692;
+            vert += 735;
         } else if (item === "hub") {
             vert += 245
         }
@@ -2731,16 +2668,22 @@ function findLineageProperty(props) {
         lineageNumber = "3";
     } else if (currentLineage.indexOf ("4") != -1){ //check if current lineage is 4
         lineageNumber = "4";
+    } else if (currentLineage.indexOf ("5") != -1){ //check if current lineage is 5
+        lineageNumber = "5";
+    } else if (currentLineage.indexOf ("6") != -1){ //check if current lineage is 6
+        lineageNumber = "6";
     };
 
     if (currentTyping == "spoligo") { //check if current lineage is spoligo
         lineageType = "Spo";
+        //define variable as string to check in properties of current countryJson
+        var lineageProperty = "per16L" + lineageNumber + lineageType;
+
     } else { //check if current lineage is Genomic
         lineageType = "Gen";
+        //define variable as string to check in properties of current countryJson
+        var lineageProperty = "per14L" + lineageNumber + lineageType;
     };
-    //define variable as string to check in properties of current countryJson
-    //if property is -999 we want to disable mouseover
-    var lineageProperty = "per14L" + lineageNumber + lineageType;
 
     return lineageProperty;
 };
@@ -2759,7 +2702,7 @@ function highlightCountry(props){
         			"stroke": "black",
               "stroke-width": "2",
         		});
-
+        console.log(props);
         //creates dynamic popup label
       	setLabel(props);
     };
@@ -2784,21 +2727,33 @@ function setLabel(props){
     //conditional to display appropriate percent spoligo or otherwise
     if (currentTyping == "spoligo") {
         //lineage 1
-        var percent1 = +props.per14L1Spo;
+        var percent1 = +props.per16L1Spo;
         percent1 = percent1.toFixed(2) + "%";
 
         //lineage 2
-        var percent2 = +props.per14L2Spo;
+        var percent2 = +props.per16L2Spo;
         percent2 = percent2.toFixed(2) + "%";
 
         //lineage 3
-        var percent3 = +props.per14L3Spo;
+        var percent3 = +props.per16L3Spo;
         percent3 = percent3.toFixed(2) + "%";
 
         //lineage 4
-        var percent4 = +props.per14L4Spo;
+        var percent4 = +props.per16L4Spo;
         percent4 = percent4.toFixed(2) + "%";
 
+        //lineage 5
+        var percent5 = +props.per16L5Spo;
+        percent5 = percent5.toFixed(2) + "%";
+
+        //lineage 6
+        var percent6 = +props.per16L6Spo;
+        percent6 = percent6.toFixed(2) + "%";
+
+        //puts the labels into an array so we can feed into d3 code block as "data"
+        var labelArray = [percent1, percent2, percent3, percent4, percent5, percent6];
+        //set height of popup div
+        var height = "180px";
     } else {
         var percent1 = +props.per14L1Gen;
         percent1 = percent1.toFixed(2) + "%";
@@ -2812,9 +2767,11 @@ function setLabel(props){
         var percent4 = +props.per14L4Gen;
         percent4 = percent4.toFixed(2) + "%";
 
+        //puts the labels into an array so we can feed into d3 code block as "data"
+        var labelArray = [percent1, percent2, percent3, percent4];
+        //set height of popup div
+        var height = "150px";
     };
-    //puts the labels into an array so we can feed into d3 code block as "data"
-    var labelArray = [percent1, percent2, percent3, percent4];
 
   	//label content
   	var labelAttribute = "<h1>" + props.name + "</h1>";
@@ -2826,6 +2783,7 @@ function setLabel(props){
       			"class": "infolabel",
       			"id": props.name + "_label"
     		})
+        .style("height", height)
     		.html(labelAttribute);
 
     //div to hold lineage frequency percentages popup
@@ -2844,13 +2802,7 @@ function setLabel(props){
 
     //style popup
     d3.select(".pctList").style({"color": "white", "font-weight": "normal"});
-    // console.log(currentLineage);
-    // //splits the current lineage by space so that I can highlight the proper lineage
-    // var linSplit = currentLineage.split(" ");
-    // //the lineage number is first element in split array; need to use it to select appropriate lineage by class to highlight in popup
-    // var linClass = linSplit[0];
-    // console.log(linClass);
-    //select current lineage in popup to highlight it
+
     var linHighlight = d3.select("." + currentLineage).style({"color": "#a60704", "font-weight": "bold"});
 };
 
