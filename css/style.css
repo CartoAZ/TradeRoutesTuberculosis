@@ -59,7 +59,6 @@ body {
 		stroke: #ef1f07;
 }
 
-
 /*trade hubs*/
 
 .tradeHubs {
@@ -86,27 +85,29 @@ g .tradeRoutes {
 }
 
 .route_checkbox,
-.un_checkbox {
+.un_checkbox,
+.linFreq_radio,
+.hub_checkbox {
 		cursor: pointer;
 }
 
-#minorLand {
+path#minorLand {
 	stroke: #226b1d;
 	fill: none;
 }
 
-#majorLand {
+path#majorLand {
 	stroke: #226b1d;
 	fill: none;
 	stroke-width: 2px;
 }
 
-#majorSea {
+path#majorSea {
 		stroke: #48a3e0;
 		fill: none;
 		stroke-width: 2px;
 }
-#minorSea {
+path#minorSea {
 		stroke: #48a3e0;
 		fill: none;
 }
@@ -194,7 +195,7 @@ ul {
 }
 
 #legendContainer {
-    height: 300px;
+    height: 80%;
 		width: 20%;
     border:2px solid #000;
     overflow-y: scroll;
@@ -207,7 +208,7 @@ ul {
 }
 
 #legendSvg {
-	height: 720px;
+	height: 1420px;
 	width: 100%
 }
 
@@ -230,10 +231,15 @@ ul {
     font-size: 12px;
     fill: #555;
 }
+
+#legendIsolateTitle {
+		text-align: center;
+}
+
 .legendSubHead {
 		text-align: center;
 }
-.unRegionTitle {
+.legendGroupTitle {
 		font-size: 0.8em;
 }
 
@@ -331,7 +337,6 @@ option {
 
 .infolabel {
 	position: absolute;
-	height: 150px;
 	min-width: 100px;
 	color: #fff;
 	border: solid thin #fff;
